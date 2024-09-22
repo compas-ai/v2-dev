@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'compasaiv2_app',
     'django.contrib.sites',
-    'social_django',
     'channels',
     'allauth',
     'allauth.account',
