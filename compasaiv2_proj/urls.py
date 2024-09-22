@@ -13,7 +13,6 @@ def redirect_to_google_signup(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('compasaiv2_app.urls')),
-    path('auth/', include('social_django.urls', namespace='social')),
     path('accounts/', include('allauth.urls')), 
     path('logout', LogoutView.as_view()) 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
