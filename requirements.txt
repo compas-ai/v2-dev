@@ -64,9 +64,6 @@ pycparser==2.21
 pydantic==2.6.1
 pydantic_core==2.16.2
 pydub==0.25.1
-PyJWT==2.9.0
-pyobjc==10.3.1
-pyobjc-core==10.3.1
 pyOpenSSL==24.0.0
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
