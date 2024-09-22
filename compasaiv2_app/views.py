@@ -165,6 +165,10 @@ def profile(request, username):
 
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     if user_profile == profile:
         is_profile= True
     context = {
@@ -177,7 +181,8 @@ def profile(request, username):
       
         "experiences": experience,
         "education": education,
-        "is_profile": is_profile
+        "is_profile": is_profile,
+        "active_path": active_path
     }
     return render(request, 'profile_about.html', context)
 
@@ -189,12 +194,17 @@ def profile_projects(request, username):
     is_profile = False
     user_profile = Profile.objects.get(username=username)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     if user_profile == profile:
         is_profile= True
     context = {
         "profile": profile,
         "user_profile": user_profile,
-        "is_profile": is_profile
+        "is_profile": is_profile,
+        "active_path": active_path
 
     }
     return render(request, 'profile_projects.html', context)
@@ -224,7 +234,9 @@ def profile_skills(request, username):
     is_profile = False
     user_profile = Profile.objects.get(username=username)
 
-
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
     if user_profile == profile:
         is_profile= True
@@ -232,7 +244,8 @@ def profile_skills(request, username):
         "profile": profile,
         "user_profile": user_profile,
         "is_profile": is_profile,
-        "skills": skills
+        "skills": skills,
+        "active_path": active_path
 
     }
    
@@ -262,6 +275,12 @@ def profile_paths(request, username):
 
     if user_profile == profile:
         is_profile= True
+
+    
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     
     context = {
         "profile": profile,
@@ -269,6 +288,7 @@ def profile_paths(request, username):
         "recommended_paths": recommended_paths,
         "selected_paths": selected_paths,
         "is_profile": is_profile,
+        "active_path": active_path
     }
     return render(request, 'profile_paths.html', context)
 
@@ -286,13 +306,19 @@ def profile_paths_view(request, username, skill):
         skill_item = Skill.objects.get(name=skill)
         my_skill = MyProfileSkill.objects.get(user_profile=profile, suggested_skill=skill_item)
 
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
+
         if user_profile == profile:
             is_profile= True
         context = {
             "profile": profile,
             "user_profile": user_profile,
             "is_profile": is_profile,
-            "skill": my_skill
+            "skill": my_skill,
+            "active_path": active_path
         }
         return render(request, 'path-overlay.html', context)
     else:
@@ -305,6 +331,12 @@ def profile_paths_view(request, username, skill):
         skill_item = Skill.objects.get(name=skill)
         my_skill = MyProfileSkill.objects.get(user_profile=profile, suggested_skill=skill_item)
         my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('ranking')
+
+
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
         if user_profile == profile:
             is_profile= True
         context = {
@@ -313,6 +345,7 @@ def profile_paths_view(request, username, skill):
             "is_profile": is_profile,
             "skill": my_skill,
             "my_skills": my_skills,
+            "active_path": active_path
         }
         return render(request, 'path-overlay-direct.html', context)
 
@@ -571,6 +604,12 @@ def profile_edit_bio(request, username):
     user_profile = Profile.objects.get(username=username)
     profile_type = "BIO"
 
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
+
     if user_profile == profile:
         is_profile = True
     else:
@@ -581,7 +620,8 @@ def profile_edit_bio(request, username):
         "user_profile": user_profile,
         "my_skills": my_skills,
         "is_profile": is_profile,
-        "profile_type": profile_type
+        "profile_type": profile_type,
+        "active_path": active_path
     }
     if request.method == 'GET':
         return render(request, 'profile_edit_direct.html', context)
@@ -606,6 +646,11 @@ def profile_edit_skills(request, username):
     else:
         return redirect('index')
     
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
+    
     context = {
         "profile": profile,
         "user_profile": user_profile,
@@ -613,7 +658,8 @@ def profile_edit_skills(request, username):
         "is_profile": is_profile,
         "profile_type": profile_type,
         "soft_skills": soft_skills,
-        "strengths": strengths
+        "strengths": strengths,
+        "active_path": active_path
 
     }
     if request.method == 'GET':
@@ -632,6 +678,12 @@ def profile_edit_links(request, username):
     is_profile = False
     user_profile = Profile.objects.get(username=username)
 
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
+
     if user_profile == profile:
         is_profile = True
     else:
@@ -644,7 +696,8 @@ def profile_edit_links(request, username):
         "user_profile": user_profile,
         "my_skills": my_skills,
         "is_profile": is_profile,
-        "profile_type": profile_type
+        "profile_type": profile_type,
+        "active_path": active_path
     }
     if request.method == 'GET':
         return render(request, 'profile_edit_direct.html', context)
@@ -657,6 +710,12 @@ def profile_edit_education(request, username):
             return redirect('signup')
     profile = Profile.objects.get(user=request.user)
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('ranking')
+
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
 
     is_profile = False
     user_profile = Profile.objects.get(username=username)
@@ -675,7 +734,8 @@ def profile_edit_education(request, username):
         "my_skills": my_skills,
         "is_profile": is_profile,
         "profile_type": profile_type,
-        "education": profile.education
+        "education": profile.education,
+        "active_path": active_path
     }
     if request.method == 'GET':
         return render(request, 'profile_edit_direct.html', context)
@@ -688,6 +748,12 @@ def profile_edit_experience(request, username):
             return redirect('signup')
     profile = Profile.objects.get(user=request.user)
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('ranking')
+
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
 
     is_profile = False
     user_profile = Profile.objects.get(username=username)
@@ -705,7 +771,8 @@ def profile_edit_experience(request, username):
         "my_skills": my_skills,
         "is_profile": is_profile,
         "profile_type": profile_type,
-        "experiences": profile.experience
+        "experiences": profile.experience,
+        "active_path": active_path
     }
     if request.method == 'GET':
         return render(request, 'profile_edit_direct.html', context)
@@ -718,6 +785,12 @@ def profile_edit_settings(request, username):
             return redirect('signup')
     profile = Profile.objects.get(user=request.user)
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('ranking')
+
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
 
     is_profile = False
     user_profile = Profile.objects.get(username=username)
@@ -734,7 +807,8 @@ def profile_edit_settings(request, username):
         "user_profile": user_profile,
         "my_skills": my_skills,
         "is_profile": is_profile,
-        "profile_type": profile_type
+        "profile_type": profile_type,
+        "active_path": active_path
     }
     return render(request, 'profile_edit.html', context)
 
@@ -1383,10 +1457,15 @@ def connect(request):
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
     peers = Profile.objects.filter(user_type='learner').exclude(id=profile.id)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "profile": profile,
         "mentors":  mentors,
-        "peers": peers
+        "peers": peers,
+        "active_path": active_path
     }
     return render(request, 'connect_mentors.html', context)
 
@@ -1398,10 +1477,17 @@ def connect_peers(request):
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
     peers = Profile.objects.filter(user_type='learner').exclude(id=profile.id)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
+    
+
     context = {
         "profile": profile,
-      "mentors":  mentors,
-        "peers": peers
+        "mentors":  mentors,
+        "peers": peers,
+        "active_path": active_path
     }
     return render(request, 'connect_peers.html', context)
 
@@ -1413,10 +1499,15 @@ def connect_mentors(request):
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
     peers = Profile.objects.filter(user_type='learner').exclude(id=profile.id)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "profile": profile,
         "mentors":  mentors,
-        "peers": peers
+        "peers": peers,
+        "active_path": active_path
     }
     return render(request, 'connect_mentors.html', context)
 
@@ -1576,17 +1667,25 @@ def book_session(request, username):
         unavailable_time = ['08:00 AM', '09:00 AM', '05:00 PM']
         time_slots = get_time_slots()
 
+        
+
         available_times = [time for time in time_slots if time not in unavailable_time]
         is_profile = False
 
         if user_profile == profile:
             is_profile= True
+
+
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
         context = {
             "profile": profile,
             "user_profile": user_profile,
             "is_profile": is_profile,
             "mentors":  mentors,
-            "peers": peers
+            "peers": peers,
+            "active_path": active_path
         }
         return render(request, 'book_session.html', context)
     else:
@@ -1599,6 +1698,10 @@ def book_session(request, username):
         available_times = [time for time in time_slots if time not in unavailable_time]
         is_profile = False
 
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
         if user_profile == profile:
             is_profile= True
         context = {
@@ -1607,6 +1710,7 @@ def book_session(request, username):
             "is_profile": is_profile,
             "mentors":  mentors,
             "peers": peers,
+            "active_path": active_path,
             "available_times": available_times
         }
         return render(request, 'book_session_direct.html', context)
@@ -1618,11 +1722,15 @@ def path(request):
     profile = Profile.objects.get(user=request.user)
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('-active','ranking')
     skills = Skill.objects.exclude(id__in=Subquery(my_skills.values('suggested_skill')))
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
     context = {
         "profile": profile,
         "my_skills": my_skills,
         "skills": skills,
+        "active_path": active_path
        
     }
     return render(request, 'path.html', context)
@@ -1633,6 +1741,10 @@ def path_detail(request, skill_name):
         return redirect('signup')
     profile = Profile.objects.get(user=request.user)
     skill = Skill.objects.get(value=skill_name)
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
     if  MyProfileSkill.objects.filter(suggested_skill=skill, user_profile=profile).exists():
         path = MyProfileSkill.objects.get(suggested_skill=skill, user_profile=profile)
@@ -1649,7 +1761,8 @@ def path_detail(request, skill_name):
         "my_skills": my_skills,
         "skills": skills,
         "skill": skill,
-        "peers": peers
+        "peers": peers,
+        "active_path": active_path
     }
     return render(request, 'path_detail-about.html', context)
 
@@ -1664,11 +1777,16 @@ def path_courses(request, skill_name):
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('ranking')
     skills = Skill.objects.all()[:12]
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "path": path,
         "profile": profile,
         "my_skills": my_skills,
-        "skills": skills
+        "skills": skills,
+        "active_path": active_path
     }
     return render(request, 'path_detail-courses.html', context)
 
@@ -1683,12 +1801,17 @@ def path_mentors(request, skill_name):
     skills = Skill.objects.all()[:12]
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "path": path,
         "profile": profile,
         "my_skills": my_skills,
         "skills": skills,
-        "mentors": mentors
+        "mentors": mentors,
+        "active_path": active_path
     }
     return render(request, 'path_detail-mentors.html', context)
 @csrf_exempt
@@ -1701,11 +1824,16 @@ def path_projects(request, skill_name):
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('ranking')
     skills = Skill.objects.all()[:12]
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "path": path,
         "profile": profile,
         "my_skills": my_skills,
-        "skills": skills
+        "skills": skills,
+        "active_path": active_path
     }
     return render(request, 'path_detail-projects.html', context)
 
@@ -1716,10 +1844,15 @@ def all_messages(request):
     if request.method == 'POST':
         profile = Profile.objects.get(user=request.user)
         message_status = 'All'
+
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
             
         context = {
                 "profile": profile,
-                "message_status": message_status
+                "message_status": message_status,
+                 "active_path": active_path
             }
         return render(request, 'all_messages.html', context)
     else:
@@ -1730,10 +1863,16 @@ def all_messages(request):
 def archive_message(request, username):
     if request.user.is_authenticated == False:
         return redirect('signup')
+
+    profile = Profile.objects.get(user=request.user)
     try:
-        profile = Profile.objects.get(user=request.user)
+        
         user_profile = Profile.objects.get(username=username)
         is_group = request.POST.get('is_group', '')
+
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
         if is_group == "True":
             group = Group.objects.get(username=username)
@@ -1749,10 +1888,13 @@ def archive_message(request, username):
                 conver.save()
                 message_status = 'Archive'
                 print("removed archived")
+
+
                 context = {
                     "profile": profile,
                     "message_status": message_status,
-                    "is_group": is_group,
+                    "is_group": is_group, 
+                    "active_path": active_path
                 }
                 return render(request, 'archived.html', context)
             else:
@@ -1764,15 +1906,20 @@ def archive_message(request, username):
                     "profile": profile,
                     "message_status": message_status,
                     "is_group": is_group,
+                     "active_path": active_path
                 }
                 return render(request, 'all_messages.html', context)
         
     except Exception as e:
         print(e)
         message_status = 'All'
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
         context = {
             "profile": profile,
-            "message_status": message_status
+            "message_status": message_status,
+             "active_path": active_path
         }
         return render(request, 'all_messages.html', context)
 
@@ -1792,6 +1939,8 @@ def clear_unread(request):
                 user_profile = Profile.objects.get(username=username)
                 conversation = get_conversation(profile, user_profile)
             chat_messages = conversation.messages.all().order_by('-timestamp')
+
+
            
             for message in chat_messages:
                 if message.read == False:
@@ -1826,10 +1975,15 @@ def delete_message(request, username):
             messages = conver.messages.all()
             messages.delete()
             message_status = 'All'
+
+            active_path = None
+            if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+                active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
             context = {
                 "profile": profile,
                 "message_status": message_status,
                 "is_group": is_group,
+                "active_path": active_path
             }
             return render(request, 'all_messages.html', context)
         
@@ -1856,6 +2010,8 @@ def add_participant(request, group, username):
         participant = Profile.objects.get(username=username)
         convo.participants.add(profile)
         
+
+
         event =  {
             "action": "add",
             "user_1": profile.display_name,
@@ -1941,10 +2097,15 @@ def archived(request):
     if request.method == 'POST':
         profile = Profile.objects.get(user=request.user)
         message_status = 'Archive'
+
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
             
         context = {
                 "profile": profile,
-                "message_status": message_status
+                "message_status": message_status,
+                "active_path": active_path
             }
         return render(request, 'archived.html', context)
     else:
@@ -1959,12 +2120,17 @@ def messaging(request):
     ai_username = "compasai"
     aiprofile = Profile.objects.get(username=ai_username)
     user_profile = None
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
     
     context = {
         "profile": profile,
         "messages": message_item,
         "aiprofile": aiprofile,
-        "user_profile": user_profile
+        "user_profile": user_profile,
+        "active_path": active_path
     }
     return render(request, 'messages.html', context)
 
@@ -2077,6 +2243,10 @@ def message(request, username):
             today = datetime.now().date()
             yesterday = today - timedelta(days=1)
 
+            active_path = None
+            if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+                active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
             # Count unread messages
             unread_messages = 0
             first_message = 0
@@ -2106,7 +2276,8 @@ def message(request, username):
                 "combined": combined,
                 "is_office": is_office,
                 "in_session": in_session,
-                "conversation": conversation
+                "conversation": conversation,
+                "active_path": active_path
             }
             return render(request, 'message_detail.html', context)
    
@@ -2124,6 +2295,10 @@ def message(request, username):
             is_group = "False"
             is_office = False
             in_session = False
+
+            active_path = None
+            if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+                active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
             
             try:
                 user_profile = Profile.objects.get(username=username)
@@ -2182,6 +2357,10 @@ def message(request, username):
                             first_message = message.pk
                         unread_messages += 1
             print("done tooo")
+            active_path = None
+            if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+                active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
             context = {
                 "profile": profile,
                 "messages": message_item,
@@ -2201,7 +2380,8 @@ def message(request, username):
                 "combined": combined,
                 "is_office": is_office,
                 "in_session": in_session,
-                "conversation": conversation
+                "conversation": conversation,
+                "active_path": active_path
             }
             return render(request, 'message_detail_direct.html', context)
     except Exception as e:
@@ -2212,12 +2392,16 @@ def message(request, username):
         aiprofile = Profile.objects.get(username=ai_username)
         user_profile = None
 
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
         context = {
             "profile": profile,
             "messages": message_item,
             "aiprofile": aiprofile,
-            "user_profile": user_profile
+            "user_profile": user_profile,
+            "active_path": active_path
         }
         return render(request, 'messages.html', context)
 
@@ -2354,13 +2538,16 @@ def community(request):
     community = Community.objects.get(name=path.suggested_skill)
 
     groups = Group.objects.filter(path=path.suggested_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
-    
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
     context = {
         "profile": profile,
         "community": community,
         'request': request,
         "groups": groups,
-        "office_groups": office_groups
+        "office_groups": office_groups,
+        "active_path": active_path
 
     }
     return render(request, 'community.html', context)
@@ -2519,9 +2706,14 @@ def course_detail(request):
     if request.user.is_authenticated == False:
         return redirect('signup')
     profile = Profile.objects.get(user=request.user)
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
     
     context = {
         "profile": profile,
+        "active_path": active_path
     }
     return render(request, 'course_detail.html', context)
 
@@ -2541,10 +2733,16 @@ def project(request):
             path = None
             projects = []
     
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "profile": profile,
         "my_projects": my_projects,
         "other_projects": other_projects,
+        "active_path": active_path,
         "path": path
     }
     return render(request, 'project.html', context)
@@ -2748,13 +2946,18 @@ def project_detail(request, project_id):
         other_submission =  project.submissions.all()
     except:
         other_submission = None
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
     
     context = {
         "profile": profile,
         "project": project,
         "tasks": tasks,
         "my_submission": my_submission,
-        "other_submissions": other_submission
+        "other_submissions": other_submission,
+        "active_path": active_path
     }
     return render(request, 'project_detail.html', context)
 
@@ -2773,9 +2976,14 @@ def project_add(request):
     if request.user.is_authenticated == False:
         return redirect('signup')
     profile = Profile.objects.get(user=request.user)
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
     
     context = {
         "profile": profile,
+        "active_path": active_path
     }
     return render(request, 'project_add_overlay.html', context)
 
@@ -2786,8 +2994,13 @@ def project_edit(request, project_id):
     profile = Profile.objects.get(user=request.user)
     project = Project.objects.get(id=project_id)
 
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
     context = {
         "profile": profile,
+        "active_path": active_path
     }
     return render(request, 'project_edit_overlay.html', context)
     
@@ -2819,12 +3032,18 @@ def roadmap_detail(request, id):
             # Check if the section's id matches the given section_id
             if section.get('id') == id:
                 item = section
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
    
     context = {
         "profile": profile,
         "roadmap": roadmap_data,
         "item": item,
-        "path": path
+        "path": path,
+        "active_path": active_path
+
     }
     return render(request, 'roadmap_detail.html', context)
 
@@ -2845,9 +3064,15 @@ def roadmap(request):
     start_date = roadmap_data[0]['startdate']
     print(start_date)
     roadmap_weeks = get_weeks_dates(roadmap_duration, start_date)
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)  
+
     context = {
         "profile": profile,
         "roadmap_weeks": roadmap_weeks,
+        "active_path": active_path,
         "roadmap": roadmap_data
     }
     return render(request, 'roadmap.html', context)
