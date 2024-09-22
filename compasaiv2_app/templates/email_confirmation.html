@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation</title>
+    <style>
+        body {
+           
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            
+        }
+
+      
+        .body {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .body h1 {
+            color: #03DDC2;
+        }
+        .body a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #03DDC2;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            background-color: #03DDC2;
+            padding: 1rem;
+            text-align: center;
+        }
+        .footer__bottom {
+            color: white;
+            
+            margin-top: 2rem;
+            font-size: x-small;
+            text-align: center;
+        }
+
+        .footer__bottom h3 {
+            font-size: x-large;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="body">
+            <h1>You are one step closer!</h1>
+            <p>Hi {{ profile.display_name }},</p>
+            <p>Welcome to Compas AI! We're thrilled to have you join our community.</p>
+            <p>Please click on the button below to confirm your registration:</p>
+            <a href="{{ activate_url }}">Verify Email</a>
+            <p>If you didn't request this, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+            <div class="footer__bottom">
+                <h3>Guiding your Tech Journey.</h3>
+                <div class="footer__copyright">
+                    &#169; Compas AI 2024. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
+   
+</body>
+</html>

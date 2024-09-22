@@ -1,0 +1,54 @@
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" href="https://imagedelivery.net/W7_IcUT9_3PcFAN-R--Q-Q/6c9bde16-8351-4956-1a4d-8b84d12ee100/public" type="image/x-icon">
+    <!--=============== BOXICONS ===============-->
+    <link
+        href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+        rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+     <!-- =============== SWIPER CSS LINK =================== -->
+     <link
+     rel="stylesheet"
+     href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+   />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.0/main.min.css">
+   <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   <script src="https://unpkg.com/htmx.org@2.0.1" integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/" crossorigin="anonymous"></script>
+    <!-- Include the emoji-picker-element library -->
+ <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@latest/index.js"></script>
+ <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+</head>
+<body id="body">
+    {% block base-content %} {% endblock %}
+</body>
+</html>
+
+<script>
+    function updateVh() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    window.addEventListener('resize', updateVh);
+    window.addEventListener('orientationchange', updateVh);
+
+    // Initial call to set the value on load
+    updateVh();
+
+</script>
+
+
+{% endblock content %}

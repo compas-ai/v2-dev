@@ -1,0 +1,88 @@
+
+{% load static %}
+
+<div class="profile-paths-overlay" id="remove_overlay">
+    <div class="profile-paths-overlay-container">
+        <div class="profile-paths-overlay-container-nav"
+            hx-post="{% url 'remove_overlay' profile.username%}"
+            hx-trigger="click"
+            hx-target="#remove_overlay"
+            hx-swap = "innerHTML"
+            hx-push-url="true">
+            <i class='bx bx-left-arrow-alt' ></i>
+            <span >Back</span>
+        </div>
+        <div class="profile-paths-overlay-container-video">
+            <video src="{% static 'videos/demo.mp4' %}" controls></video>
+        </div>
+        <div class="profile-paths-overlay-container-body">
+            <div class="profile-paths-overlay-container-info">
+                <span class="profile-paths-overlay-container-info-title">
+                    {{skill.suggested_skill.name }}
+                </span>
+                <span class="profile-paths-overlay-container-info-description">
+                    {{skill.reason }}
+                </span>
+                <span class="profile-paths-overlay-container-info-btns">
+                    <span class="profile-paths-overlay-container-info-btn-enrol"
+                        hx-post="{% url 'enrol_path_loader' profile.username skill.suggested_skill.value %}"
+                        hx-trigger="click"
+                        hx-target="#body"
+                        hx-swap = "outerHTML"
+                        >
+                        Enroll now
+                    </span>
+                    <a href="{% url 'path_detail' skill.suggested_skill.value %}" class="profile-paths-overlay-container-info-btn-roadmap">
+                        View Path
+                    </a>
+                </span>
+            </div>
+            <div class="profile-paths-overlay-container-description">
+                <span class="profile-paths-overlay-container-description-title">
+                    Path Description
+                </span>
+                <span class="profile-paths-overlay-container-description-body">
+                    In today's digital landscape, Product design has become a crucial component of any successful product or service. UX design aims to create visually appealing, easy-to-use, and enjoyable products that meet the needs and preferences of users. As the demand for UX designers continues to grow, understanding the principles and deliverables of this field can help aspiring designers build the skills
+                    
+                </span>
+            </div>
+            <div class="profile-paths-overlay-container-description">
+                <span class="profile-paths-overlay-container-description-title">
+                    What you will learn from this path
+                </span>
+                <span class="profile-paths-overlay-container-description-body">
+                    <div class="profile-paths-overlay-container-description-body-item">
+                        <span class="profile-paths-overlay-container-description-body-subtitle">
+                            Learn core UX design concepts 
+                        </span>
+                        <span class="profile-paths-overlay-container-description-body-content">
+                            Gain a comprehensive understanding of key UX design principles and deliverables necessary to build useful, functional, delightful, and intuitive interfaces.
+                        </span>
+                    </div>
+                    <div class="profile-paths-overlay-container-description-body-item">
+                        <span class="profile-paths-overlay-container-description-body-subtitle">
+                            Real-world practical tips 
+                        </span>
+                        <span class="profile-paths-overlay-container-description-body-content">
+                            Learn practical tips and strategies for responsive layouts, user flows, UX copy, user research, and UI design concepts
+                        </span>
+                    </div>
+                    <div class="profile-paths-overlay-container-description-body-item">
+                        <span class="profile-paths-overlay-container-description-body-subtitle">
+                            Design job roles and responsibilities
+                        </span>
+                        <span class="profile-paths-overlay-container-description-body-content">
+                            Learn about different job roles in design, like UX, UI, interaction, and visual design, and their responsibilities. Identify your strengths and interests to choose the right.
+                        </span>
+                    </div>
+                   
+                    
+                    
+                    
+                    
+                </span>
+            </div>
+        </div>
+       
+    </div>
+</div>

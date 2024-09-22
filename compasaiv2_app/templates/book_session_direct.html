@@ -1,0 +1,213 @@
+{% extends 'connect_mentors.html' %}
+{% load static %}
+{% block connect-overlay %}
+<div class="book-a-session__section" id="book_overlay_direct">
+    <div class="book-a-session__section-container">
+        <div class="book-a-session__section-container-header">
+            <span class="book-a-session__section-container-header-nav" onclick="removeOverlayAndChangeURL('null', 'back')"
+            >
+                    <i class='bx bx-left-arrow-alt'></i> Back
+            </span>
+        </div>
+        <div class="book-a-session__section-container-body">
+            <span class="book-a-session__section-container-body-title">
+                Session Details
+            </span>
+            <a href="{% url 'profile' user_profile.username %}" class="book-a-session__section-container-body-profile">
+              <div class="book-a-session__section-container-body-img">
+                {% if user_profile.profile_picture %}
+                <img src="{{ user_profile.profile_picture.url }}" alt="">
+                {% else %}
+                <img  src="{% static 'images/ava.png'%}" alt="">
+                {% endif %}
+                  <span class="active-indicator"></span>
+              </div>
+              <div class="book-a-session__section-container-body-profile-info">
+                  <span class="book-a-session__section-container-body-profile-info-role">
+                      {{user_profile.display_name}}
+                  </span>
+                  <span class="book-a-session__section-container-body-profile-info-bio">
+                      {{user_profile.bio}}
+                  </span>
+              </div>
+            </a>
+            <div class="book-a-session__section-container-body-info">
+                <div class="book-a-session__section-container-body-info-header">
+                    <span>
+                        Select a session
+                    </span>
+                </div>
+                <div class="book-a-session__section-container-body-info-body">
+                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
+                        <span class="book-a-session__section-container-body-info-item-icon">
+                            <i class='bx bx-coffee'></i>
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-title">
+                            Coffee Chat
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            A causual chat with mentor, anything.
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            30 Minutes | One Time
+                        </span>
+                    </div>
+                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="office_hours" data-mentor="{{user_profile.username}}">
+                        <span class="book-a-session__section-container-body-info-item-icon">
+                            <i class='bx bxs-buildings' ></i>
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-title">
+                            Office Hours
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            Workshop with mentor and peers.
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            2 hours | Repeat
+                        </span>
+                    </div>
+                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="speed_networking" data-mentor="{{user_profile.username}}">
+                        <span class="book-a-session__section-container-body-info-item-icon">
+                            <i class='bx bx-bolt-circle'></i>
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-title">
+                            Speed Networking
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            Spend your time Networking
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            1 hour | One Time
+                        </span>
+                    </div>
+                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="mock_interview" data-mentor="{{user_profile.username}}">
+                        <span class="book-a-session__section-container-body-info-item-icon">
+                            <i class='bx bxs-microphone-alt' ></i>
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-title">
+                            Mock Interview
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            Run practice interviews with mentor.
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            2 hours | One Time
+                        </span>
+                    </div>
+                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="check_ins" data-mentor="{{user_profile.username}}">
+                        <span class="book-a-session__section-container-body-info-item-icon">
+                            <i class='bx bx-list-check' ></i>
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-title">
+                            Check Ins
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            Continuous accountability sessions.
+                        </span>
+                        <span class="book-a-session__section-container-body-info-item-subtitle">
+                            2 hours | Repeat
+                        </span>
+                    </div>
+                </div>
+                <div class="calendar__section-header-noslot">
+                    <span>
+                        No Booking Slot Available
+                    </span>
+                    
+                </div>
+               
+              <div id="calendar" class="calendar__section">
+                <div class="calendar__section-header">
+                    <span class="calendar__section-header-title">
+                        Select date and time
+                    </span>
+                    <span class="calendar__section-header-subtitle">
+                        In your local timezone (Africa/Lagos)
+                    </span>
+                    
+                </div>
+                <div class="calendar__section-body">
+                    <div class="calendar__section-body-left">
+                        <header>
+                            <p class="current-date"></p>
+                            <div class="icons">
+                                <span id="prev" class="material-symbols-rounded"><i class='bx bx-chevron-left'></i></span>
+                                <span id="next" class="material-symbols-rounded"><i class='bx bx-chevron-right' ></i></span>
+                            </div>
+                            </header>
+                            <div class="calendar">
+                            <ul class="weeks">
+                                <li>Sun</li>
+                                <li>Mon</li>
+                                <li>Tue</li>
+                                <li>Wed</li>
+                                <li>Thu</li>
+                                <li>Fri</li>
+                                <li>Sat</li>
+                            </ul>
+                            <ul class="days"></ul>
+                            </div>
+                    </div>
+                    <div class="calendar__section-body-right">
+                        <div class="calendar__section-body-right-header">
+
+                        </div>
+                        <div class="calendar__section-body-time-items">
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="calendar__section-btn disabled" onclick="goToNote()">
+                    <span>
+                        Continue
+                    </span>
+                </div>
+              </div>
+
+              <div class="note__section" id="note">
+                <div class="note__section-header">
+                    <div class="note__section-header-title">
+                        <span>
+                            Booking Details
+                        </span>
+                    </div>
+                    <div class="note__section-header-info">
+                        <div class="note__section-header-info-item">
+                            <i class='bx bx-calendar' ></i>
+                            <span id="booking_info_date">
+                                Thur, Aug 02
+                            </span>
+                        </div>
+                        <div class="note__section-header-info-item">
+                            <i class='bx bx-time-five' ></i>
+                            <span id="booking_info_time">
+                                3:00 PM
+                            </span>
+                        </div>
+
+                        <div class="note__section-header-info-item">
+                            <span class="booking_info_change" id="booking_info_change" onclick="changeBooking()">
+                                Change
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="note__section-body">
+                    <label for="booking__note">Add your question to this booking (Optional)</label>
+                    <textarea name="" id="booking__note" placeholder="Write out your question"></textarea>
+                </div>
+                <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}">
+                    <span>
+                        Confirm Booking
+                    </span>
+                </div>
+              </div>
+                
+           
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock%}

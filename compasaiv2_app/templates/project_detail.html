@@ -1,0 +1,1516 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="community__section">
+  <div class="community__section-left">
+      <span class="return_btn" onclick="toggleContainer()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      Return
+      </span>
+      <div class="community__section-left-header-container">
+        <div class="community__section-left-header">
+            <span>
+              Participants
+            </span>
+        </div>
+        <div class="community__section-left-body">
+          {% for part in project.participants.all %}
+          <a href="{% url 'profile' part.username %}" class="community__section-left-body-item">
+            <div class="community__section-left-body-item-img">
+              {% if part.profile_picture %}
+              <img  src="{{ part.profile_picture.url }}" alt="">
+              {% else %}
+              <img  src="{% static 'images/ava.png'%}" alt="">
+              {% endif %}
+            </div>
+            <span class="community__section-left-body-item-name">
+                {{part.display_name}} <br> {% if project.owner == profile %}(Owner){% endif%}
+            </span>
+          </a>
+        {% endfor %}
+           
+        </div>
+      </div>
+      <div class="community__section-left-header-container">
+            <div class="community__section-left-header">
+                <span>
+                Scenario
+                </span>
+                
+            
+            </div>
+            <div class="community__section-left-body-container project-info-container">
+                <span>
+                    {{project.scenario}}
+                </span>
+            </div>
+      </div>
+      <div class="community__section-left-header-container">
+            <div class="community__section-left-header">
+                <span>
+                Task
+                </span>
+            
+            </div>
+            <div class="community__section-left-body-container project-info-container">
+                <span>
+                    Your task is to complete the following: 
+                    <ol>
+                        {% for task in tasks %}
+                          <li>{{task}}.</li>
+                        {% endfor %}
+            
+                    </ol>
+                      
+                </span>
+            </div>
+      </div>
+      <div class="community__section-left-header-container">
+        <div class="community__section-left-header">
+            <span>
+            Instructions
+            </span>
+        
+        </div>
+        <div class="community__section-left-body-container project-info-container">
+            <span>
+                Read the instructions to ensure your submission receives maximimum visibility
+                <ol>
+                    <li>You can edit your project at any time</li>
+                    <li>Remember to share your submission with your community.</li>
+                    <li>The more reviews and views it receives, the quicker it will be seen by Uxcel Mentors.</li>
+                    <li>After submitting your project, consider reviewing others' projects. This can enhance your project's discoverability.</li>
+                    <li>Ensure you only submit your own work.</li>
+                </ol>
+            </span>
+        </div>
+      </div>
+  </div>
+  <div class="community__section-right">
+      <div class="community__section-right-header">
+        <div class="community__section-right-header-pictures">
+            <span class="community__section-right-header-pictures-cover">
+              <span class="community__section-right-header-settings" onclick="toggleContainer()">
+                    <i class='bx bx-detail' ></i>
+                  </span>
+            </span>
+
+            <span class="community__section-right-header-pictures-dp">
+                <span class="community__section-right-header-pictures-dp-container">
+                  {% if project.image %}
+                    <img  src="{{ project.image.url }}" alt="">
+                  {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                  {% endif %} 
+                </span>
+            </span>
+        </div>
+        <div class="community__section-right-header-info">
+            <span class="community__section-right-header-info-name">
+                {{project.title}}
+            </span>
+                
+            <span class="community__section-right-header-info-numbers">
+                <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M11.3337 14V12.6667C11.3337 11.9594 11.0527 11.2811 10.5526 10.781C10.0525 10.281 9.37424 10 8.66699 10H3.33366C2.62641 10 1.94814 10.281 1.44804 10.781C0.947944 11.2811 0.666992 11.9594 0.666992 12.6667V14M15.3337 14V12.6667C15.3332 12.0758 15.1366 11.5018 14.7746 11.0349C14.4126 10.5679 13.9057 10.2344 13.3337 10.0867M10.667 2.08667C11.2406 2.23353 11.749 2.56713 12.1121 3.03487C12.4752 3.50261 12.6722 4.07789 12.6722 4.67C12.6722 5.26211 12.4752 5.83739 12.1121 6.30513C11.749 6.77287 11.2406 7.10647 10.667 7.25333M8.66699 4.66667C8.66699 6.13943 7.47308 7.33333 6.00033 7.33333C4.52757 7.33333 3.33366 6.13943 3.33366 4.66667C3.33366 3.19391 4.52757 2 6.00033 2C7.47308 2 8.66699 3.19391 8.66699 4.66667Z" stroke="#4F4F2A" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg></span>
+                <span>{{project.participants.count}} members</span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M6.6665 1.66797V4.16797" stroke="#4F4F2A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.3335 1.66797V4.16797" stroke="#4F4F2A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2.9165 7.57422H17.0832" stroke="#4F4F2A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.5 7.08464V14.168C17.5 16.668 16.25 18.3346 13.3333 18.3346H6.66667C3.75 18.3346 2.5 16.668 2.5 14.168V7.08464C2.5 4.58464 3.75 2.91797 6.66667 2.91797H13.3333C16.25 2.91797 17.5 4.58464 17.5 7.08464Z" stroke="#4F4F2A" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.0791 11.4167H13.0866" stroke="#4F4F2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.0791 13.9167H13.0866" stroke="#4F4F2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.99607 11.4167H10.0036" stroke="#4F4F2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.99607 13.9167H10.0036" stroke="#4F4F2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.91209 11.4167H6.91957" stroke="#4F4F2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.91209 13.9167H6.91957" stroke="#4F4F2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                </span>
+                  <span>{{project.duration}} weeks</span>
+            </span>
+            <span class="profile__section-header-info-btns">
+                {% if profile not in project.participants.all %}
+                <span class="profile__section-header-info-btn-follow join-project" id="joinproject">
+                    <span  
+                    hx-post="{% url 'joinproject' project.id %}" 
+                    hx-trigger="click"
+                    
+                    hx-target="#joinproject"
+                    hx-push-url="false"
+                    hx-swap="outerHTML">
+                        Join Project
+                    </span>
+                </span>
+                {% elif other_submissions %}
+                  <span class="profile__section-header-info-btn-follow join-project">
+                    <span id="writeReview">
+                      Write a review
+                    </span>
+                </span>
+                {% elif my_submission == None %}
+                <span class="profile__section-header-info-btn-follow join-project">
+                  <span onclick="showCreateContainer()">
+                    Submit project
+                  </span>
+              </span>
+                {% endif %}
+                {% if project.owner == profile %}
+                <span class="profile__section-header-info-btn-message">
+                   
+                      <span  onclick="addOverlay()"
+                      >
+                            Edit Project
+                        </span>
+     
+                        
+                     
+                </span>
+                {% endif %}
+                
+            </span>
+        </div>
+      </div>
+      <div class="community__section-right-body">
+        {% if not my_submission %}
+          <div class="community__section-right-body-top" onclick="showCreateContainer()">
+            <div class="community__section-right-body-top-add-file-container">
+              <span class="community__section-right-body-top-add-file">
+                <i class='bx bx-plus' ></i>
+              </span>
+              
+            </div>
+            <div class="community__section-right-body-top-input">
+                <input type="text" placeholder="Make a submission">
+            </div>
+           
+          
+          </div>  
+        {% else %}
+        <div class="project__submission-header">
+          <span >
+            My Submission
+          </span>
+        </div>
+        
+            <div class="community__section-right-body-container-posts-item-container" data-id={{my_submission.id}}  id="mypost-{{my_submission.id}}">
+              <div class="community__section-right-body-container-posts-item" data-id={{my_submission.id}} >
+                <div class="community__section-right-body-container-posts-item-header">
+                    <div class="community__section-right-body-container-posts-item-header-info">
+                    
+                      <div class="community__section-right-body-container-posts-item-header-info-img">
+                        {% if my_submission.profile.profile_picture %}
+                        <img  src="{{ my_submission.profile.profile_picture.url }}" alt="">
+                        {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                        {% endif %}
+                          <div class="active-indicator"></div>
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-header-info-profile">
+                        <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                            {{my_submission.profile.display_name}}
+                        </span>
+                        <span class="community__section-right-body-container-posts-item-header-info-profile-title">
+                          {{my_submission.profile.bio}}
+                        </span>
+                        <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                          {{my_submission.get_time}}
+                      </span>
+                        
+                      </div>
+                    </div>
+                    <div class="community__section-right-body-container-posts-item-header-info-menu" onclick="showUpdateContainer()" id="">
+                        <i class='bx bx-message-square-edit project-update' ></i>
+                        
+                      
+                    </div>
+                </div>
+                <div class="community__section-right-body-container-posts-item-body">
+                    <div class="community__section-right-body-container-posts-item-body-text">
+                        <span class="community__section-right-body-container-posts-item-body-text-value">
+                        {{my_submission.post_text}}
+                        </span >
+                        <a href="{{my_submission.post_link}}" class="community__section-right-body-container-posts-item-body-text-value">
+                          {{my_submission.post_link}}
+                          </a>
+                    </div>
+                    {% if my_submission.images.all %}
+                        {% with my_submission.images.all|length as image_count %}
+                            <div class="community__section-right-body-container-posts-item-body-media {% if image_count == 1 %} single-image {% endif %}" data-id="{{ my_submission.id }}">
+                                {% for image in my_submission.images.all %}
+                                    {% if forloop.counter <= 4 %}
+                                        <div class="community__section-right-body-container-posts-item-body-media-item">
+                                            <img src="{{ image.image.url }}" alt="" class="image-preview" data-index="{{ forloop.counter0 }}">
+                                            {% if forloop.counter == 4 and my_submission.images.count > 4 %}
+                                                <div class="overlay" data-image-url="{{ image.image.url }}" data-id={{my_submission.id}}>
+                                                    +{{ my_submission.images.all.count|add:-4 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% else%}
+                                        <img src="{{ image.image.url }}" alt="" class="image-preview hide"  data-index="{{ forloop.counter0 }}">
+            
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endwith %}
+                    {% endif %}
+  
+  
+                  <div id="imageModal" class="image-modal">
+                    <span class="close">&times;</span>
+                    <img class="modal-content" id="modalImage">
+                    <div id="caption"></div>
+                    <div class="modal-btns">
+                      <a class="prev">&#10094;</a>
+                      <a class="next">&#10095;</a>
+                    </div>
+                  
+                </div>
+              </div>
+              <div class="community__section-right-body-container-posts-item-stats" data-id={{my_submission.id}}>
+                  <div class="community__section-right-body-container-posts-item-stats-item" id="view_reviews">
+                    <span>
+                      <i class='bx bxs-star-half' ></i>
+                    </span>
+                    <span id="review_info" class="review_info">
+                      {{my_submission.rating}} ({{my_submission.reviews.count}} reviews)
+                    </span>
+                  </div>
+              </div>
+              <div class="community__section-right-body-container-posts-item-comment" data-id={{my_submission.id}}>
+                
+               
+                <div class="community__section-right-body-container-posts-item-comment-stars">
+                    <span  class="star">★</span>
+                    <span  class="star">★</span>
+                    <span  class="star">★</span>
+                    <span  class="star">★</span>
+                    <span  class="star">★</span>
+                </div>
+                <div class="community__section-right-body-container-posts-item-comment-container">
+                  <span>
+                              
+                    <i class='bx bxs-smile'></i>
+                  
+                 
+                </span>
+                <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+                  <input type="text" placeholder="Write a review" id="feedback_text">
+                 
+                </div>
+                <div class="community__section-right-body-container-posts-item-comment-btn">
+                  <span >
+                    Leave Review
+                  </span>
+                </div>
+              </div>
+  
+              <div class="community__section-right-body-container-posts-item-comment-details" id="comment_detail_{{my_submission.id}}">
+                {% if my_submission.reviews.all %}
+                {% for comment in my_submission.reviews.all reversed %}
+                  <div class="community__section-right-body-container-posts-item-comment-details-item">
+                    <div class="community__section-right-body-container-posts-item-header">
+                      <div class="community__section-right-body-container-posts-item-header-info">
+                      
+                        <div class="community__section-right-body-container-posts-item-header-info-img">
+                          {% if comment.review_author.profile_picture %}
+                          <img  src="{{ comment.review_author.profile_picture.url }}" alt="">
+                          {% else %}
+                          <img  src="{% static 'images/ava.png'%}" alt="">
+                          {% endif %}
+                            <div class="active-indicator"></div>
+                        </div>
+                        <div class="community__section-right-body-container-posts-item-header-info-profile">
+                          <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                              {{comment.review_author.display_name}}
+                          </span>
+                         
+                          <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                            {{comment.get_time}}
+                        </span>
+                          
+                        </div>
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-header-info-menu">
+                          <i class='bx bx-dots-horizontal-rounded'></i>
+                          <div class="community__section-right-body-container-posts-item-header-info-menu-items">
+                            <span class="community__section-right-body-container-posts-item-header-info-menu-item">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                              <span>
+                                Delete
+                              </span>
+                              
+                            </span>
+                            <span class="community__section-right-body-container-posts-item-header-info-menu-item delete">
+                              <i class='bx bx-copy-alt'></i>
+                              <span>
+                                Copy link
+                              </span>
+                              
+                            </span>
+                          </div>
+                        
+                      </div>
+                    </div>
+                    <div class="community__section-right-body-container-posts-item-body-text">
+                      <span class="community__section-right-body-container-posts-item-body-text-comment">
+                        <i class='bx bxs-star-half' ></i> {{comment.review_rating}}({{comment.review_text}}) </span>
+                      </span>
+                  </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <span class="no__comment">Be the first to make a submission.</span>
+                {%endif%}
+              </div>
+            </div>
+          
+        
+        {%endif%}
+        
+          <div class="community__section-right-body-container">
+              <div class="community__section-right-body-container-header">
+                  <span class="community__section-right-body-container-header-divider">
+
+                  </span>
+                  <span class="community__section-right-body-container-header-sort">Sort by: Top</span>
+              </div>
+              <div class="community__section-right-body-container-posts">
+                <span class="project__submission-header">
+                    Other Submissions
+                </span>
+                {% if other_submissions %}
+                  {% for submission in other_submissions %}
+                  <div class="community__section-right-body-container-posts-item-container other_submissions" data-id={{submission.id}} id="otherpost-{{submission.id}}">
+                    <div class="community__section-right-body-container-posts-item" data-id={{submission.id}} id="otherpost-{{submission.id}}">
+                      <div class="community__section-right-body-container-posts-item-header">
+                          <div class="community__section-right-body-container-posts-item-header-info">
+                          
+                            <div class="community__section-right-body-container-posts-item-header-info-img">
+                                {% if submission.profile.profile_picture %}
+                                <img  src="{{ submission.profile.profile_picture.url }}" alt="">
+                                {% else %}
+                                <img  src="{% static 'images/ava.png'%}" alt="">
+                                {% endif %}
+                                <div class="active-indicator"></div>
+                            </div>
+                            <div class="community__section-right-body-container-posts-item-header-info-profile">
+                              <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                  {{submission.profile.display_name}}
+                              </span>
+                              <span class="community__section-right-body-container-posts-item-header-info-profile-title">
+                                {{submission.profile.bio}}
+                              </span>
+                              <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                {{submission.get_time}}
+                            </span>
+                              
+                            </div>
+                          </div>
+                         
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-body">
+                          <div class="community__section-right-body-container-posts-item-body-text">
+                              <span class="community__section-right-body-container-posts-item-body-text-value">
+                              {{submission.post_text}}
+                              </span >
+                              <a href="{{submission.post_link}}" class="community__section-right-body-container-posts-item-body-text-value">
+                                {{submission.post_link}}
+                                </a>
+                          </div>
+                          {% if submission.images.all %}
+                              {% with submission.images.all|length as image_count %}
+                                  <div class="community__section-right-body-container-posts-item-body-media {% if image_count == 1 %} single-image {% endif %}" data-id={{submission.id}}>
+                                      {% for image in submission.images.all %}
+                                          {% if forloop.counter <= 4 %}
+                                              <div class="community__section-right-body-container-posts-item-body-media-item">
+                                                  <img src="{{ image.image.url }}" alt="" class="image-preview" data-index="{{ forloop.counter0 }}">
+                                                  {% if forloop.counter == 4 and submission.images.count > 4 %}
+                                                      <div class="overlay" data-image-url="{{ image.image.url }}" data-id={{submission.id}}>
+                                                          +{{ submission.images.all.count|add:-4 }}
+                                                      </div>
+                                                  {% endif %}
+                                              </div>
+                                            {% else%}
+                                              <img src="{{ image.image.url }}" alt="" class="image-preview hide"  data-index="{{ forloop.counter0 }}">
+                  
+                                          {% endif %}
+                                      {% endfor %}
+                                  </div>
+                              {% endwith %}
+                          {% endif %}
+        
+        
+                        <div id="imageModal" class="image-modal">
+                          <span class="close">&times;</span>
+                          <img class="modal-content" id="modalImage">
+                          <div id="caption"></div>
+                          <div class="modal-btns">
+                            <a class="prev">&#10094;</a>
+                            <a class="next">&#10095;</a>
+                          </div>
+                        
+                      </div>
+                    </div>
+                    <div class="community__section-right-body-container-posts-item-stats" data-id={{my_submission.id}}>
+                        <div class="community__section-right-body-container-posts-item-stats-item" id="view_reviews">
+                          <span>
+                            <i class='bx bxs-star-half' ></i>
+                          </span>
+                          <span id="review_info" class="review_info">
+                            {{submission.rating}} ({{submission.reviews.count}} reviews)
+                          </span>
+                        </div>
+                    </div>
+                    <div class="community__section-right-body-container-posts-item-comment" data-id={{my_submission.id}}>
+                      
+                    
+                      <div class="community__section-right-body-container-posts-item-comment-stars">
+                          <span  class="star">★</span>
+                          <span  class="star">★</span>
+                          <span  class="star">★</span>
+                          <span  class="star">★</span>
+                          <span  class="star">★</span>
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-comment-container">
+                        <span>
+                                    
+                          <i class='bx bxs-smile'></i>
+                        
+                      
+                      </span>
+                      <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+                        <input type="text" placeholder="Write a review" id="feedback_text">
+                      
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-comment-btn">
+                        <span >
+                          Leave Review
+                        </span>
+                      </div>
+                    </div>
+        
+                    <div class="community__section-right-body-container-posts-item-comment-details" id="comment_detail_{{my_submission.id}}">
+                      {% if submission.reviews.all %}
+                      {% for comment in submission.reviews.all reversed %}
+                        <div class="community__section-right-body-container-posts-item-comment-details-item">
+                          <div class="community__section-right-body-container-posts-item-header">
+                            <div class="community__section-right-body-container-posts-item-header-info">
+                            
+                              <div class="community__section-right-body-container-posts-item-header-info-img">
+                                {% if comment.review_author.profile_picture %}
+                                <img  src="{{ comment.review_author.profile_picture.url }}" alt="">
+                                {% else %}
+                                <img  src="{% static 'images/ava.png'%}" alt="">
+                                {% endif %}
+                                  <div class="active-indicator"></div>
+                              </div>
+                              <div class="community__section-right-body-container-posts-item-header-info-profile">
+                                <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                    {{comment.review_author.display_name}}
+                                </span>
+                              
+                                <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                  {{comment.get_time}}
+                              </span>
+                                
+                              </div>
+                            </div>
+                            
+                          </div>
+                          <div class="community__section-right-body-container-posts-item-body-text">
+                            <span class="community__section-right-body-container-posts-item-body-text-comment">
+                              <i class='bx bxs-star-half' ></i> {{comment.review_rating}}({{comment.review_text}}) </span>
+                            </span>
+                        </div>
+                        </div>
+                        {% endfor %}
+                      {% else %}
+                        <span class="no__comment">Be the first to make a submission.</span>
+                      {%endif%}
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <span class="messages__section-right-no-message">
+                    <span>
+                      There are no other submissions made on this project yet. 
+                    </span>
+                  </span>
+
+                {% endif %}
+                  
+                 
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="project__add-overlay">
+    <div class="project__add-overlay-container">
+        <div class="project__add-overlay-container-nav" onclick="removeOverlay()">
+                <i class='bx bx-left-arrow-alt' ></i>
+            <span onclick="removeOverlay()" >Back</span>
+        </div>
+        <div class="project__add-overlay-container-header">
+            <span>
+                Edit Project
+            </span>
+        </div>
+        <div class="project__add-overlay-container-body">
+          <div class="project__add-overlay-container-body-item">
+              <label for="project-title">Project Title</label>
+              <input class="disabled" value="{{project.title}}" type="text" id="project-title" placeholder="name your project">
+          </div>
+          <div class="project__add-overlay-container-body-item">
+              <label for="image-upload-input">New Project Image</label>
+              <input type="file" src="{{project.image.url}}" id="image-upload-input" name="image" accept="image/*">
+              <div id="image-preview-container" class="image-preview-container">
+                  <div class="image-preview">
+                    <img src="{{project.image.url}}" alt="Image Preview">
+                    <i class="bx bx-x remove-image-btn"> </i>
+                  </div>
+              </div>
+          </div>
+          <div class="project__add-overlay-container-body-item">
+              <label for="scenario">Scenario</label>
+              <textarea id="scenario" placeholder="e.g As a Product designer for a hiring service...">{{project.scenario}}</textarea>
+          </div>
+          <div class="project__add-overlay-container-body-item">
+              <label for="duration">Duration (weeks)</label>
+              <input id="duration" value="{{project.duration}}"  type="number">
+          </div>
+          <div class="project__add-overlay-container-body-item">
+              <label for="">Tasks</label>
+              <div id="task-container" class="project__add-overlay-container-body-item">
+                {% for task in tasks%}
+                  <div class="task-item project__add-overlay-container-body-item">
+                      <input value="{{task}}" type="text" placeholder="e.g Select a hiring service and the device type for your profile page design.">
+                      <span type="button" class="remove-task-btn">x</span>
+                  </div>
+                  {% endfor %}
+              </div>
+              <span id="add-task-btn" class="project__add-overlay-container-body-item-add-task">+ Add Task</span>
+          </div>
+      </div>
+
+        <div class="project__add-overlay-container-btn">
+            <span id="update_project" data-id={{project.id}}>
+                Update project
+            </span>
+        </div>
+       
+    </div>
+</div>
+
+<div class="create__post-section" id="create_post" data-id="{{project.id}}">
+  <div class="create__post-container">
+      <div class="create__post-section-container-header-nav ">
+          <span onclick="hideCreateContainer()">
+            <i class='bx bx-left-arrow-alt'></i> Back
+          </span>
+      </div>
+
+      <div class="create__post-container-header-title">
+        <span>
+          Make your submission
+        </span>
+      </div>
+      <div class="create__post-container-body"  data-community={{community.name.value}}>
+          <span class="create__post-container-body-input">
+            <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+            <textarea name="" id="post__text" placeholder="Talk about what you did..."></textarea>
+          </span>
+
+          <span class="create__post-container-body-input">
+            <label for="post__link">Project Link</label>
+            <input id="post__link" type="text" placeholder="Add link to your work...">
+            
+          </span>
+
+          <span class="create__post-container-body-input">
+            <label for="">
+              Add Images of your work
+            </label>
+            
+          </span>
+         
+          <span class="create__post-container-body-input-icons">
+            
+            <span class="create__post-container-body-input-icons-image" id="image-upload-input-btn-submission">
+                <label for="image-upload-input-submission"> <i class='bx bx-image'  id="image-upload-icon-submission"></i></label>
+                <input class="image-upload-input" type="file" id="image-upload-input-submission" accept="image/*" multiple >
+            </span>
+            
+          </span>
+
+  
+          <div id="image-preview-container-submission" class="image-preview-container"></div>
+          <span class="error">Error uploading your post, please try again later</span>
+          <span class="create__post-container-body-input-post-btn" id="submit_post">
+            Post
+          </span>
+      </div>
+  </div>
+</div>
+
+<div class="create__post-section update_submission" id="edit_project" data-id="{{my_submission.id}}">
+  <div class="create__post-container">
+      <div class="create__post-section-container-header-nav ">
+          <span onclick="hideUpdateContainer()">
+            <i class='bx bx-left-arrow-alt'></i> Back
+          </span>
+      </div>
+
+      <div class="create__post-container-header-title">
+        <span>
+          Update your submission
+        </span>
+      </div>
+      <div class="create__post-container-body"  data-community={{community.name.value}}>
+          <span class="create__post-container-body-input">
+            <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+            <textarea name="" id="post__text-update" placeholder="Talk about what you did...">{{my_submission.post_text}}</textarea>
+          </span>
+
+          <span class="create__post-container-body-input">
+            <label for="post__link">Project Link</label>
+            <input id="post__link-update" value="{{my_submission.post_link}}" type="text" placeholder="Add link to your work...">
+          </span>
+
+          <span class="create__post-container-body-input">
+            <label for="">
+              Add Images of your work
+            </label>
+            
+          </span>
+         
+          <span class="create__post-container-body-input-icons">
+            
+            <span class="create__post-container-body-input-icons-image" id="image-upload-input-btn-submission-update">
+                <label for="image-upload-input-submission-update"> <i class='bx bx-image'  id="image-upload-icon-submission-update"></i></label>
+                <input class="image-upload-input-submission-update" type="file" id="image-upload-input-submission-update" accept="image/*" multiple >
+            </span>
+            
+          </span>
+
+  
+          <div id="image-preview-container-submission-update" class="image-preview-container-submission-update" data-images="{% for image in my_submission.images.all %}{{ image.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}">
+            {% for image in my_submission.images.all %}
+            
+              <div class="image-preview-submission-update">
+                <img src="{{image.image.url}}"  alt="Image Preview" class="image-preview-submission-update-img">
+                <i class="bx bx-x remove-image-btn-submission-update"> </i>
+              </div>
+            {% endfor %}
+        
+            
+          </div>
+          <span class="error">Error uploading your post, please try again later</span>
+          <span class="create__post-container-body-input-post-btn" id="update-submission">
+            Update
+          </span>
+      </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('writeReview').addEventListener('click', function() {
+      // Scroll smoothly to the element with class 'other_submissions'
+      document.querySelector('.other_submissions').scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+
+<script>
+  
+    let rating = 0;
+    const submissions = document.querySelectorAll('.community__section-right-body-container-posts-item-container');
+
+    submissions.forEach(submission => {
+
+      const commentIcon = submission.querySelector('#view_reviews');
+      const commentContainer = submission.querySelector('.community__section-right-body-container-posts-item-comment-details');
+
+      commentIcon.addEventListener("click", function() {
+          commentContainer.classList.toggle('active');
+      });
+
+
+      let feedbackBtn = submission.querySelector(".community__section-right-body-container-posts-item-comment-btn");
+
+      let stars = submission.querySelectorAll(".star");
+
+      stars.forEach((star, index) => {
+          star.addEventListener('click', function() {
+              rating = index + 1; // Get the rating based on the index (1-based index)
+              updateStars(rating, stars); // Pass the rating and stars list to the update function
+          });
+      });
+
+      function updateStars(rating, stars) {
+          // Reset all stars
+          stars.forEach(star => {
+              star.className = "star";
+          });
+
+          // Apply the new rating
+          for (let i = 0; i < rating; i++) {
+              stars[i].className = "star " + ["one", "two", "three", "four", "five"][rating - 1];
+          }
+      }
+              
+          
+     
+      feedbackBtn.addEventListener("click", function() {
+          let feedbackText = submission.querySelector("#feedback_text").value;
+          let submissionId = submission.getAttribute('data-id');
+          console.log(submissionId);
+
+
+          function getCookie(name) {
+              const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+              return cookieValue ? cookieValue.pop() : '';
+          }
+
+          const csrfToken = getCookie('csrftoken');
+          
+          // Prepare data to send
+          $.ajax({
+            url: '/leavereview',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            data: {
+              "rating": rating,
+              "feedback": feedbackText,
+              "id": submissionId
+          },
+            success: function (response) {
+                // Remove typing animation
+                commentContainer.classList.add('active');
+                const noComment = commentContainer.querySelector('.no__comment');
+
+                if (noComment)
+                  {
+                    noComment.style.display = 'none';
+                  }
+                
+
+                submission.querySelector(".community__section-right-body-container-posts-item-comment-details").prepend(commentEl(rating, feedbackText, response.profile))
+                submission.querySelector("#feedback_text").value = "";
+                updateStars(0, stars);
+                const reviewInfo = submission.querySelector('.review_info');
+
+                reviewInfo.textContent = response.profile.rating + "(" + response.profile.reviews + " reviews" + ")";
+                  
+            
+                    
+                },
+                error: function (xhr, status, error) {
+                    
+                }
+        });
+    
+          
+      });
+
+      const commentEl = (rating, feedback, profile) => {
+              const dateEl = document.createElement("div");
+              dateEl.classList.add("community__section-right-body-container-posts-item-comment-details-item");
+              dateEl.innerHTML = ` <div class="community__section-right-body-container-posts-item-header">
+                              <div class="community__section-right-body-container-posts-item-header-info">
+                              
+                                <div class="community__section-right-body-container-posts-item-header-info-img">
+                                  
+                                  ${profile.profile_picture ? `<img src="${profile.profile_picture}" alt="">` : ''}
+                                  
+                                    <div class="active-indicator"></div>
+                                </div>
+                                <div class="community__section-right-body-container-posts-item-header-info-profile">
+                                  <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                      ${profile.display_name}
+                                  </span>
+                                 
+                                  <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                    now
+                                </span>
+                                  
+                                </div>
+                              </div>
+                              <div class="community__section-right-body-container-posts-item-header-info-menu">
+                                  <i class='bx bx-dots-horizontal-rounded'></i>
+                                  <div class="community__section-right-body-container-posts-item-header-info-menu-items">
+                                    <span class="community__section-right-body-container-posts-item-header-info-menu-item">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                      </svg>
+                                      <span>
+                                        Delete
+                                      </span>
+                                      
+                                    </span>
+                                    <span class="community__section-right-body-container-posts-item-header-info-menu-item delete">
+                                      <i class='bx bx-copy-alt'></i>
+                                      <span>
+                                        Copy link
+                                      </span>
+                                      
+                                    </span>
+                                  </div>
+                                
+                              </div>
+                            </div>
+                            <div class="community__section-right-body-container-posts-item-body-text">
+                              <span class="community__section-right-body-container-posts-item-body-text-comment">
+                                <i class='bx bxs-star-half' ></i> ${ rating}(${feedback}) </span>
+                              </span>
+                          </div>`;
+              return dateEl;
+          };
+      
+      
+
+      // Function to get CSRF token, required for Django
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              let cookies = document.cookie.split(';');
+              for (let cookie of cookies) {
+                  let cookieTrimmed = cookie.trim();
+                  if (cookieTrimmed.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookieTrimmed.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+
+      // Function to toggle the emoji picker visibility
+      function toggleCommEmojiPicker() {
+                const emojiPickerComm = submission.querySelector('#emoji-picker');
+                emojiPickerComm.style.display = emojiPickerComm.style.display === 'block' ? 'none' : 'block';
+            }
+
+      function insertCommentEmoji(emojiObject) {
+        
+            const commentText = submission.querySelector('#feedback_text'); // Replace with your post text field ID
+            const emoji = emojiObject.unicode;
+
+            commentText.value += emoji; // Append the selected emoji to the current text
+            toggleCommEmojiPicker(); // Hide the emoji picker
+          }
+
+
+            // Add a click event listener to the smile icon to show/hide the emoji picker
+            const smileIconComm = submission.querySelector('.bxs-smile'); // Replace with the correct selector
+            smileIconComm.addEventListener('click', toggleCommEmojiPicker);
+
+            // Initialize the emoji picker
+            const emojiPickerComm = submission.querySelector('#emoji-picker');
+            emojiPickerComm.innerHTML = '<emoji-picker></emoji-picker>';
+            emojiPickerComm.addEventListener('emoji-click', (event) => {
+
+                insertCommentEmoji(event.detail.emoji);
+                toggleCommEmojiPicker();
+                emojiPickerComm.style.display = 'none';
+            });
+
+});
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+     let currentPostImages = [];
+     let currentPostId = null;
+     const modal = document.getElementById('imageModal');
+     const modalImg = document.getElementById('modalImage');
+     const captionText = document.getElementById('caption');
+     let currentIndex;
+ 
+     const overlays = document.querySelectorAll('.overlay');
+ 
+     overlays.forEach(overlay => {
+         overlay.addEventListener('click', function() {
+             const imageUrl = this.getAttribute('data-image-url');
+             const postId = this.getAttribute('data-id');
+             console.log(postId);
+             console.log(imageUrl);
+             openModalOverlay(imageUrl, postId);
+ 
+         });
+     });
+ 
+     function openModal(image, postId) {
+         // Find the images within the same post
+         currentPostImages = Array.from(document.querySelectorAll(`#mypost-${postId} .image-preview`));
+       
+         currentIndex = currentPostImages.indexOf(image);
+ 
+ 
+         // Display the modal with the selected image
+         modal.style.display = "flex";
+         modalImg.src = image.src;
+         captionText.innerHTML = image.alt;
+         currentPostId = postId;
+         
+     }
+     function openModalOverlay(image, postId) {
+         // Find the images within the same post
+         currentPostImages = Array.from(document.querySelectorAll(`#mypost-${postId} .image-preview`));
+       
+         currentIndex = currentPostImages.indexOf(image);
+ 
+ 
+         // Display the modal with the selected image
+         modal.style.display = "flex";
+         modalImg.src = image;
+         captionText.innerHTML = image.alt;
+         currentPostId = postId;
+         
+     }
+ 
+     document.querySelectorAll('.image-preview').forEach((image) => {
+         image.addEventListener('click', function() {
+             const postId = this.closest('.community__section-right-body-container-posts-item').getAttribute('data-id');
+             openModal(this, postId);
+         });
+     });
+ 
+     const span = document.getElementsByClassName("close")[0];
+     span.onclick = function() { 
+         modal.style.display = "none";
+     }
+ 
+     const next = document.querySelector('.next');
+     next.onclick = function() {
+         console.log(currentPostImages);
+         if (currentPostImages.length > 0) {
+             currentIndex = (currentIndex + 1) % currentPostImages.length;
+             modalImg.src = currentPostImages[currentIndex].src;
+             captionText.innerHTML = currentPostImages[currentIndex].alt;
+         }
+     }
+ 
+     const prev = document.querySelector('.prev');
+     prev.onclick = function() {
+         if (currentPostImages.length > 0) {
+             currentIndex = (currentIndex - 1 + currentPostImages.length) % currentPostImages.length;
+             modalImg.src = currentPostImages[currentIndex].src;
+             captionText.innerHTML = currentPostImages[currentIndex].alt;
+         }
+     }
+ });
+ 
+ 
+
+ 
+ 
+ </script>
+
+<script>
+  function showCreateContainer()
+    {
+      document.querySelector('.create__post-section').style.display = 'flex';
+    }
+  function hideCreateContainer()
+    {
+      document.querySelector('.create__post-section').style.display = 'none';
+    }
+  function showUpdateContainer()
+    {
+      document.querySelector('#edit_project').style.display = 'flex';
+    }
+  function hideUpdateContainer()
+    {
+      document.querySelector('#edit_project').style.display = 'none';
+    }
+  function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+</script>
+
+<script>
+
+  function toggleContainer() {
+    console.log("dsahsah");
+    const settings = document.querySelector('.community__section-right-header-settings');
+    const left_overlay = document.querySelector('.community__section-left');
+  
+    
+      if (left_overlay.classList.contains('visible')) {
+        left_overlay.classList.remove('visible');
+      } else {
+        left_overlay.classList.add('visible');
+      }
+    
+  }
+  
+     
+</script>
+
+<script>
+  function addOverlay()
+    {
+      const overLayContainer = document.querySelector('.project__add-overlay');
+      overLayContainer.style.display = 'flex'
+    }
+
+    function removeOverlay()
+    {
+      const overLayContainer = document.querySelector('.project__add-overlay');
+      overLayContainer.style.display = 'none'
+    }
+</script>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function() {
+  const imageUploadInput = document.getElementById('image-upload-input');
+  const imagePreviewContainer = document.getElementById('image-preview-container');
+  
+  const imgPreview = imagePreviewContainer.querySelector('.image-preview');
+  // Handle image deletion
+  imgPreview.querySelector('.remove-image-btn').addEventListener('click', function() {
+                
+                imgPreview.remove();
+                imageUploadInput.value = "";
+            });
+
+  imageUploadInput.addEventListener('change', function() {
+      const files = imageUploadInput.files;
+      
+      for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+       
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              const imgPreview = imagePreviewContainer.querySelector('.image-preview');
+              if (imgPreview)
+                  {
+                      imgPreview.innerHTML =`
+                                  <img src="${e.target.result}" alt="Image Preview">
+                                  <i class="bx bx-x remove-image-btn"> </i>
+                              `;
+               } else {
+                      const imgPreview = document.createElement('div');
+                      imgPreview.classList.add('image-preview');
+                      imgPreview.innerHTML = `
+                          <img src="${e.target.result}" alt="Image Preview">
+                          <i class="bx bx-x remove-image-btn"> </i>
+                      `;
+                      imagePreviewContainer.appendChild(imgPreview);
+               }
+              // Handle image deletion
+              imgPreview.querySelector('.remove-image-btn').addEventListener('click', function() {
+                
+                  imgPreview.remove();
+                  imageUploadInput.value = "";
+              });
+
+        
+          };
+          reader.readAsDataURL(file);
+      }
+
+  });
+
+
+
+});
+
+
+
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const taskContainer = document.getElementById('task-container');
+      const addTaskBtn = document.getElementById('add-task-btn');
+      const updateProjectBtn = document.getElementById('update_project');
+
+
+      // Event listener for adding a new task
+      addTaskBtn.addEventListener('click', function() {
+
+
+        const taskItem = document.createElement('div');
+        taskItem.className = 'task-item';
+        taskItem.className = 'task-item project__add-overlay-container-body-item';
+
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.placeholder = 'Enter task details';
+
+        const removeBtn = document.createElement('span');
+
+        removeBtn.className = 'remove-task-btn';
+        removeBtn.textContent = 'x';
+
+        // Add the input and delete button to the task item
+        taskItem.appendChild(newInput);
+        taskItem.appendChild(removeBtn);
+
+        // Append the task item to the task container
+        taskContainer.appendChild(taskItem);
+
+
+        // Event listener for removing the task item
+        removeBtn.addEventListener('click', function() {
+            taskItem.remove();
+
+        });
+
+      });
+
+      // Initial event listener for removing the first task item
+      const removeBtns = taskContainer.querySelectorAll('.remove-task-btn');
+      removeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const taskItem = btn.closest('.task-item');
+            taskItem.remove();
+      
+        });
+      });
+      function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+      // Gather data and send to backend via AJAX
+      updateProjectBtn.addEventListener('click', function() {
+           
+            const scenario = document.getElementById('scenario').value;
+            const duration = document.getElementById('duration').value;
+            const imageUploadInput = document.getElementById('image-upload-input');
+            const tasks = [];
+            const csrfToken = getCookie('csrftoken');
+            const projectId = updateProjectBtn.getAttribute('data-id');
+
+            taskContainer.querySelectorAll('.task-item input').forEach(taskInput => {
+                tasks.push(taskInput.value);
+            });
+
+            const formData = new FormData();
+            formData.append('id', projectId);
+            formData.append('scenario', scenario);
+            formData.append('duration', duration);
+
+            if (imageUploadInput.files.length > 0) {
+                formData.append('image', imageUploadInput.files[0]);
+            }
+
+            formData.append('tasks', JSON.stringify(tasks));
+
+            console.log(formData)
+
+            // Sending the data to the backend
+            $.ajax({
+                url: '/update_project',  // Replace with your backend endpoint
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Ensure you have the CSRF token included
+                },
+                data: formData,
+                processData: false,  // Prevent jQuery from converting the formData to a query string
+                contentType: false,
+                success: function(response) {
+                    window.location.reload();
+                    // Optionally, redirect or update the UI after successful submission
+                },
+                error: function(error) {
+                    
+                    console.error(error);
+                }
+            });
+        });
+      });
+
+
+
+
+</script>
+
+<script>
+  let selectedImages = [];
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageUploadInput = document.getElementById('image-upload-input-submission');
+    const imagePreviewContainer = document.getElementById('image-preview-container-submission');
+    const imgPreview  = imagePreviewContainer.querySelector('.image-preview-submission');
+
+    if (imgPreview)
+      {
+        imgPreview.querySelector('.remove-image-btn-submission').addEventListener('click', function() {
+          console.log("wshcs");
+              const index = selectedImages.indexOf(file);
+              if (index > -1) {
+                  selectedImages.splice(index, 1); // Remove from the array
+              }
+              imgPreview.remove();
+          });
+      }
+   
+
+    imageUploadInput.addEventListener('change', function() {
+        const files = imageUploadInput.files;
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            selectedImages.push(file); // Store the file in the array
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgPreview = document.createElement('div');
+                imgPreview.classList.add('image-preview-submission');
+                imgPreview.innerHTML = `
+                    <img src="${e.target.result}" alt="Image Preview">
+                    <i class="bx bx-x remove-image-btn-submission"> </i>
+                `;
+                imagePreviewContainer.appendChild(imgPreview);
+
+                // Handle image deletion
+                imgPreview.querySelector('.remove-image-btn-submission').addEventListener('click', function() {
+                    const index = selectedImages.indexOf(file);
+                    if (index > -1) {
+                        selectedImages.splice(index, 1); // Remove from the array
+                    }
+                    imgPreview.remove();
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Reset the input field to allow uploading the same file again
+        imageUploadInput.value = '';
+    });
+
+    
+
+});
+
+
+  function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+  
+document.getElementById('submit_post').addEventListener('click', function () {
+    const formData = new FormData();
+    const postText = document.getElementById('post__text').value;
+    const postLink = document.getElementById('post__link').value;
+    const images = document.querySelector('.image-upload-input-submission');
+    const postBtn = document.getElementById('submit_post');
+    const containerBody = document.querySelector('.create__post-section');
+    const project = containerBody.getAttribute('data-id');
+    const csrfToken = getCookie('csrftoken');
+    
+
+    const files = selectedImages;
+    console.log(files);
+    formData.append('text', postText);
+    formData.append('link', postLink);
+    formData.append('project', project);
+    // Append each file individually
+    Array.from(files).forEach((file, index) => {
+        formData.append('images_' + index, file);
+    });
+    postBtn.textContent = "Please wait...";
+    postBtn.classList.add("disabled");
+    console.log(formData);
+    $.ajax({
+          url: '/new_submission',
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': csrfToken
+          },
+          data: formData,
+          processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+          contentType: false, 
+          success: function (response) {
+            if (response.nothing)
+              {
+                  document.querySelector('.error').style.display = 'block';
+                  document.querySelector('.error').textContent = "Empty Post!";
+                  postBtn.textContent = "Post";
+                  postBtn.classList.remove("disabled");
+   
+              } else {
+                window.location.reload();
+              }
+            
+          },
+          error: function (xhr, status, error) {
+              setTimeout(() => {
+                  console.log("Error:", status, error);
+                  document.querySelector('.error').style.display = 'block';
+            
+                  postBtn.textContent = "Post";
+                  postBtn.classList.remove("disabled");
+         
+                  
+              }, 1000);
+          }
+      });
+});
+
+
+</script>
+
+<script>
+ function populateImageArray() {
+    const imagePreviewsElement = document.getElementById('image-preview-container-submission-update');
+    const imageUrls = imagePreviewsElement.getAttribute('data-images');
+
+    // Split the image URLs by comma
+    const selectedUpdatedImages = imageUrls.split(',').map(url => url.trim());
+   
+    return selectedUpdatedImages;
+}
+  
+  let selectedUpdatedImages = populateImageArray();
+  console.log('Initial images:', selectedUpdatedImages);
+  
+  document.addEventListener('DOMContentLoaded', function() {
+      const imageUploadInput = document.getElementById('image-upload-input-submission-update');
+      const imagePreviewContainer = document.getElementById('image-preview-container-submission-update');
+      
+      // Handle remove button clicks
+      imagePreviewContainer.addEventListener('click', function(event) {
+          if (event.target.classList.contains('remove-image-btn-submission-update')) {
+              const imgPreview = event.target.closest('.image-preview-submission-update');
+              const imgPreviewImg = imgPreview.querySelector('.image-preview-submission-update-img');
+  
+              console.log("Removing image:", imgPreviewImg.src);
+              
+              // Remove image URL from the array
+              const index = selectedUpdatedImages.indexOf(imgPreviewImg.src);
+              if (index > -1) {
+                  selectedUpdatedImages.splice(index, 1);
+              }
+  
+              // Remove the image preview element
+              imgPreview.remove();
+          }
+      });
+  
+      imageUploadInput.addEventListener('change', function() {
+    const files = imageUploadInput.files;
+    
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        selectedUpdatedImages.push(file); // Store the file in the array
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imgPreview = document.createElement('div');
+            imgPreview.classList.add('image-preview-submission-update');
+            imgPreview.innerHTML = `
+                <img src="${e.target.result}" alt="Image Preview">
+                <i class="bx bx-x remove-image-btn-submission-update"> </i>
+            `;
+            imagePreviewContainer.appendChild(imgPreview);
+
+            // Handle image deletion
+            imgPreview.querySelector('.remove-image-btn-submission-update').addEventListener('click', function() {
+                const index = selectedUpdatedImages.indexOf(file);
+                if (index > -1) {
+                    selectedUpdatedImages.splice(index, 1); // Remove from the array
+                }
+                imgPreview.remove();
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+  });
+  
+  function getCookie(name) {
+      const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return cookieValue ? cookieValue.pop() : '';
+  }
+  
+  
+  document.getElementById('update-submission').addEventListener('click', function () {
+    const formData = new FormData();
+    const postText = document.getElementById('post__text-update').value;
+    const postLink = document.getElementById('post__link-update').value;
+    const postBtn = document.getElementById('update-submission');
+    const containerBodyUpdate = document.querySelector('.update_submission');
+    const subId = containerBodyUpdate.getAttribute('data-id');
+    
+    formData.append('text', postText);
+    formData.append('link', postLink);
+    formData.append('id', subId);
+
+    // Append each image or file to the FormData
+    selectedUpdatedImages.forEach((item, index) => {
+        if (item instanceof File) {
+            formData.append('images_' + index, item);
+        } else if (typeof item === 'string') {
+            formData.append('image_urls_' + index, item); // For existing image URLs
+        }
+    });
+    const csrfToken = getCookie('csrftoken');
+    postBtn.textContent = "Please wait...";
+    postBtn.classList.add("disabled");
+    console.log(formData);
+
+    $.ajax({
+        url: '/new_submission_update',
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        data: formData,
+        processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+        contentType: false, 
+        success: function (response) {
+            if (response.nothing) {
+                document.querySelector('.error').style.display = 'block';
+                document.querySelector('.error').textContent = "Empty Post!";
+                postBtn.textContent = "Post";
+                postBtn.classList.remove("disabled");
+            } else {
+                window.location.reload();
+            }
+        },
+        error: function (xhr, status, error) {
+            setTimeout(() => {
+                console.log("Error:", status, error);
+                document.querySelector('.error').style.display = 'block';
+                postBtn.textContent = "Post";
+                postBtn.classList.remove("disabled");
+            }, 1000);
+        }
+    });
+});
+</script>
+  
+{% endblock main-content %}
+
+{% block title%} Project | Compas AI{% endblock %}
+
+{% block project%} active{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

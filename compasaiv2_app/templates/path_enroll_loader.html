@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block base-content %}
+<div class="enrol__contaner-loader">
+    <div class="onboarding__section-container-body-questions-end"  
+    hx-post="{% url 'enrol_path' username skill %}" 
+    hx-trigger="load"
+    hx-target="#body"
+    hx-swap = "outerHTML"
+    
+    >
+        <span class="onboarding__section-container-body-questions-end-title">
+            You have succesfuly enrolled in the {{skill.name}} path.
+        </span>
+        <span class="onboarding__section-container-body-questions-end-subtitle">
+            Please hold as i curate your dashboard.
+        </span>
+        <span class="onboarding__section-container-body-questions-end-loader">
+            <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+        >
+        </span>
+</div>
+</div>
+
+
+{% endblock %}

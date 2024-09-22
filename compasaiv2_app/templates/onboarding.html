@@ -1,0 +1,820 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block base-content %}
+<section class="onboarding__section" id="onboarding-container">
+    <div class="onboarding__section-container">
+        {% if stage.stage != "THANKYOU" and stage.stage !=  "RESULTS" and stage.stage !=  "CONTACT" %}
+        <div class="onboarding__section-container-progress">
+            <div class="onboarding__section-container-progress-bar" id="progress-inner"  style="width: {{stage_percent}}">
+                
+            </div>
+        </div>
+        <div class="onboarding__section-container-nav" 
+            id="prev-button"
+            hx-post="{% url 'onboarding' %}"
+            hx-trigger="click"
+            hx-vals='{"action": "PREVIOUS", "stage": "{{ stage.stage }}"}'
+            hx-target="#onboarding-container"
+            hx-swap="outerHTML swap:0.2s"
+            onclick="toggleBackLoader(this)">
+            <i class='bx bx-left-arrow-alt'></i>
+        </div>
+        <span class="onboarding__section-container-body-questions-back-loader">
+            <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt="">
+        </span>
+        {% endif %}
+        <div class="onboarding__section-container-body vertical-center">
+            <div class="onboarding__section-container-body-questions">
+                {% if stage.stage == "CONTACT" %}
+                <div id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                        <span class="onboarding__section-container-body-questions-item-tip">
+                            {{stage.tip}}
+                        </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <label for="name">Full Name</label>
+                        <input type="text" placeholder="John Doe" id="name" name="name" value="{{profile.display_name}}">
+                    </span>
+
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <label for="email">Email</label>
+                        <input type="text" placeholder="name@example.com" id="email" name="email" value="{{profile.email}}">
+                    </span>
+
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" placeholder="080 1000 1000" id="phone" name="phone" value="{{profile.phone_number}}">
+                    </span>
+
+                    <input type="hidden" name="value" id="value" value="[]">
+                    
+                    <span class="onboarding__section-container-body-questions-item-nav" onclick="nextAction()"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-include="#value"
+                        hx-target="#onboarding-container"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)"
+                    >
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt="">
+                    </span>
+                </div>
+                {% elif stage.stage == "DESCRIPTION" %}
+                <div id="onboarding-container-item"  class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <div class="onboarding__section-container-body-questions-item-input">
+                        <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'learner' %} active {% endif %}" onclick="toggleActive(this)" data-value="learner">
+                            A learner
+                        </span>
+                        <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'mentor' %} active {% endif %}" onclick="toggleActive(this)" data-value="mentor">
+                            A mentor
+                        </span>
+                    </div>
+                    
+                    <input type="hidden" name="value" id="value" value="">
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                    hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "DESCRIPTION"}'
+                        hx-include="#value"
+                        hx-target="#onboarding-container"
+                        hx-swap="outerHTML swap:0.2s"
+                        >
+                        Next
+                    </span>
+                </div>         
+                {% elif stage.stage == "STATUS" %}
+                <div  id="onboarding-container-item" class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        
+                        <div class="skill-search">
+                            <input type="search" id="skillSearch" placeholder="Search for a skill" autocomplete="off">
+                            <ul id="skillSuggestions" class="suggestions"></ul>
+                            <button id="addSkillButton" disabled>Add</button>
+                        </div>
+                        
+                            <div id="addedSkillsContainer">
+                                {% if info.skills == "" %}
+                                    <p id="noSkillsMessage">Search and select your skills</p>
+                                {% else %}
+                                    {% for skill in skills_list %}
+                                    <div class="skill-item">
+                                        <span>{{skill.skill}}</span>
+                                        <select name="" id="" value="{{ skill.level }}">
+                                            {% for lev in levels %}
+                                                <option value="{{ lev }}" {% if lev == skill.level %}selected{% endif %}>{{ lev }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        
+                                        <button class="remove-skill">
+                                            X
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        
+
+                         
+                    <input type="hidden" name="value" id="value" value="[]">
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                    hx-post="{% url 'onboarding' %}"
+                    hx-trigger="click"
+                    hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                    hx-include="#value"
+                    hx-target="#onboarding-container"
+                    hx-swap="outerHTML swap:0.2s"
+                    onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>
+                {% elif stage.stage == "HOURS" %}
+                <div id="onboarding-container-item"  class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                       <input type="number" max="10" min="1" placeholder="{{stage.placeholder}}" id="value" name="value" value="{{info.hours}}">
+                       
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                    hx-post="{% url 'onboarding' %}"
+                    hx-trigger="click"
+                    hx-vals='{"action": "NEXT", "stage": "HOURS"}'
+                    hx-include="#value"
+                    hx-target="#onboarding-container"
+                    hx-swap="outerHTML swap:0.2s"
+                    onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>
+                {% elif stage.stage == "RESOURCES" %}
+                <div id="onboarding-container-item"  class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input multiple">
+                        {% for resource in resources %}
+                        <span class="onboarding__section-container-body-questions-item-input-select multiple {% if resource in info.resources %} active {% endif %}" onclick="toggleActiveMultiple(this)" data-value="{{resource}}">
+                            {{resource}}
+                        </span>
+                        {% endfor %}
+                       
+                    </span>
+
+                    <input type="hidden" name="value" id="value" value="">
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                    hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "RESOURCES"}'
+                        hx-include="#value"
+                        hx-target="#onboarding-container"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>
+                {% elif stage.stage == "COMPUTERS" %}
+                <div  id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <input type="range" min="0" max="4"  class="slider" id="value" name="value" value="{{info.computers_level}}">
+                        <div class="slider-labels">
+                            <span>Beginner</span>
+                            <span>Novice</span>
+                            <span>Intermediate</span>
+                            <span>Advanced</span>
+                            <span>Expert</span>
+                        </div>
+
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "COMPUTERS"}'
+                        hx-include="#value"
+                        hx-target="#onboarding-container"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                    
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>
+                {% elif stage.stage == "STRENGTHS" %}
+                <div id="onboarding-container-item" class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-warning">
+                        You can only select 5 skills
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-input multiple">
+                        {% for strength in strengths %}
+                        <span class="onboarding__section-container-body-questions-item-input-select multiple {% if strength in info.strengths %} active {% endif %}" onclick="toggleActiveMultiple(this)" data-value="{{strength}}">
+                            {{strength}}
+                        </span>
+                        {% endfor %}
+                       
+                    </span>
+                    
+                    <input type="hidden" name="value" id="value" value="">
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>
+                {% elif stage.stage == "WEAKNESS" %}
+                <div id="onboarding-container-item" class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-warning">
+                        You can only select 5 skills
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-input multiple">
+                        {% for weakness in weaknesses %}
+                        <span class="onboarding__section-container-body-questions-item-input-select multiple {% if weakness in info.weakness %} active {% endif %}" onclick="toggleActiveMultiple(this)"  data-value="{{weakness}}">
+                            {{weakness}}
+                        </span>
+                        {% endfor %}
+                       
+                    </span>
+
+                    <input type="hidden" name="value" id="value" value="">
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>
+                {% elif stage.stage == "TEAM" %}
+                <div id="onboarding-container-item" class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <span class="onboarding__section-container-body-questions-item-input-select {% if info.team == 'alone' %} active {% endif%}" onclick="toggleActive(this)" data-value="alone">
+                            A lone wolf
+                        </span>
+                        <span class="onboarding__section-container-body-questions-item-input-select  {% if info.team == 'team' %} active {% endif%}" onclick="toggleActive(this)" data-value="team">
+                            A team player
+                        </span>
+                    </span>
+                    <input type="hidden" name="value" id="value" value="">
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                    hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div>  
+                {% elif stage.stage == "INTERESTS" %}
+                <div  id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <textarea name="value" id="value" placeholder="{{stage.placeholder}}">{{info.interests}}</textarea>
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div> 
+                {% elif stage.stage == "ACADEMICS"%}
+                <div  id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <textarea name="value" id="value" placeholder="{{stage.placeholder}}">{{info.academics}}</textarea>
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div> 
+                {% elif stage.stage == "EXPOSURE"%}
+                <div  id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <textarea name="value" id="value" placeholder="{{stage.placeholder}}" >{{info.exposure}}</textarea>
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div> 
+                {% elif stage.stage == "MOTIVATION"%}
+                <div  id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                    <span class="onboarding__section-container-body-questions-item-comment">
+                        {{stage.comment}}
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-input">
+                        <textarea name="value" id="value" placeholder="{{stage.placeholder}}" >{{info.motivation}}</textarea>
+                    </span>
+                    <span class="onboarding__section-container-body-questions-item-nav"
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-target="#onboarding-container"
+                        hx-include="#value"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
+                        Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div> 
+                {% elif stage.stage == "THANKYOU" %}
+                <div class="onboarding__section-container-body-questions-end"  hx-post="/recommendation" 
+                    hx-trigger="load"
+                    hx-target="#body"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true"
+                    >
+                        <span class="onboarding__section-container-body-questions-end-title">
+                            Thank you for answering my questions accordingly!
+                        </span>
+                        <span class="onboarding__section-container-body-questions-end-subtitle">
+                            Please hold as i help recommend a learning path for you.
+                        </span>
+                        <span class="onboarding__section-container-body-questions-end-loader">
+                            <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                        >
+                        </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>    
+
+<script>
+    function nextAction() {
+        // Retrieve values from input fields
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+
+        // Create a dictionary (JavaScript object) with the values
+        const data = {
+            name: name,
+            email: email,
+            phone: phone
+        };
+        // Convert the dictionary to a JSON string
+        const jsonData = JSON.stringify(data);
+
+        // Save the JSON string into the hidden input's value
+        document.getElementById('value').value = jsonData;
+        const navElement = document.querySelector('.onboarding__section-container-body-questions-item-nav');
+        toggleLoader(navElement);
+    }
+</script>
+
+<script>
+    function toggleLoader(navElement) {
+        // Hide the nav element
+        navElement.style.display = 'none';
+        // Show the loader element
+        const loaderElement = document.querySelector('.onboarding__section-container-body-questions-next-loader');
+        loaderElement.style.display = 'block';
+    }
+</script>
+
+<script>
+    function toggleBackLoader(navElement) {
+        // Hide the nav element
+        navElement.style.display = 'none';
+
+        // Show the loader element
+        const loaderElement = document.querySelector('.onboarding__section-container-body-questions-back-loader');
+        loaderElement.style.display = 'block';
+    }
+</script>
+
+<script>
+    document.addEventListener('htmx:beforeSwap', function(evt) {
+        // Add class to parent container before the swap
+        var parentContainer = document.querySelector('.onboarding__section-container-body-questions-item');
+        var loaderContainer = document.querySelector('.onboarding__section-container-body-questions-next-loader');
+        function hide()
+            {
+                parentContainer.style.display = "none";
+            }
+        if (parentContainer) {
+          
+            loaderContainer.style.display = "block";
+            parentContainer.classList.add('fade-out');
+            setTimeout(hide(), 1000);
+           
+            
+        }
+    });
+</script>
+
+<script>
+    
+    var skillsDatabase = JSON.parse('{{ skills_json|escapejs }}');
+    var addedSkills = [];
+
+    document.getElementById('skillSearch').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const suggestions = skillsDatabase.filter(skill => skill.toLowerCase().includes(searchValue) && !addedSkills.includes(skill));
+        displaySuggestions(suggestions);
+        toggleAddButton();
+    });
+
+    document.getElementById('addSkillButton').addEventListener('click', function() {
+        const skillInput = document.getElementById('skillSearch');
+        const skillName = skillInput.value.trim();
+
+        if (skillsDatabase.includes(skillName) && !addedSkills.includes(skillName)) {
+            if (addedSkills.length < 3) {
+                addSkill(skillName);
+                skillInput.value = '';
+                clearSuggestions();
+            }
+        }
+        toggleAddButton();
+    });
+
+    function displaySuggestions(suggestions) {
+        const suggestionsList = document.getElementById('skillSuggestions');
+        suggestionsList.innerHTML = '';
+        suggestions.forEach(skill => {
+            const suggestionItem = document.createElement('li');
+            suggestionItem.textContent = skill;
+            suggestionItem.addEventListener('click', function() {
+                document.getElementById('skillSearch').value = skill;
+                clearSuggestions();
+            });
+            suggestionsList.appendChild(suggestionItem);
+        });
+    }
+
+    function clearSuggestions() {
+        document.getElementById('skillSuggestions').innerHTML = '';
+    }
+
+    function addSkill(skillName) {
+        try {
+            if (addedSkills.length === 0) {
+                document.getElementById('noSkillsMessage').style.display = 'none';
+            }
+        } catch (error) {
+
+        console.error('An error occurred:', error.message);
+        }
+
+        addedSkills.push(skillName);
+        const skillContainer = document.getElementById('addedSkillsContainer');
+        
+        const skillDiv = document.createElement('div');
+        skillDiv.classList.add('skill-item');
+
+        const skillSpan = document.createElement('span');
+        skillSpan.textContent = skillName;
+
+        const levelSelect = document.createElement('select');
+        const levels = ['Beginner', 'Novice', 'Intermediate', 'Advanced', 'Expert'];
+        levels.forEach(level => {
+            const option = document.createElement('option');
+            option.value = level;
+            option.textContent = level;
+            levelSelect.appendChild(option);
+        });
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'X';
+        removeButton.classList.add('remove-skill');
+        removeButton.addEventListener('click', function() {
+            removeSkill(skillName);
+        });
+
+        skillDiv.appendChild(skillSpan);
+        skillDiv.appendChild(levelSelect);
+        skillDiv.appendChild(removeButton);
+
+        skillContainer.appendChild(skillDiv);
+        toggleAddButton();
+    }
+
+    function removeSkill(skillName) {
+        addedSkills = addedSkills.filter(skill => skill !== skillName);
+        const skillContainer = document.getElementById('addedSkillsContainer');
+        const skillDivs = skillContainer.getElementsByClassName('skill-item');
+
+        for (let i = 0; i < skillDivs.length; i++) {
+            if (skillDivs[i].getElementsByTagName('span')[0].textContent === skillName) {
+                skillContainer.removeChild(skillDivs[i]);
+                break;
+            }
+        }
+
+        if (addedSkills.length === 0) {
+            document.getElementById('noSkillsMessage').style.display = 'block';
+        }
+
+        toggleAddButton();
+    }
+
+    function toggleAddButton() {
+        const addSkillButton = document.getElementById('addSkillButton');
+        const skillInput = document.getElementById('skillSearch');
+        if (addedSkills.length >= 3) {
+            addSkillButton.disabled = true;
+            skillInput.disabled = true;
+        } else {
+            addSkillButton.disabled = skillInput.value.trim() === '';
+            skillInput.disabled = false;
+        }
+
+        const inputValue = document.getElementById('value');
+        inputValue.value  = JSON.stringify(getSelectedSkills());
+    }
+
+    function getSelectedSkills() {
+        const skillItems = document.getElementsByClassName('skill-item');
+        const selectedSkills = [];
+        for (let item of skillItems) {
+            const skillName = item.getElementsByTagName('span')[0].textContent;
+            const skillLevel = item.getElementsByTagName('select')[0].value;
+            if (skillName && skillLevel) { // Ensuring non-empty values
+                selectedSkills.push({ skill: skillName, level: skillLevel });
+            }
+        }
+        return selectedSkills;
+    }
+
+
+    
+    // Call getSelectedSkills() when you need to send data to the backend
+
+</script>
+
+<script>
+    function toggleActive(selectedElement) {
+            // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+            const elements = document.getElementsByClassName('onboarding__section-container-body-questions-item-input-select');
+            
+            // Remove the 'active' class from all elements
+            for (let element of elements) {
+                element.classList.remove('active');
+            }
+            
+            // Add the 'active' class to the clicked element
+            selectedElement.classList.add('active');
+
+            selectedElementFn();
+        }
+
+    function toggleActiveMultiple(selectedElement) {
+                // Get all elements with the 'active' class
+            const activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+
+        // Check if the clicked element is already active
+        if (selectedElement.classList.contains('active')) {
+            // Remove the 'active' class if the element is already active
+            selectedElement.classList.remove('active');
+        } else {
+            // If not active and less than 5 are active, add the 'active' class
+            if (activeElements.length < 5) {
+                selectedElement.classList.add('active');
+            } else {
+                const warningCon = document.querySelector('.onboarding__section-container-body-questions-item-warning');
+                warningCon.style.display = 'block';
+                
+            }
+        }
+
+        selectedElementsFn();
+    }
+
+    function selectedElementFn() {
+        // Get the active element
+        var activeElement = document.querySelector('.onboarding__section-container-body-questions-item-input-select.active');
+        
+        // Return the data-value attribute or an empty string if none is active
+        const activeEl = activeElement.getAttribute('data-value');
+        console.log(activeEl);
+        const inputValue = document.getElementById('value');
+        inputValue.value  = activeEl ;
+    }
+
+    function selectedElementsFn() {
+    // Get all active elements
+    var activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+        
+        // Map the data-value attributes of active elements to an array
+        var roles = Array.from(activeElements).map(el => el.getAttribute('data-value'));
+        
+        // Update the hidden input value with the JSON string of selected roles
+
+        const inputValue = document.getElementById('value');
+        inputValue.value  = JSON.stringify(roles) ;
+    }
+
+
+</script>
+   
+    
+
+{% endblock base-content %}
+
+{% block title%} Get Started | Compas AI{% endblock %}
+
+

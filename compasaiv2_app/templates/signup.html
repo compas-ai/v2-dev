@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+{% block base-content %}
+
+
+    <section class="auth__section" id="auth-container">
+        <div class="auth__section-container vertical-center">
+            <div class="auth__section-header">
+                <img class="auth__section-header-logo" src="{% static 'images/logo/full.svg'%}" alt="">
+                <span class="auth__section-header-title">
+                    Sign Up
+                </span>
+                <p class="auth__section-header-subtitle">
+                    Create an account or sign in to save and see your conversation history.
+                </p>
+            </div>
+            <div class="auth__section-form">
+                {% if stage == "EMAIL"%}
+                <div class="auth__section-form google-section">
+                    <a href="{% provider_login_url 'google' %}?process=signup" class="auth__section-form-google" id="google-signin">
+                        <img src="{% static 'images/icons/google.svg' %}" alt="">
+                        <p>Sign up with Google</p> 
+                    </a>
+                    
+                    <div class="auth__section-form-separator">
+                        <div  class="auth__section-form-separator-content">OR</div> 
+                    </div>
+                </div>
+                
+                <div class="auth__section-form email-section">
+                    <span class="auth__section-form-input">
+                        <input type="text" placeholder="Enter email address" name="email" id="email">
+                        <span class="auth__feedback" id="email-feedback"></span>
+                        
+                    </span>
+                </div>
+                {% elif stage == "CONFIRM"%}
+                
+                <div class="confirmation__alert-body">
+                    <div class="confirmation__alert-body-container">
+                        
+                        <p>We have sent a confirmation link to confirm your email. Please check your email and follow the instructions to activate your Compas AI account.</p>
+    
+                          
+                    </div>
+              </div>
+                    
+
+       
+                {% elif stage == "PASSWORD"%}
+                
+                <div class="successful-confirmation__alert-body-container">
+                    {% if set_password == False %}
+                        <span>You've successfully confirmed your email address.</span>
+                    {% else %}
+                        <span>Set your Password</span>
+                    {% endif %}
+                </div>
+                
+               
+                <div class="auth__section-form password-section">
+                    <span class="auth__section-form-input">
+                        <input  class="password" type="password" placeholder="Enter password" name="password" id="password">
+                        <div class="auth__feedback" id="password-strength"></div>
+                        <span class="auth__section-form-input-hide">
+                            <i class="bx bx-show"></i>
+                            <i class="bx bx-hide"></i>
+                        </span>
+                    </span>
+                    <span class="auth__section-form-input">
+                        <input class="password" type="password" placeholder="Confirm password" name="confirm-password" id="confirm-password">
+                        <div class="auth__feedback" id="password-match"></div>
+                        <span class="auth__section-form-input-hide">
+                            <i class="bx bx-show"></i>
+                            <i class="bx bx-hide"></i>
+                        </span>
+                    </span>
+                </div>
+
+                <script>
+    
+                    const passwordInput = document.getElementById('password');
+                    const confirmPasswordInput = document.getElementById('confirm-password');
+                    const passwordStrengthDisplay = document.getElementById('password-strength');
+                    const passwordMatchDisplay = document.getElementById('password-match');
+            
+                    // Function to check the strength of the password
+                    function checkPasswordStrength(password) {
+                        let strength = 0;
+            
+                        // Criteria for password strength
+                        if (password.length >= 8) strength += 1; // Minimum 8 characters
+                        if (/[A-Z]/.test(password)) strength += 1; // Contains an uppercase letter
+                        if (/[a-z]/.test(password)) strength += 1; // Contains a lowercase letter
+                        if (/[0-9]/.test(password)) strength += 1; // Contains a digit
+                        if (/[@$!%*?&#]/.test(password)) strength += 1; // Contains a special character
+            
+                        return strength;
+                    }
+            
+                    // Function to display password strength
+                    function displayPasswordStrength(strength) {
+                        const strengthMessages = [
+                            '<span style="color: red;">Very Weak</span>',
+                            '<span style="color: brown;">Weak</span>',
+                            '<span style="color: orange;">Moderate</span>',
+                            '<span style="color: blue;">Strong</span>',
+                            '<span style="color: green;">Very Strong</span>'
+                        ];
+            
+                        passwordStrengthDisplay.innerHTML = strengthMessages[strength - 1] || '';
+                    }
+            
+                    // Function to check if passwords match
+                    function checkPasswordsMatch(password, confirmPassword) {
+                        return password === confirmPassword;
+                    }
+            
+                    // Event listener for password input
+                    passwordInput.addEventListener('input', function() {
+                        const password = passwordInput.value;
+                        const confirm_password = confirmPasswordInput.value;
+                        const strength = checkPasswordStrength(password);
+            
+                        // Also check if the passwords match
+                        if (password)
+                        {
+                            displayPasswordStrength(strength);
+                            if (confirm_password)
+                                {
+                                    const match = checkPasswordsMatch(password, confirmPasswordInput.value);
+                                    passwordMatchDisplay.innerHTML = match ? '<span style="color: green;">Passwords match.</span>' : '<span style="color: red;">Passwords do not match.</span>';
+                                    if (match && strength >= 3)
+                                        {
+                                            document.getElementById('auth__section-form-btn').classList.remove('disabled');
+                                        }
+                                }
+                            
+
+                            
+                        } else {
+                            passwordMatchDisplay.innerHTML = '';
+                            passwordStrengthDisplay.innerHTML = '';
+
+                        }
+
+                        
+                        
+                    });
+            
+                    // Event listener for confirm password input
+                    confirmPasswordInput.addEventListener('input', function() {
+                        const password = passwordInput.value;
+                        const confirm_password = confirmPasswordInput.value;
+                        if (confirm_password && password)
+                            {
+                                
+                                const match = checkPasswordsMatch(passwordInput.value, confirmPasswordInput.value);
+                                const strength = checkPasswordStrength(password);
+                                passwordMatchDisplay.innerHTML = match ? '<span style="color: green;">Passwords match.</span>' : '<span style="color: red;">Passwords do not match.</span>';
+
+                                if (match && strength >= 3)
+                                    {
+                                        document.getElementById('auth__section-form-btn').classList.remove('disabled');
+                                    }
+                            }else {
+                            passwordMatchDisplay.innerHTML = '';
+                            
+
+                        }
+                       
+                    });
+            
+            
+                </script>
+
+                <script>
+                    const passwordInputsHide = document.querySelectorAll(".password");
+                    const showPasswordBtns = document.querySelectorAll(".auth__section-form-input-hide");
+            
+                    showPasswordBtns.forEach((showPasswordBtn, index) => {
+                        showPasswordBtn.addEventListener("click", () => {
+                            if (passwordInputsHide[index].type === "password") {
+                                passwordInputsHide[index].type = "text";
+                                showPasswordBtn.classList.add("active");
+                            } else {
+                                passwordInputsHide[index].type = "password";
+                                showPasswordBtn.classList.remove("active");
+                            }
+                        });
+                    });
+                </script>
+                {% endif %}
+                
+                <span class="auth__section-form-btn disabled" id="auth__section-form-btn"
+                    hx-post="{% url 'signup' %}"
+                    hx-trigger="click"
+                    hx-target="#auth-container"
+                    hx-swap = "outerHTML"
+                    hx-include = "#email, #password"
+                    hx-push-url="true"
+                    onclick="toggleLoader(this)">
+
+                    <button>
+                        <span class="auth__section-form-btn-text" >
+                            Continue
+                        </span>
+                    </button>
+                </span>
+
+                <div class="auth__section-form-btn-loader">
+                    <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt="">
+                </div>
+            </div>
+            <div class="auth__section-footer">
+                <span class="auth__section-footer-terms">
+                    By continuing, you agree to Compas AI <a href="/terms_of_service" target="_blank">Terms of Service</a> and  <a href="privacy_policy" target="_blank">Privacy Policy</a>.
+                </span>
+                <span class="auth__section-footer-login">
+                    Already have an account? 
+                    <span 
+                       
+                    ><a href="/login">Login</a>
+                        
+                    </span> 
+                </span>
+                <span class="auth__section-footer-others">
+                    <img src="{% static 'images/people-frame.png'%}" alt="">
+                    <p>Join Other learners</p>
+                    
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById("google-signin").addEventListener("click", function() {
+            window.location.href = "{% url 'social:begin' 'google-oauth2' %}";
+        });
+    </script>
+
+    <script>
+        function toggleLoader(navElement) {
+            // Hide the nav element
+            navElement.style.display = 'none';
+    
+            // Show the loader element
+            const loaderElement = document.querySelector('.auth__section-form-btn-loader');
+            loaderElement.style.display = 'block';
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Email Exists
+            document.getElementById('email').addEventListener('input', function() {
+
+                let email = this.value.trim();  // Trim white spaces
+
+                // Basic email validation regex
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                // Check if the email format is valid
+                if (!emailRegex.test(email)) {
+                    document.getElementById('email-feedback').innerHTML = '';
+                    return;
+                }
+                $.ajax({
+                        url: 'check-email',
+                        method: 'POST',
+                        data: { 
+                            "email": email
+                        },
+                        success: function (response) {
+                            if (response.empty) {
+                                document.getElementById('auth__section-form-btn').classList.add('disabled');
+                                document.getElementById('email-feedback').innerHTML = '';
+                            }
+                            else if (response.exists) {
+                                document.getElementById('email-feedback').innerHTML = '<span style="color: red;">Email already exists.</span>';
+                                document.getElementById('auth__section-form-btn').classList.add('disabled');
+                            } else {
+                                document.getElementById('email-feedback').innerHTML = '<span style="color: green;">Email is available.</span>';
+                                document.getElementById('auth__section-form-btn').classList.remove('disabled');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error)
+                        }
+                    });
+
+                });
+            
+        });
+    </script>
+
+{% endblock base-content %}
+
+{% block title%} Signup | Compas AI{% endblock %}

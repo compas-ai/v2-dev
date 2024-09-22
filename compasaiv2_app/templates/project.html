@@ -1,0 +1,359 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+   <div class="path__section">
+     <div class="path__body">
+          <div class="path__body-my-paths">
+            <div class="path__body-my-paths-header">
+              <span>My Projects</span>
+            </div>
+            <div class="path__body-my-paths-body">
+              <div class="path__body-my-paths-body-items">
+                {% for project in my_projects %}
+                <div class="path__body-my-paths-body-item">
+                  <a href="{% url 'project_detail' project.id%}">
+                    <div class="path__body-my-paths-body-item-img">
+                      {% if project.image %}
+                        <img  src="{{ project.image.url }}" alt="">
+                      {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                      {% endif %} 
+                    </div>
+                    <div class="path__body-my-paths-body-item-title">
+                      <span>
+                         {{project.title}}
+                      </span>
+                    </div>
+                  </a>
+                  
+            
+                  <div class="path__body-my-paths-body-item-percentage-progress">
+                    <span>{{project.participants.count}} participants</span> 
+                  </div>
+                  <div class="path__body-my-paths-body-item-skill-iq">
+                      <span>{{project.duration}} weeks</span>
+                  </div>
+                </div>  
+                {% endfor %}
+                <div class="add__project" >
+                    <span  onclick="addOverlay()"
+                    >
+                      <i class='bx bx-plus' ></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+           
+          </div>
+          <div class="path__body-explore">
+            <div class="path__body-explore-header">
+              <span>Explore Projects</span>
+              <span class="path__body-explore-header-search">
+                <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text"  id="search-input" placeholder="Search for projects">
+              </span>
+            </div>
+            <div class="path__body-explore-body">
+              <div class="path__body-explore-body-items" id="search-results">    
+                {% for project in other_projects %}
+                  <a href="{% url 'project_detail' project.id %}"  class="path__body-explore-body-item">
+                    <div class="path__body-explore-body-item-img">
+                      {% if project.image %}
+                      <img src="{{project.image.url}}" alt="Skill Image" >
+                      {% else %}
+                      <img src="{% static 'images/paths/' %}{{ skill.icon }}" alt="Skill Image" >
+                      {% endif %}
+                    </div>
+                    <div class="path__body-explore-body-item-title">
+                      <span>
+                        {{project.title}}
+                      </span>
+                    </div>
+                    <div class="path__body-explore-body-item-description">
+                      <span>
+                       {{project.scenario}}
+                      </span>
+                    </div>
+                  </a>
+                {% endfor %}
+                 
+              </div>
+              <div id="not-found" class="not__found" style="display: none;">
+                <span>No paths found.</span>
+            </div>
+            </div>
+          </div>
+     </div>
+    
+   </div>
+
+   <div class="project__add-overlay">
+    <div class="project__add-overlay-container">
+        <div class="project__add-overlay-container-nav" onclick="removeOverlay()"
+        
+           >
+                <i class='bx bx-left-arrow-alt' ></i>
+            <span >Back</span>
+        </div>
+        <div class="project__add-overlay-container-header">
+            <span>
+                Create New Project
+            </span>
+        </div>
+        <div class="project__add-overlay-container-body">
+            <div class="project__add-overlay-container-body-item">
+                <label for="project-title">Project Title</label>
+                <input type="text" id="project-title" placeholder="name your project">
+            </div>
+            <div class="project__add-overlay-container-body-item">
+                <label for="image-upload-input">Project Image</label>
+                <input type="file" id="image-upload-input" name="image" accept="image/*">
+                <div id="image-preview-container" class="image-preview-container"></div>
+            </div>
+            <div class="project__add-overlay-container-body-item">
+                <label for="scenario">Scenario</label>
+                <textarea id="scenario" placeholder="e.g As a Product designer for a hiring service..."></textarea>
+            </div>
+            <div class="project__add-overlay-container-body-item">
+                <label for="duration">Duration (weeks)</label>
+                <input id="duration" type="number">
+            </div>
+            <div class="project__add-overlay-container-body-item">
+                <label for="">Tasks</label>
+                <div id="task-container" class="project__add-overlay-container-body-item">
+                    <div class="task-item project__add-overlay-container-body-item">
+                        <input type="text" placeholder="e.g Select a hiring service and the device type for your profile page design.">
+                        <span type="button" class="remove-task-btn">x</span>
+                    </div>
+                </div>
+                <span id="add-task-btn" class="project__add-overlay-container-body-item-add-task">+ Add Task</span>
+            </div>
+        </div>
+        <div class="project__add-overlay-container-btn">
+            <span id="create_project">
+                Create project
+            </span>
+        </div>
+        
+       
+    </div>
+</div>
+
+
+<script>
+        let selectedImages = [];
+        document.addEventListener('DOMContentLoaded', function() {
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        
+    
+        imageUploadInput.addEventListener('change', function() {
+            const files = imageUploadInput.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                selectedImages.push(file); // Store the file in the array
+    
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgPreview = imagePreviewContainer.querySelector('.image-preview');
+                    if (imgPreview)
+                        {
+                            imgPreview.innerHTML =`
+                                        <img src="${e.target.result}" alt="Image Preview">
+                                        <i class="bx bx-x remove-image-btn"> </i>
+                                    `;
+                     } else {
+                            const imgPreview = document.createElement('div');
+                            imgPreview.classList.add('image-preview');
+                            imgPreview.innerHTML = `
+                                <img src="${e.target.result}" alt="Image Preview">
+                                <i class="bx bx-x remove-image-btn"> </i>
+                            `;
+                            imagePreviewContainer.appendChild(imgPreview);
+                     }
+                    // Handle image deletion
+                    imgPreview.querySelector('.remove-image-btn').addEventListener('click', function() {
+                        const index = selectedImages.indexOf(file);
+                        if (index > -1) {
+                            selectedImages.splice(index, 1); // Remove from the array
+                        }
+                        imgPreview.remove();
+                    });
+
+              
+                };
+                reader.readAsDataURL(file);
+            }
+    
+        });
+  
+      
+  
+  });
+  
+ 
+
+  </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const taskContainer = document.getElementById('task-container');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const createProjectBtn = document.getElementById('create_project');
+
+
+    // Event listener for adding a new task
+    addTaskBtn.addEventListener('click', function() {
+
+  
+        const taskItem = document.createElement('div');
+        taskItem.className = 'task-item';
+        taskItem.className = 'task-item project__add-overlay-container-body-item';
+
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.placeholder = 'Enter task details';
+
+        const removeBtn = document.createElement('span');
+
+        removeBtn.className = 'remove-task-btn';
+        removeBtn.textContent = 'x';
+
+        // Add the input and delete button to the task item
+        taskItem.appendChild(newInput);
+        taskItem.appendChild(removeBtn);
+
+        // Append the task item to the task container
+        taskContainer.appendChild(taskItem);
+
+    
+        // Event listener for removing the task item
+        removeBtn.addEventListener('click', function() {
+            taskItem.remove();
+    
+        });
+    
+    });
+
+    // Initial event listener for removing the first task item
+    const removeBtns = taskContainer.querySelectorAll('.remove-task-btn');
+    removeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const taskItem = btn.closest('.task-item');
+            taskItem.remove();
+       
+        });
+    });
+    function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+    // Gather data and send to backend via AJAX
+    createProjectBtn.addEventListener('click', function() {
+            const title = document.getElementById('project-title').value;
+            const scenario = document.getElementById('scenario').value;
+            const duration = document.getElementById('duration').value;
+            const imageUploadInput = document.getElementById('image-upload-input');
+            const tasks = [];
+            const csrfToken = getCookie('csrftoken');
+
+            taskContainer.querySelectorAll('.task-item input').forEach(taskInput => {
+                tasks.push(taskInput.value);
+            });
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('scenario', scenario);
+            formData.append('duration', duration);
+
+            if (imageUploadInput.files.length > 0) {
+                formData.append('image', imageUploadInput.files[0]);
+            }
+
+            formData.append('tasks', JSON.stringify(tasks));
+
+            console.log(formData)
+
+            // Sending the data to the backend
+            $.ajax({
+                url: '/create_project',  // Replace with your backend endpoint
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Ensure you have the CSRF token included
+                },
+                data: formData,
+                processData: false,  // Prevent jQuery from converting the formData to a query string
+                contentType: false,
+                success: function(response) {
+                    window.location.href = '/project'
+                    // Optionally, redirect or update the UI after successful submission
+                },
+                error: function(error) {
+                    
+                    console.error(error);
+                }
+            });
+        });
+});
+
+
+
+
+</script>
+
+   <script>
+      function addOverlay()
+        {
+          const overLayContainer = document.querySelector('.project__add-overlay');
+          overLayContainer.style.display = 'flex'
+        }
+
+        function removeOverlay()
+        {
+          const overLayContainer = document.querySelector('.project__add-overlay');
+          overLayContainer.style.display = 'none'
+        }
+   </script>
+
+<script>
+  function setupSearch(inputId, resultsContainerId, notFoundId) {
+        const searchInput = document.getElementById(inputId);
+        const resultsContainer = document.getElementById(resultsContainerId);
+        const notFoundElement = document.getElementById(notFoundId);
+
+        searchInput.addEventListener('keyup', function() {
+            const query = searchInput.value.trim().toLowerCase();
+            const skillItems = resultsContainer.getElementsByClassName('path__body-explore-body-item');
+            let found = false;
+
+            for (let i = 0; i < skillItems.length; i++) {
+                const skillName = skillItems[i].querySelector('.path__body-explore-body-item-title span').textContent.toLowerCase();
+
+                if (skillName.includes(query)) {
+                    skillItems[i].style.display = 'block';
+                    found = true;
+                } else {
+                    skillItems[i].style.display = 'none';
+                }
+            }
+
+            if (found) {
+                notFoundElement.style.display = 'none';
+            } else {
+                notFoundElement.style.display = 'flex';
+            }
+        });
+    }
+
+    // Example usage:
+    setupSearch('search-input', 'search-results', 'not-found');
+
+ </script>
+
+{% endblock main-content %}
+
+{% block title%} Project | Compas AI{% endblock %}
+{% block project%} active{% endblock %}
+{% block remove_search_bar%}style="display: none;"{% endblock %}

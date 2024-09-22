@@ -1,0 +1,1001 @@
+
+{% load static %}
+
+<div class="profile-edit__section">
+    <div class="profile-edit__section-container">
+        <div class="profile-edit__section-container-header">
+            <div class="profile-edit__section-container-header-container">
+                <span class="profile-edit__section-container-header-nav"
+                hx-post="{% url 'profile' profile.username %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap = "outerHTML"
+                hx-push-url="true">
+                    <i class='bx bx-left-arrow-alt' ></i> Back
+                </span>
+                <span class="profile-edit__section-container-header-save-text">
+                    Saved!
+                </span>
+            </div>
+           
+            <div class="profile-edit__section-container-header-container">
+                <span class="profile-edit__section-container-header-title">
+                    {% if profile_type != "SETTINGS" %}
+                        Edit Profile
+                    {% else %}
+                        Settings
+                    {% endif %}
+                </span>
+                <span class="profile-edit__section-container-header-btn {% if profile_type == 'EDUCATION' or profile_type == 'EXPERIENCE' %} disabled{% endif %}">
+                    {% if profile_type != "SETTINGS" %}
+                        Save Profile
+                    {% else %}
+                        Save Settings
+                    {% endif %}
+                </span>
+            </div>
+            
+        </div>
+        <div class="profile-edit__section-container-body">
+            {% if profile_type != "SETTINGS" %}
+           <div class="profile-edit__section-container-body-side-menu">
+            <a href="{% url 'profile_edit' profile.username %}" class="profile-edit__section-container-body-side-menu-item  {% if profile_type == 'BIO' %}active{% endif %}"
+                    >
+                    Bio
+                </a>
+                <a href="{% url 'profile_edit_skills' profile.username %}" class="profile-edit__section-container-body-side-menu-item {% if profile_type == 'SKILLS' %}active{% endif %}"d onclick="toggleActiveMultiple(this)" data-value="{{skill}}"
+                >
+                    Skills
+                </a>
+                <a href="{% url 'profile_edit_links' profile.username %}" class="profile-edit__section-container-body-side-menu-item {% if profile_type == 'LINKS' %}active{% endif %}"
+                    >
+                    Links
+                </a>
+                <a href="{% url 'profile_edit_education' profile.username %}" class="profile-edit__section-container-body-side-menu-item {% if profile_type == 'EDUCATION' %}active{% endif %}"
+                    >
+                    Education
+                </a>
+                <a href="{% url 'profile_edit_experience' profile.username %}" class="profile-edit__section-container-body-side-menu-item {% if profile_type == 'EXPERIENCE' %}active{% endif %}" 
+                    >
+                    Experience
+                </a>
+                <!-- <span class="profile-edit__section-container-body-side-menu-item {% if profile_type == 'SETTINGS' %}active{% endif %}"
+                    hx-post="{% url 'profile_edit_settings' profile.username %}"
+                    hx-trigger="click"
+                    hx-target="#body"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true">
+                    Settings
+                </span> -->
+           </div>
+           {% endif %}
+           <div class="profile-edit__section-container-body-side-body">
+                {% if profile_type == "BIO" %}
+                <div class="profile-edit__section-container-body-side-body-items">
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Display Name</label>
+                        <input type="text" value="{{profile.display_name}}" id="display_name">
+                    </span>
+                    <!-- <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Email</label>
+                        <input type="text" value="{{profile.email}}" id="email">
+                    </span>
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Phone Number</label>
+                        <input type="text" value="{{profile.phone_number}}" id="phone_number">
+                    </span> -->
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Profile Summary</label>
+                       <textarea name="" id="about">{{profile.about}}</textarea>
+                    </span>
+                </div>
+
+                <script>
+                    const displayName = document.getElementById('display_name');
+                    const about = document.getElementById('about');
+                    const saveBtn = document.querySelector('.profile-edit__section-container-header-btn');
+                    const saveText = document.querySelector('.profile-edit__section-container-header-save-text');
+                    saveBtn.addEventListener('click', function() {
+                        const displayNameVal = displayName.value;
+                        const aboutVal = about.value;
+                        const formData = new FormData();
+                        formData.append('type',  "BIO");
+                        formData.append('name', displayNameVal);
+                        formData.append('about', aboutVal);
+
+                        function hideText() {
+                            saveText.style.display = 'none';
+                        }
+
+                         // Use AJAX to send the FormData to the server for saving
+                        $.ajax({
+                            url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                            type: 'POST',
+                            data: formData,
+                            processData: false, // Important: Prevent jQuery from processing the data
+                            contentType: false, // Important: Set the content type to false
+                            success: function (response) {
+                                // Handle the success response from the server
+                                console.log('Profile changes saved successfully');
+                                saveText.style.display = 'block';
+                                setTimeout(hideText, 2000);
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                // Handle errors if needed
+                                console.error('Error:', errorThrown);
+                            }
+                        });
+                    });
+
+                </script>
+                {% elif profile_type == "SKILLS" %}
+                <div class="profile-edit__section-container-body-side-body-items-skills">
+                    <span>Select your top 5 strengths</span>
+                    <span class="onboarding__section-container-body-questions-item-input multiple">
+                        {% for skill in soft_skills %}
+                        <span class="onboarding__section-container-body-questions-item-input-select multiple {% if skill in profile.strengths %} active {% endif %}" onclick="toggleActiveMultiple(this)" data-value="{{skill}}">
+                            {{skill}}
+                        </span>
+                        {% endfor %}
+                       
+                    </span>
+                    <input type="hidden" name="value" id="value">
+                </div>
+
+                <script>
+                     function toggleActiveMultiple(selectedElement) {
+                        // Get all elements with the 'active' class
+                        const activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+
+                        // Check if the clicked element is already active
+                        if (selectedElement.classList.contains('active')) {
+                            // Remove the 'active' class if the element is already active
+                            selectedElement.classList.remove('active');
+                        } else {
+                            // If not active and less than 5 are active, add the 'active' class
+                            if (activeElements.length < 5) {
+                                selectedElement.classList.add('active');
+                            } else {
+                                const warningCon = document.querySelector('.onboarding__section-container-body-questions-item-warning');
+                                warningCon.style.display = 'block';
+                                
+                            }
+                        }
+
+                        selectedElementsFn();
+                    }
+
+
+                    function selectedElementsFn() {
+                        // Get all active elements
+                        var activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+                            
+                            // Map the data-value attributes of active elements to an array
+                            var roles = Array.from(activeElements).map(el => el.getAttribute('data-value'));
+                            
+                            // Update the hidden input value with the JSON string of selected roles
+
+                            const inputValue = document.getElementById('value');
+                            inputValue.value  = JSON.stringify(roles) ;
+                    }
+
+                    
+                    const skills = document.getElementById('value');
+                    const saveBtn2 = document.querySelector('.profile-edit__section-container-header-btn');
+                    const saveText2 = document.querySelector('.profile-edit__section-container-header-save-text');
+                    saveBtn2.addEventListener('click', function() {
+                        const skillsVal = skills.value;
+                       
+                        const formData = new FormData();
+                        formData.append('type',  "SKILLS");
+                        formData.append('skills',  skillsVal);
+                       
+                        function hideText() {
+                            saveText2.style.display = 'none';
+                        }
+
+                         // Use AJAX to send the FormData to the server for saving
+                        $.ajax({
+                            url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                            type: 'POST',
+                            data: formData,
+                            processData: false, // Important: Prevent jQuery from processing the data
+                            contentType: false, // Important: Set the content type to false
+                            success: function (response) {
+                                // Handle the success response from the server
+                                console.log('Profile changes saved successfully');
+                                saveText2.style.display = 'block';
+                                setTimeout(hideText, 2000);
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                // Handle errors if needed
+                                console.error('Error:', errorThrown);
+                            }
+                        });
+                    });
+
+                </script>
+                {% elif profile_type == "LINKS" %}
+                <div class="profile-edit__section-container-body-side-body-items">
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Portfolio</label>
+                        <input id="portfolio" type="text" value="{{profile.portfolio}}">
+                    </span>
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">LinkedIn</label>
+                        <input id="linkedin" type="text" value="{{profile.linkedin}}">
+                    </span>
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Twitter</label>
+                        <input id="twitter" type="text" value="{{profile.twitter}}">
+                    </span>
+                    <span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Instagram</label>
+                        <input id="instagram" type="text" value="{{profile.instagram}}">
+                    </span><span class="profile-edit__section-container-body-side-body-item">
+                        <label for="">Facebook</label>
+                        <input id="facebook" type="text" value="{{profile.facebook}}">
+                    </span>
+                </div>
+
+                <script>
+                    const portfolio = document.getElementById('portfolio');
+                    const linkedin = document.getElementById('linkedin');
+                    const instagram = document.getElementById('instagram');
+                    const twitter = document.getElementById('twitter');
+                    const facebook = document.getElementById('facebook');
+                    const saveBtn3 = document.querySelector('.profile-edit__section-container-header-btn');
+                    const saveText3 = document.querySelector('.profile-edit__section-container-header-save-text');
+                    saveBtn3.addEventListener('click', function() {
+                        const portfolioVal = portfolio.value;
+                        const linkedinVal = linkedin.value;
+                        const instagramVal = instagram.value;
+                        const twitterVal = twitter.value;
+                        const facebookVal = facebook.value;
+                        
+                        const formData = new FormData();
+                        formData.append('type',  "LINKS");
+                        formData.append('linkedin',linkedinVal);
+                        formData.append('instagram',instagramVal);
+                        formData.append('twitter',twitterVal);
+                        formData.append('facebook',facebookVal);
+                        formData.append('portfolio',portfolioVal);
+                        
+                
+                        function hideText() {
+                            saveText3.style.display = 'none';
+                        }
+                
+                         // Use AJAX to send the FormData to the server for saving
+                        $.ajax({
+                            url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                            type: 'POST',
+                            data: formData,
+                            processData: false, // Important: Prevent jQuery from processing the data
+                            contentType: false, // Important: Set the content type to false
+                            success: function (response) {
+                                // Handle the success response from the server
+                                console.log('Profile changes saved successfully');
+                                saveText3.style.display = 'block';
+                                setTimeout(hideText, 2000);
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                // Handle errors if needed
+                                console.error('Error:', errorThrown);
+                            }
+                        });
+                    });
+                
+                </script>
+               
+                {% elif profile_type == "EDUCATION" %}
+                <div class="profile-edit__section-container-body-side-body-items-education">
+                    <div class="profile-edit__section-container-body-side-body-items-education-item toggle_body" >
+                        <div class="profile-edit__section-container-body-side-body-items-education-item-header toggle_body-link">
+                            <i class='bx bx-plus' ></i> <i class='bx bx-minus' ></i> Add New Education
+                        </div>
+                        <div class="profile-edit__section-container-body-side-body-items add-item-body">
+                            <span class="profile-edit__section-container-body-side-body-item">
+                                <label for="">School</label>
+                                <input type="text" id="school">
+                            </span>
+                            <span class="profile-edit__section-container-body-side-body-item">
+                                <label for="">Degree</label>
+                                <input type="text" id="degree">
+                            </span>  
+                            <span class="profile-edit__section-container-body-side-body-item">
+                                <label for="">Start Date</label>
+                                <input type="date" id="start_date" >
+                            </span>
+                           
+                            <span class="profile-edit__section-container-body-side-body-item">
+                                <label for="">End Date (or expected)</label>
+                                <input type="date" id="end_date">
+                            </span>
+                            <div class="profile-edit__section-container-body-side-body-item-btn">
+                                Add New Education
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="profile-edit__section-container-body-side-body-items-education-item">
+                        <div class="profile-edit__section-container-body-side-body-items-education-item-header">
+                            Education
+                        </div>
+                        {% if education %}
+                        <div class="profile__section-body-container-about-container-content-org">
+                            {% for edu in education reversed %}
+                            <div class="child-color update_toggle_body">
+                                <div class="profile__section-body-container-about-container-content-org-item child-color profile_edit-item">
+                                    <div class="profile__section-body-container-about-container-content-org-item-left">
+                                        {% if not edu.school_logo %}
+                                        <span class="child-el">{{ edu.school|slice:":1" }}</span>
+                                        {% else %}
+                                        <img src="{% static 'images/logo/loader.svg'%}" alt="">
+                                        {% endif %}
+                                    </div>
+                                    <div class="profile__section-body-container-about-container-content-org-item-right">
+                                        <span class="profile__section-body-container-about-container-content-org-item-role">
+                                            {{edu.school}}
+                                        </span>
+                                        <span class="profile__section-body-container-about-container-content-org-item-org">
+                                            {{edu.degree}}
+                                        </span>
+                                        <span class="profile__section-body-container-about-container-content-org-item-date">
+                                            {{ edu.start_date }} - {{ edu.end_date }}
+                                        </span>
+                                        
+                                    </div>
+                                    <span class="profile-edit__section-container-body-side-body-item-edit">
+                                        <i class='bx bx-message-square-edit' id="update_education"></i>
+                                        
+                                    </span>
+                                </div>
+                                <div class="profile-edit__section-container-body-side-body-items update-item-body">
+                                    <span class="profile-edit__section-container-body-side-body-item">
+                                        <label for="">School</label>
+                                        <input type="text" id="school" value="{{edu.school}}">
+                                    </span>
+                                    <span class="profile-edit__section-container-body-side-body-item">
+                                        <label for="">Degree</label>
+                                        <input type="text" id="degree" value="{{edu.degree}}">
+                                    </span>  
+                                    <span class="profile-edit__section-container-body-side-body-item">
+                                        <label for="">Start Date</label>
+                                        <input type="date" id="start_date" class="start_date" value="{{ edu.start_date_raw }}" >
+                                    </span>
+                                   
+                                    <span class="profile-edit__section-container-body-side-body-item">
+                                        <label for="">End Date (or expected)</label>
+                                        <input type="date" id="end_date" class="end_date" value="{{ edu.end_date_raw }}">
+                                    </span>
+                                    <div class="profile-edit__section-container-body-side-body-item-btn" data-id="{{edu.id}}">
+                                        Update Education
+                                    </div>
+                                    <div class="profile-edit__section-container-body-side-body-item-btn-delete" data-id="{{edu.id}}">
+                                        <i class='bx bx-trash' id="delete_education"></i>
+                                        <span>Delete Education</span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                           
+                            {% endfor %}
+                        </div>
+        
+                        {% else %}
+                        <span class="profile__section-body-container-about-container-content-empty">
+                            You do not have any education added yet.
+                            <span>
+                                Add education
+                            </span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Get all update buttons and corresponding update-item-body elements
+                        const updateButtons = document.querySelectorAll('.bx-message-square-edit');
+                        
+                        updateButtons.forEach((button) => {
+                            button.addEventListener('click', function() {
+                                console.log("cluasdjsa");
+                                // Find the nearest parent with the class update_toggle_body
+                                const updateContainer = button.closest('.update_toggle_body');
+                                // Find the update-item-body within this container
+                                
+                                updateContainer.classList.toggle('active');
+                            });
+                        });
+
+                         // Handle updating education data
+                        document.querySelectorAll('.profile-edit__section-container-body-side-body-item-btn').forEach(function(updateButton) {
+                            updateButton.addEventListener('click', function() {
+                                // Get the id of the education item
+                                const eduId = this.getAttribute('data-id');
+
+                                // Get the updated values
+                                const updateBody = this.closest('.update-item-body');
+                                const school = updateBody.querySelector('#school');
+                                const degree = updateBody.querySelector('#degree');
+                                const startDate = updateBody.querySelector('.start_date');
+                                const endDate = updateBody.querySelector('.end_date');
+
+                                const schoolVal = school.value;
+                                const degreeVal = degree.value;
+                                const start_dateVal = startDate.value;
+                                const end_dateVal = endDate.value;
+                                
+                        
+                                const formData = new FormData();
+                                formData.append('type',  "EDUCATION");
+                                formData.append('subtype',  "UPDATE");
+                                formData.append('id',  eduId);
+                                formData.append('school',schoolVal);
+                                formData.append('degree',degreeVal);
+                                formData.append('start_date',start_dateVal);
+                                formData.append('end_date',end_dateVal);
+                            
+                                function hideText() {
+                                    saveText4.style.display = 'none';
+                                }
+                        
+                                // Use AJAX to send the FormData to the server for saving
+                                $.ajax({
+                                    url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                                    type: 'POST',
+                                    data: formData,
+                                    processData: false, // Important: Prevent jQuery from processing the data
+                                    contentType: false, // Important: Set the content type to false
+                                    success: function (response) {
+                                        // Handle the success response from the server
+                                        console.log('Profile changes saved successfully');
+                                        school.value = '';
+                                        degree.value = '';
+                                        start_date.value = '';
+                                        end_date.value = '';
+                                        addContainer.classList.remove('active');
+                                        saveText4.style.display = 'block';
+                                        setTimeout(hideText, 2000);
+                                        window.location.reload()
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        // Handle errors if needed
+                                        console.error('Error:', errorThrown);
+                                    }
+                                });
+
+
+                            });
+                        });
+
+
+                                 // Handle updating education data
+                        document.querySelectorAll('.profile-edit__section-container-body-side-body-item-btn-delete').forEach(function(updateButton) {
+                            updateButton.addEventListener('click', function() {
+                                // Get the id of the education item
+                                const eduId = this.getAttribute('data-id');
+                                const formData = new FormData();
+                                formData.append('type',  "EDUCATION");
+                                formData.append('subtype',  "DELETE");
+                                formData.append('id',  eduId);
+                                function hideText() {
+                                    saveText4.style.display = 'none';
+                                }
+                        
+                                // Use AJAX to send the FormData to the server for saving
+                                $.ajax({
+                                    url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                                    type: 'POST',
+                                    data: formData,
+                                    processData: false, // Important: Prevent jQuery from processing the data
+                                    contentType: false, // Important: Set the content type to false
+                                    success: function (response) {
+                                        // Handle the success response from the server
+                                        console.log('Profile changes saved successfully');
+                                        school.value = '';
+                                        degree.value = '';
+                                        start_date.value = '';
+                                        end_date.value = '';
+                                        addContainer.classList.remove('active');
+                                        saveText4.style.display = 'block';
+                                        setTimeout(hideText, 2000);
+                                        window.location.reload()
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        // Handle errors if needed
+                                        console.error('Error:', errorThrown);
+                                    }
+                                });
+
+
+                            });
+                        });
+
+
+                    });
+
+                </script>
+
+                <script>
+                    const school = document.getElementById('school');
+                    const degree = document.getElementById('degree');
+                    const start_date = document.getElementById('start_date');
+                    const end_date = document.getElementById('end_date');
+                    
+                    const addContainer = document.querySelector('.toggle_body');
+                    const addBtn4 = document.querySelector('.profile-edit__section-container-body-side-body-item-btn');
+                    const saveBtn4 = document.querySelector('.profile-edit__section-container-header-btn');
+                    const saveText4 = document.querySelector('.profile-edit__section-container-header-save-text');
+                    addBtn4.addEventListener('click', function() {
+                        const schoolVal = school.value;
+                        const degreeVal = degree.value;
+                        const start_dateVal = start_date.value;
+                        const end_dateVal = end_date.value;
+                        
+                
+                        const formData = new FormData();
+                        formData.append('type',  "EDUCATION");
+                        formData.append('subtype',  "ADD");
+                        formData.append('school',schoolVal);
+                        formData.append('degree',degreeVal);
+                        formData.append('start_date',start_dateVal);
+                        formData.append('end_date',end_dateVal);
+                       
+                        
+                
+                        function hideText() {
+                            saveText4.style.display = 'none';
+                        }
+                
+                         // Use AJAX to send the FormData to the server for saving
+                        $.ajax({
+                            url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                            type: 'POST',
+                            data: formData,
+                            processData: false, // Important: Prevent jQuery from processing the data
+                            contentType: false, // Important: Set the content type to false
+                            success: function (response) {
+                                // Handle the success response from the server
+                                console.log('Profile changes saved successfully');
+                                school.value = '';
+                                degree.value = '';
+                                start_date.value = '';
+                                end_date.value = '';
+                                addContainer.classList.remove('active');
+                                saveText4.style.display = 'block';
+                                setTimeout(hideText, 2000);
+                                window.location.reload()
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                // Handle errors if needed
+                                console.error('Error:', errorThrown);
+                            }
+                        });
+                    });
+                
+                </script>
+               
+                {% elif profile_type == "EXPERIENCE" %}
+                <div class="profile-edit__section-container-body-side-body-items-experience">
+                    <div class="profile-edit__section-container-body-side-body-items-education">
+                        <div class="profile-edit__section-container-body-side-body-items-education-item toggle_body">
+                            <div class="profile-edit__section-container-body-side-body-items-education-item-header toggle_body-link">
+                                <i class='bx bx-plus' > </i><i class='bx bx-minus' ></i>   Add New Experience
+                            </div>
+                            <div class="profile-edit__section-container-body-side-body-items add-item-body">
+                                <span class="profile-edit__section-container-body-side-body-item">
+                                    <label for="">Title</label>
+                                    <input type="text" id="title">
+                                </span>
+                                <span class="profile-edit__section-container-body-side-body-item">
+                                    <label for="">Company name</label>
+                                    <input type="text" id="company" >
+                                </span>
+                                <span class="profile-edit__section-container-body-side-body-item">
+                                    <label for="">Description</label>
+                                    <input type="text" id="description" >
+                                </span>
+                                <span class="profile-edit__section-container-body-side-body-item">
+                                    <label for="">Start Date</label>
+                                    <input type="date" id="exp_start_date" >
+                                </span>
+                                
+                                <span class="profile-edit__section-container-body-side-body-item">
+                                    <label for="">End Date (Leave blank if it is a current role)</label>
+                                    <input type="date" id="exp_end_date" >
+                                </span>
+                                <div class="profile-edit__section-container-body-side-body-item-btn">
+                                    Add New Experience
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="profile-edit__section-container-body-side-body-items-education-item">
+                            <div class="profile-edit__section-container-body-side-body-items-education-item-header">
+                                Experiences
+                            </div>
+                           
+                            {% if experiences %}
+                            <div class="profile__section-body-container-about-container-content-org">
+                                {% for exp in experiences reversed %}
+                                <div class="child-color update_toggle_body">
+                                    <div class="profile__section-body-container-about-container-content-org-item child-color profile_edit-item">
+                                        <div class="profile__section-body-container-about-container-content-org-item-left">
+                                            {% if not exp.company_logo %}
+                                            <span class="child-el">{{ exp.company|slice:":1" }}</span>
+                                            {% else %}
+                                            <img src="{% static 'images/logo/loader.svg'%}" alt="">
+                                            {% endif %}
+                                        </div>
+                                        <div class="profile__section-body-container-about-container-content-org-item-right">
+                                            <span class="profile__section-body-container-about-container-content-org-item-role">
+                                                {{exp.title}}
+                                            </span>
+                                            <span class="profile__section-body-container-about-container-content-org-item-org">
+                                                {{exp.company}}
+                                            </span>
+                                            <span class="profile__section-body-container-about-container-content-org-item-date">
+                                                {{ exp.start_date }} - {{ exp.end_date }}
+                                            </span>
+                                            <div class="profile__section-body-container-about-container-content-org-item-desc">
+                                            -  {{exp.description}}
+                                            </div>
+                                        </div>
+                                        <span class="profile-edit__section-container-body-side-body-item-edit">
+                                            <i class='bx bx-message-square-edit'></i>
+                                        </span>
+                                    </div>
+                                    <div class="profile-edit__section-container-body-side-body-items update-item-body">
+                                        <span class="profile-edit__section-container-body-side-body-item">
+                                            <label for="">Title</label>
+                                            <input type="text" id="title" value="{{exp.title}}">
+                                        </span>
+                                        <span class="profile-edit__section-container-body-side-body-item">
+                                            <label for="">Company name</label>
+                                            <input type="text" id="company" value="{{exp.company}}">
+                                        </span>
+                                        <span class="profile-edit__section-container-body-side-body-item">
+                                            <label for="">Description</label>
+                                            <input type="text" id="description"  value="{{exp.description}}">
+                                        </span>
+                                        <span class="profile-edit__section-container-body-side-body-item">
+                                            <label for="">Start Date</label>
+                                            <input type="date" id="exp_start_date"  value="{{exp.start_date_raw}}">
+                                        </span>
+                                        
+                                        <span class="profile-edit__section-container-body-side-body-item">
+                                            <label for="">End Date (Leave blank if it is a current role)</label>
+                                            <input type="date" id="exp_end_date" value="{{exp.end_date_raw}}">
+                                        </span>
+                                        <div class="profile-edit__section-container-body-side-body-item-btn" data-id="{{exp.id}}">
+                                            Update Experience
+                                        </div>
+                                        <div class="profile-edit__section-container-body-side-body-item-btn-delete" data-id="{{exp.id}}">
+                                            <i class='bx bx-trash' id="delete_education"></i>
+                                            <span>Delete Experience</span>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+            
+                            {% else %}
+                            <span class="profile__section-body-container-about-container-content-empty">
+                                You do not have any experience added yet.
+                                <span>
+                                    Add experience
+                                </span>
+                            </span>
+                            {% endif %}
+                        
+                    </div>
+                </div>
+                
+            
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Get all update buttons and corresponding update-item-body elements
+                        const updateButtons = document.querySelectorAll('.bx-message-square-edit');
+                        
+                        updateButtons.forEach((button) => {
+                            button.addEventListener('click', function() {
+                                console.log("cluasdjsa");
+                                // Find the nearest parent with the class update_toggle_body
+                                const updateContainer = button.closest('.update_toggle_body');
+                                // Find the update-item-body within this container
+                                
+                                updateContainer.classList.toggle('active');
+                            });
+                        });
+
+                         // Handle updating education data
+                        document.querySelectorAll('.profile-edit__section-container-body-side-body-item-btn').forEach(function(updateButton) {
+                            updateButton.addEventListener('click', function() {
+                                // Get the id of the education item
+                                const expId = this.getAttribute('data-id');
+
+                                // Get the updated values
+                                const updateBody = this.closest('.update-item-body');
+                                const title = updateBody.querySelector('#title');
+                                const company = updateBody.querySelector('#company');
+                                const description = updateBody.querySelector('#description');
+                                const startDate = updateBody.querySelector('#exp_start_date');
+                                const endDate = updateBody.querySelector('#exp_end_date');
+
+                                const titleVal = title.value;
+                                const companyVal = company.value;
+                                const descriptionVal = description.value;
+                                const start_dateVal = startDate.value;
+                                const end_dateVal = endDate.value;
+                                
+                        
+                                const formData = new FormData();
+                                formData.append('type',  "EXPERIENCE");
+                                formData.append('subtype',  "UPDATE");
+                                formData.append('id',  expId);
+                                formData.append('title',titleVal);
+                                formData.append('company',companyVal);
+                                formData.append('description',descriptionVal);
+                                formData.append('start_date',start_dateVal);
+                                formData.append('end_date',end_dateVal);
+                            
+                                function hideText() {
+                                    saveText4.style.display = 'none';
+                                }
+                        
+                                // Use AJAX to send the FormData to the server for saving
+                                $.ajax({
+                                    url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                                    type: 'POST',
+                                    data: formData,
+                                    processData: false, // Important: Prevent jQuery from processing the data
+                                    contentType: false, // Important: Set the content type to false
+                                    success: function (response) {
+                                        // Handle the success response from the server
+                                        console.log('Profile changes saved successfully');
+                        
+                                       
+                                        window.location.reload();
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        // Handle errors if needed
+                                        console.error('Error:', errorThrown);
+                                    }
+                                });
+
+
+                            });
+                        });
+
+
+                                 // Handle updating education data
+                        document.querySelectorAll('.profile-edit__section-container-body-side-body-item-btn-delete').forEach(function(updateButton) {
+                            updateButton.addEventListener('click', function() {
+                                // Get the id of the education item
+                                const expId = this.getAttribute('data-id');
+                                const formData = new FormData();
+                                formData.append('type',  "EXPERIENCE");
+                                formData.append('subtype',  "DELETE");
+                                formData.append('id',  expId);
+                                function hideText() {
+                                    saveText4.style.display = 'none';
+                                }
+                        
+                                // Use AJAX to send the FormData to the server for saving
+                                $.ajax({
+                                    url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                                    type: 'POST',
+                                    data: formData,
+                                    processData: false, // Important: Prevent jQuery from processing the data
+                                    contentType: false, // Important: Set the content type to false
+                                    success: function (response) {
+                                        // Handle the success response from the server
+                                        console.log('Profile changes saved successfully');
+                                        window.location.reload();
+                                        
+                                        
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        // Handle errors if needed
+                                        console.error('Error:', errorThrown);
+                                    }
+                                });
+
+
+                            });
+                        });
+
+
+                    });
+
+                </script>
+
+                <script>
+                    const title = document.getElementById('title');
+                    const company = document.getElementById('company');
+                    const description = document.getElementById('description');
+                    const exp_start_date = document.getElementById('exp_start_date');
+                    const exp_end_date = document.getElementById('exp_end_date');
+                    
+                    const exp_addContainer = document.querySelector('.toggle_body');
+                    const exp_addBtn4 = document.querySelector('.profile-edit__section-container-body-side-body-item-btn');
+                    const exp_saveBtn4 = document.querySelector('.profile-edit__section-container-header-btn');
+                    const exp_saveText4 = document.querySelector('.profile-edit__section-container-header-save-text');
+                    exp_addBtn4.addEventListener('click', function() {
+                        const titleVal = title.value;
+                        const companyVal = company.value;
+                        const descriptionVal = description.value;
+                        const start_dateVal = exp_start_date.value;
+                        const end_dateVal = exp_end_date.value;
+                        
+                
+                        const formData = new FormData();
+                        formData.append('type',  "EXPERIENCE");
+                        formData.append('subtype',  "ADD");
+                        formData.append('title',titleVal);
+                        formData.append('company',companyVal);
+                        formData.append('description',descriptionVal);
+                        formData.append('start_date',start_dateVal);
+                        formData.append('end_date',end_dateVal);
+                       
+                        
+                
+                        function hideText() {
+                            exp_saveText4.style.display = 'none';
+                        }
+                
+                         // Use AJAX to send the FormData to the server for saving
+                        $.ajax({
+                            url: 'update_profile_data', // Replace with the URL to your Django view for saving the profile
+                            type: 'POST',
+                            data: formData,
+                            processData: false, // Important: Prevent jQuery from processing the data
+                            contentType: false, // Important: Set the content type to false
+                            success: function (response) {
+                                // Handle the success response from the server
+                                console.log('Profile changes saved successfully');
+                                title.value = '';
+                                company.value = '';
+                                description.value = '';
+                                exp_start_date.value = '';
+                                exp_end_date.value = '';
+                                exp_addContainer.classList.remove('active');
+                                exp_saveText4.style.display = 'block';
+                                setTimeout(hideText, 2000);
+                                window.location.reload();
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                // Handle errors if needed
+                                console.error('Error:', errorThrown);
+                            }
+                        });
+                    });
+                
+                </script>
+               
+                {% elif profile_type == "SETTINGS" %}
+                <div class="profile-edit__section-container-body-side-body-items-settings">
+                    <div class="disable-container">
+                        <i class='bx bxs-lock'></i>
+                    </div>
+                    <div class="profile-edit__section-container-body-side-body-items-settings-item">
+                        <div class="profile-edit__section-container-body-side-body-items-settings-item-header">
+                            <span>
+                                General
+                            </span>
+                        </div>
+                        <div class="profile-edit__section-container-body-side-body-items-settings-item-body">
+                            <div class="profile-edit__section-container-body-side-body-items-settings-item-body-item">
+                                <span>Display</span>
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                            <div class="profile-edit__section-container-body-side-body-items-settings-item-body-item">
+                                <span>Location</span>
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                            <div class="profile-edit__section-container-body-side-body-items-settings-item-body-item">
+                                <span>Language</span>
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                            <div class="profile-edit__section-container-body-side-body-items-settings-item-body-item">
+                                <span>Change Password</span>
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                            <div class="profile-edit__section-container-body-side-body-items-settings-item-body-item">
+                                <span>Change Phone number</span>
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                            <div class="profile-edit__section-container-body-side-body-items-settings-item-body-item">
+                                <span>Delete Account</span>
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Select the element you want to toggle the class on
+    var educationHeader = document.querySelector('.toggle_body-link');
+    var educationHeaderBody = document.querySelector('.toggle_body');
+
+    // Add a click event listener to toggle the 'active' class
+    educationHeader.addEventListener('click', function() {
+        educationHeaderBody.classList.toggle('active');
+    });
+
+</script>
+
+
+<script>
+    function toggleActiveMultiple(selectedElement) {
+                    // Get all elements with the 'active' class
+                const activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+
+            // Check if the clicked element is already active
+            if (selectedElement.classList.contains('active')) {
+                // Remove the 'active' class if the element is already active
+                selectedElement.classList.remove('active');
+            } else {
+                // If not active and less than 5 are active, add the 'active' class
+                if (activeElements.length < 5) {
+                    selectedElement.classList.add('active');
+                } else {
+                    const warningCon = document.querySelector('.onboarding__section-container-body-questions-item-warning');
+                    warningCon.style.display = 'block';
+                    
+                }
+            }
+
+            selectedElementsFn();
+        }
+
+
+        function selectedElementsFn() {
+        // Get all active elements
+        var activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+            
+            // Map the data-value attributes of active elements to an array
+            var roles = Array.from(activeElements).map(el => el.getAttribute('data-value'));
+            
+            // Update the hidden input value with the JSON string of selected roles
+
+            const inputValue = document.getElementById('value');
+            inputValue.value  = JSON.stringify(roles) ;
+        }
+</script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.min.js"></script>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                selectable: true,
+                select: function(info) {
+                    if (confirm('Do you want to book this time slot?')) {
+                        window.location.href = '/book/?start=' + info.startStr + '&end=' + info.endStr;
+                    }
+                }
+            });
+
+            calendar.render();
+        });
+</script>
+
+<script>
+
+</script>

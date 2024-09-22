@@ -1,0 +1,518 @@
+{% extends 'path_detail.html' %}
+{% load static %}
+{% block path-detail__content %}
+<div class="path-detail__section-mentors-section">
+    <div class="connect__filters-search">
+        <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input" placeholder="Search by title">
+        
+      </div>
+    <div id="search-results" class="connect__body-items">
+      {% for mentor in mentors %}
+      <div class="connect__body-item">
+        <a class="connect__body-item-img" href="{% url 'profile' mentor.username %}">
+          {% if mentor.profile_picture %}
+          <img class="connect__body-item-img-dp" src="{{ mentor.profile_picture.url }}" alt="">
+          {% else %}
+          <img class="connect__body-item-img-dp" src="{% static 'images/ava.png'%}" alt="">
+          {% endif %}
+         
+          <img class="connect__body-item-img-avatar" src="{% static 'images/avatar.jpg'%}" alt="">
+        </a>
+        <a href="{% url 'profile' mentor.username %}" class="connect__body-item_info">
+          <span class="connect__body-item-name">{{mentor.display_name}}</span>
+          <span class="connect__body-item-role">{{ mentor.bio }}</span>
+        </a>
+        
+        <span class="connect__body-item-btn"  
+        hx-post="{% url 'book_session' mentor.username %}"
+        hx-trigger="click"
+        hx-target="#book_overlay"
+        hx-swap = "innerHTML"
+        hx-push-url="true">
+        <i class='bx bx-calendar' ></i>
+        <span class="connect__body-item-btn-text" >Book a call</span>
+       
+      </span>
+      </div>
+      {% endfor %}
+    </div>
+    <div id="not-found" class="not__found" style="display: none;">
+      <span>No mentor found.</span>
+  </div>
+</div>
+
+<div class="" id="book_overlay" data-value="{{path.suggested_skill.value}}">
+    
+</div>
+
+<script>
+  function setupSearch(inputId, resultsContainerId, notFoundId) {
+  const searchInput = document.getElementById(inputId);
+  const resultsContainer = document.getElementById(resultsContainerId);
+  const notFoundElement = document.getElementById(notFoundId);
+
+  searchInput.addEventListener('keyup', function() {
+      const query = searchInput.value.trim().toLowerCase();
+      const courseItems = resultsContainer.getElementsByClassName('connect__body-item');
+      let found = false;
+
+      for (let i = 0; i < courseItems.length; i++) {
+          const spans = courseItems[i].getElementsByTagName('span');
+          let itemText = '';
+
+          for (let j = 0; j < spans.length; j++) {
+              itemText += spans[j].textContent.toLowerCase() + ' ';
+          }
+
+          if (itemText.includes(query)) {
+              courseItems[i].style.display = 'flex';
+              found = true;
+          } else {
+              courseItems[i].style.display = 'none';
+          }
+      }
+
+      if (found) {
+          notFoundElement.style.display = 'none';
+      } else {
+          notFoundElement.style.display = 'flex';
+      }
+  });
+}
+
+// Example usage:
+setupSearch('search-input', 'search-results', 'not-found');
+
+</script>
+
+
+<script>
+    function removeOverlayAndChangeURL(username, type='back') {
+      // Remove the overlay by targeting the overlay element
+      const overlay = document.getElementById('book_overlay'),
+            path_name = overlay.getAttribute('data-value');
+      if (overlay) {
+          overlay.innerHTML = ''; // Clear the content
+      }
+  
+      // Change the URL based on the option provided
+      let newURL = window.location.pathname; // Default to current URL if nothing matches
+  
+      if (type == 'back')
+          {
+            newURL = `/path/${path_name}/mentors`;
+             
+      } else {
+              newURL = `/message/${username}`;
+          }
+          
+      // Push the new URL to history without reloading the page
+      window.location.assign(newURL);
+  }
+  
+</script>
+  
+
+
+<script>
+    let bookingInfo = {};
+    let bookedInfo = [];
+
+    function submitBooking() {
+        const dateTime = getActiveDateAndTime(),
+            confirmBtn = document.querySelector('.note__section-btn'),
+            username = confirmBtn.getAttribute('data-mentor');
+            formData = new FormData(),
+            noteText = document.getElementById('booking__note').value;
+
+        formData.append('date',  dateTime.date);
+        formData.append('time',  dateTime.time);
+        formData.append('type',  bookingInfo.type);
+        formData.append('mode',  bookingInfo.mode);
+        formData.append('freq',  bookingInfo.freq);
+        formData.append('note',  noteText);
+        formData.append('username',  username);
+
+        $.ajax({
+            url: '/confirm_booking', // Replace with the URL to your Django view for saving the profile
+            type: 'POST',
+            data: formData,
+            processData: false, // Important: Prevent jQuery from processing the data
+            contentType: false, // Important: Set the content type to false
+            success: function (response) {
+                // Handle the success response from the server
+                confirmBtn.classList.add('booked');
+                confirmBtn.innerHTML = `<i class='bx bx-check'></i> <span>Booking Confirmed!</span>`
+                setTimeout(removeOverlayAndChangeURL(response.message, 'message'), 1000);
+                  
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                // Handle errors if needed
+                console.error('Error:', errorThrown);
+            }
+        });
+
+    }
+
+
+    function resetFilter()
+      {
+          const allDates = document.querySelectorAll('.calendar-date-item');
+          const timeSlotSection = document.querySelector('.calendar__section-body-time-items'); 
+          if (allDates)
+              {
+                  allDates.forEach(date => date.classList.remove('active'));
+              }
+
+          timeSlotSection.innerHTML = "";
+          
+      }
+
+      function formatDate(mode, selectedDate, frequency = 0) {
+            const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            // Parse the selected date into a JavaScript Date object
+            const date = new Date(selectedDate);
+            const dayOfWeek = dayNames[date.getDay()];
+            const month = monthNames[date.getMonth()];
+            const day = date.getDate();
+            const year = date.getFullYear();
+
+            // If mode is 'one_time', return the formatted date (e.g., "Thu, Aug 02")
+            if (mode === 'one_time') {
+                return `${dayOfWeek}, ${month} ${day < 10 ? '0' + day : day}`;
+            }
+
+            // If mode is 'repeat', calculate recurring dates based on frequency
+            if (mode === 'repeat') {
+                let recurringDates = [];
+                let currentDate = new Date(date);
+                for (let i = 0; i < frequency; i++) {
+                    const formattedDate = `${monthNames[currentDate.getMonth()]} ${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}`;
+                    recurringDates.push(formattedDate);
+
+                    // Add 7 days to current date to get the next occurrence
+                    currentDate.setDate(currentDate.getDate() + 7);
+                }
+
+                // Format the recurring message (e.g., "Every Monday (Aug 02 - Aug 23)")
+                const firstDate = recurringDates[0];
+                const lastDate = recurringDates[recurringDates.length - 1];
+                return `Every ${dayOfWeek} (${firstDate} - ${lastDate})`;
+            }
+        }
+
+
+        function getActiveDateAndTime() {
+                // Retrieve the active date element
+                const activeDateElement = document.querySelector('.calendar-date-item.active');
+                
+                if (activeDateElement) {
+                    const day = activeDateElement.getAttribute('data-day');
+                    const month = activeDateElement.getAttribute('data-month');
+                    const year = activeDateElement.getAttribute('data-year');
+                    
+                    // Format the date as YYYY-MM-DD
+                    const formattedDate = `${year}-${(parseInt(month) + 1).toString().padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+                    // Retrieve the active time element
+                    const activeTimeElement = document.querySelector('.calendar__section-body-time-item.active');
+                    const activeTime = activeTimeElement ? activeTimeElement.innerText : null;  // Get the text (time) of the active element
+
+                    // Return both the formatted date and active time
+                    return {
+                        date: formattedDate,
+                        time: activeTime
+                    };
+                }
+
+                // Return null if no active date is selected
+                return {
+                    date: null,
+                    time: null
+                };
+            }
+
+
+
+    function goToNote()
+      {
+        const noteSection = document.querySelector('.note__section');
+        const noteDate = document.getElementById('booking_info_date');
+        const noteTime = document.getElementById('booking_info_time');
+        const info = getActiveDateAndTime();
+        const selectedDateItem = info.date;
+        const selectedTime = info.time;
+        
+        const selectedDate = formatDate(bookingInfo.mode, selectedDateItem, bookingInfo.freq);
+        console.log(selectedDateItem);
+        console.log(selectedTime);
+        console.log(bookingInfo);
+
+        noteDate.textContent = selectedDate;
+        noteTime.textContent = selectedTime;
+
+        noteSection.style.display = 'flex';
+        scrollToBottom();
+      }
+
+      function changeBooking()
+        {
+            const noteSection = document.querySelector('.note__section');
+            noteSection.style.display = 'none';
+            scrollToBottom();
+        }
+
+  function toggleActiveSession(selectedElement) {
+      resetFilter();
+      // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+      const elements = document.getElementsByClassName('book-a-session__section-container-body-info-item');
+      
+      // Remove the 'active' class from all elements
+      for (let element of elements) {
+          element.classList.remove('active');
+      }
+      
+      // Add the 'active' class to the clicked element
+      selectedElement.classList.add('active');
+      const session = selectedElement.getAttribute('data-value');
+      const username = selectedElement.getAttribute('data-mentor');
+      const formData = new FormData();
+      formData.append('session',  session);
+      formData.append('username',  username);
+
+      $.ajax({
+          url: '/view_calendar', // Replace with the URL to your Django view for saving the profile
+          type: 'POST',
+          data: formData,
+          processData: false, // Important: Prevent jQuery from processing the data
+          contentType: false, // Important: Set the content type to false
+          success: function (response) {
+              // Handle the success response from the server
+              initializeCalendar(response.booking_data, response.booked_data);
+              bookingInfo = response.booking_data;
+              bookedInfo = response.booked_data;
+          },
+          error: function (xhr, textStatus, errorThrown) {
+              // Handle errors if needed
+              console.error('Error:', errorThrown);
+              const noSlot = document.querySelector('.calendar__section-header-noslot');
+                noSlot.style.display = 'flex';
+                scrollToBottom();
+          }
+      });
+
+
+  
+  }
+
+  function scrollToBottom() {
+        const chatBody = document.querySelector('.book-a-session__section-container-body');
+        
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: 'smooth' // Enables smooth scrolling
+        });
+    }
+
+function initializeCalendar(booking_data, booked_data) {
+const calendarSection = document.querySelector('.calendar__section'); 
+const continueBtn = document.querySelector('.calendar__section-btn');
+calendarSection.style.display = 'block';
+scrollToBottom();
+
+const daysTag = document.querySelector(".days"),
+    currentDate = document.querySelector(".current-date"),
+    prevNextIcon = document.querySelectorAll(".icons span"),
+    timeSlotHeader = document.querySelector('.calendar__section-body-right-header'),
+    timeSlotSection = document.querySelector('.calendar__section-body-time-items'); // A section to show the available time slots
+
+// getting current year and month
+let date = new Date(),
+    currYear = date.getFullYear(),
+    currMonth = date.getMonth();
+
+// storing full names of all months in an array
+const months = ["January", "February", "March", "April", "May", "June", "July", 
+                "August", "September", "October", "November", "December"];
+
+// Function to check if a given date is available based on the booking data
+const isAvailableDate = (day, month, year, booking_data) => {
+    const startDate = new Date(booking_data.start);
+    const period = booking_data.period; // Period in weeks
+    const mode = booking_data.mode; // 'repeat' or 'one-time'
+    const availableDays = booking_data.days; // Array of days like ['Monday', 'Wednesday']
+
+    // Calculate the end date based on period (in weeks)
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + (period * 7)); // Period is in weeks
+
+    const currentDate = new Date(year, month, day);
+
+    // If the mode is 'repeat', check if the current date falls within the period
+    if (currentDate >= startDate && currentDate <= endDate) {
+        const dayName = currentDate.toLocaleString('default', { weekday: 'long' }); // Get the day name
+        // Check if the day name matches any of the available days
+        return availableDays.includes(dayName);
+    }
+
+    return false;
+};
+
+  // Function to check if a specific time is already booked on a given date
+const isTimeBooked = (dateStr, timeStr, booked_data) => {
+    return booked_data.some(booked => booked.date === dateStr && booked.time === timeStr);
+};
+
+
+const displayAvailableTimes = (day, month, year, booking_data) => {
+    const selectedDate = new Date(year, month, day);
+    console.log(selectedDate);
+
+    // Manually format the date to avoid timezone issues
+    const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    console.log(selectedDateStr);
+
+    const availableTimes = booking_data.time; // Assuming booking_data contains available times
+
+    // Clear the previous time slots
+    timeSlotSection.innerHTML = '';
+
+    // Only show times if the date is valid
+    if (isAvailableDate(day, month, year, booking_data)) {
+        timeSlotHeader.innerHTML = `<h4>Available times for ${selectedDate.toDateString()}:</h4>`;
+
+        // Filter out the times that are already booked for the selected date
+        const filteredTimes = availableTimes.filter(time => !isTimeBooked(selectedDateStr, time, booked_data));
+        
+        console.log(availableTimes);
+        console.log(filteredTimes);
+        console.log(booked_data);
+        if (filteredTimes.length > 0) {
+            filteredTimes.forEach(time => {
+                const timeSlot = document.createElement('div');
+                timeSlot.classList.add('calendar__section-body-time-item');
+                timeSlot.innerText = time; // Display time
+
+                timeSlot.addEventListener('click', function() {
+                    const elements = document.getElementsByClassName('calendar__section-body-time-item');
+                    for (let element of elements) {
+                        element.classList.remove('active');
+                    }
+                    // Add the 'active' class to the clicked element
+                    timeSlot.classList.add('active');
+                    continueBtn.classList.remove('disabled');
+                });
+                timeSlotSection.appendChild(timeSlot);
+            });
+        } else {
+            timeSlotSection.innerHTML = `<p>No available times for this date.</p>`;
+        }
+    } else {
+        timeSlotSection.innerHTML = `<p>No available times for this date.</p>`;
+    }
+
+    scrollToBottom();
+};
+
+  // Render the calendar with active and inactive dates
+ // Render the calendar with active and inactive dates
+const renderCalendar = () => {
+  let firstDayOfMonth = new Date(currYear, currMonth, 1).getDay(), // getting first day of the month
+      lastDateOfMonth = new Date(currYear, currMonth + 1, 0).getDate(), // getting last date of the month
+      lastDayOfMonth = new Date(currYear, currMonth, lastDateOfMonth).getDay(), // getting last day of the month
+      lastDateOfLastMonth = new Date(currYear, currMonth, 0).getDate(); // getting last date of previous month
+  let liTag = "";
+
+  // Create li elements for the previous month's last days
+  for (let i = firstDayOfMonth; i > 0; i--) {
+      liTag += `<li class="inactive other-month-item">${lastDateOfLastMonth - i + 1}</li>`;
+  }
+
+  // Create li elements for all days of the current month
+  for (let i = 1; i <= lastDateOfMonth; i++) {
+      const isToday = i === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "today active" : "";
+
+      // Check if the date is available (active)
+      const isActive = isAvailableDate(i, currMonth, currYear, booking_data) ? "" : "inactive";
+
+      liTag += `<li class="${isToday} ${isActive} calendar-date-item" data-day="${i}" data-month="${currMonth}" data-year="${currYear}">${i}</li>`;
+  }
+
+  // Create li elements for the next month's first days
+  for (let i = lastDayOfMonth; i < 6; i++) {
+      liTag += `<li class="inactive other-month-item">${i - lastDayOfMonth + 1}</li>`;
+  }
+
+  currentDate.innerText = `${months[currMonth]} ${currYear}`; // Display the current month and year
+  daysTag.innerHTML = liTag; // Insert the days into the calendar
+
+  // Attach event listeners to each day
+  const dateItems = document.querySelectorAll('.calendar-date-item');
+  dateItems.forEach(item => {
+      item.addEventListener('click', function () {
+          const day = this.getAttribute('data-day');
+          const month = this.getAttribute('data-month');
+          const year = this.getAttribute('data-year');
+          handleDateClick(item, day, month, year, booking_data);
+      });
+  });
+};
+
+
+  // Handle the date click and show available times
+  window.handleDateClick = (item, day, month, year, booking_data) => {
+      // Highlight the selected date
+      const allDates = document.querySelectorAll('.calendar-date-item');
+      allDates.forEach(date => date.classList.remove('active'));
+      const selectedDate = document.querySelector(`.calendar-date-item:nth-child(${day})`);
+      console.log(item);
+      item.classList.add('active');
+
+      // Display available times for the selected date
+      displayAvailableTimes(day, month, year, booking_data);
+  };
+
+  renderCalendar();
+
+  
+  function toggleActiveDate(selectedElement) {
+          // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+          const elements = document.getElementsByClassName('calendar-date-item');
+          
+          // Remove the 'active' class from all elements
+          for (let element of elements) {
+              element.classList.remove('active');
+          }
+          
+          // Add the 'active' class to the clicked element
+          selectedElement.classList.add('active');
+
+         
+      }
+
+  // Add click event for previous and next icons
+  prevNextIcon.forEach(icon => {
+      icon.addEventListener("click", () => {
+          currMonth = icon.id === "prev" ? currMonth - 1 : currMonth + 1;
+
+          if (currMonth < 0 || currMonth > 11) {
+              date = new Date(currYear, currMonth, new Date().getDate());
+              currYear = date.getFullYear();
+              currMonth = date.getMonth();
+          } else {
+              date = new Date();
+          }
+
+          renderCalendar();
+      });
+  });
+}
+
+
+</script>
+
+
+{% endblock %}
+{% block path_mentors %} active {% endblock %}

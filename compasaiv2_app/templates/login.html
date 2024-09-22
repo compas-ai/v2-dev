@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+{% block base-content %}
+    <section class="auth__section section_container" id="auth-container">
+        <div class="auth__section-container vertical-center">
+            <div class="auth__section-header">
+                <img class="auth__section-header-logo" src="{% static 'images/logo/full.svg'%}" alt="">
+                <span class="auth__section-header-title">
+                    Welcome Back
+                </span>
+                <p class="auth__section-header-subtitle">
+                    Create an account or sign in to save and see your conversation history.
+                </p>
+            </div>
+    
+            <div class="auth__section-form">
+                <a href="{% provider_login_url 'google' %}?process=login"  class="auth__section-form-google" id="google-signin">
+                    <img src="{% static 'images/icons/google.svg' %}" alt="">
+                    <p>Continue with Google</p> 
+                </a>
+                <div class="auth__section-form-separator">
+                    <div class="auth__section-form-separator-content">OR</div> 
+                </div>
+        
+                <span class="auth__section-form-input">
+                    <input type="text" placeholder="Enter email address" name="email" id="email">
+                    <span class="auth__feedback" id="email-feedback"></span>
+                </span>
+                <span class="auth__section-form-input">
+                    <input class="password" type="password" placeholder="Enter password" name="password" id="password">
+                    <span class="auth__section-form-input-hide">
+                        <i class="bx bx-show"></i>
+                        <i class="bx bx-hide"></i>
+                    </span>
+                    <span class="auth__feedback" id="password-feedback"></span>
+                </span>
+                <span 
+                    
+                >
+                <a href="accounts/password/reset/">
+                    Forgot Password?
+                </a>
+                    
+                </span>
+
+                <span class="auth__section-form-btn disabled" id="auth__section-form-btn">
+                    <button >
+                        Continue
+                    </button>
+                </span>
+                <div class="auth__section-form-btn-loader">
+                    <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt="">
+                </div>
+            </div>
+
+            <div class="auth__section-footer">
+                
+                <span class="auth__section-footer-login">
+                    Are you new? 
+                    <span>
+                <a href="/signup">Register</a>
+                </span> 
+                </span>
+                <span class="auth__section-footer-others">
+                    <img src="{% static 'images/people-frame.png'%}" alt="">
+                    <p>Join Other learners</p>
+                    
+                </span>
+            </div>
+
+            <script>
+                function toggleLoader(navElement) {
+                    // Hide the nav element
+                    navElement.style.display = 'none';
+            
+                    // Show the loader element
+                    const loaderElement = document.querySelector('.auth__section-form-btn-loader');
+                    loaderElement.style.display = 'block';
+                }
+            </script>
+
+            <script>
+                    let emailExists = false;
+                    // Check if Email Exists
+                    document.getElementById('email').addEventListener('input', function() {
+                        checkPassword();
+                        checkEmail();
+                    
+                    });
+                        
+                    document.getElementById('password').addEventListener('input', function() {
+                        checkPassword();
+                        checkEmail();
+                        
+                    });
+
+                        function checkPassword()
+                            {
+                                const passwordInput = document.getElementById('password');
+                                const passVal = passwordInput.value;
+                                
+                                if ( passVal && emailExists)
+                                    {
+                                        document.getElementById('auth__section-form-btn').classList.remove('disabled');
+                                    } else {
+                                        document.getElementById('auth__section-form-btn').classList.add('disabled');
+                                    }
+                            }
+
+                        function checkEmail()
+                            {   
+                                const paswd =  document.getElementById('email');
+                                let email = paswd.value.trim();  // Trim white spaces
+                        
+        
+                                // Basic email validation regex
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                                // Check if the email format is valid
+                                if (!emailRegex.test(email)) {
+                                    document.getElementById('email-feedback').innerHTML = '';
+                                    return;
+                                }
+                                $.ajax({
+                                        url: 'check-email',
+                                        method: 'POST',
+                                        data: { 
+                                            "email": email
+                                        },
+                                        success: function (response) {
+                                            if (response.empty) {
+                                                document.getElementById('auth__section-form-btn').classList.add('disabled');
+                                                document.getElementById('email-feedback').innerHTML = '';
+                                            }
+                                            else if (response.exists) {
+                                                document.getElementById('email-feedback').innerHTML = '';
+                                                //document.getElementById('auth__section-form-btn').classList.remove('disabled');
+                                                emailExists  = true;
+                                            } else {
+                                                document.getElementById('email-feedback').innerHTML = '<span style="color: red;">User does not exist.</span>';
+                                                document.getElementById('auth__section-form-btn').classList.add('disabled');
+                                            }
+                                        },
+                                        error: function (xhr, status, error) {
+                                            
+                                        }
+                                    });
+                
+                              
+                            }
+            </script>
+
+            <script>
+                const password = document.getElementById('password');
+                const email = document.getElementById('email');
+
+                
+
+                document.getElementById('auth__section-form-btn').addEventListener('click', function() {
+                     // Hide the nav element
+                   
+                    document.getElementById('auth__section-form-btn').style.display = 'none';
+
+                    
+                    // Show the loader element
+                    const loaderElement = document.querySelector('.auth__section-form-btn-loader');
+                    loaderElement.style.display = 'block';
+                    
+                    const emailVal = email.value;
+                    const passwordVal = password.value;
+                    $.ajax({
+                        url: 'login',
+                        method: 'POST',
+                        data: { 
+                            "email": emailVal,
+                            "password": passwordVal
+                        },
+                        success: function (response) {
+                            if (response.wrong) {
+                                
+                                document.getElementById('auth__section-form-btn').style.display = 'block';
+            
+                                // Show the loader element
+                                const loaderElement = document.querySelector('.auth__section-form-btn-loader');
+                                loaderElement.style.display = 'none';
+                                document.getElementById('auth__section-form-btn').classList.add('disabled');
+                                document.getElementById('password-feedback').innerHTML = `<span style="color: red;">${response.reason}</span>`;
+
+                                if (response.is_confirmed == true)
+                                    {
+                                        window.location.href = `/confirm_email/${response.email}`;
+                                    }
+                                else if (response.no_password == true)
+                                    {
+                                        window.location.href = '/set_password';
+                                }
+                               
+                                
+                            }  else if (response.onboarding)
+                                {
+                                    window.location.href = '/onboarding';
+                            } else if (response.index)
+                                {
+                                    window.location.href = '/';
+                                }
+                        },
+                        error: function (xhr, status, error) {
+                            
+                            console.log(error);
+                            
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </section>
+
+
+    <script>
+        const passwordInputs = document.querySelectorAll(".password");
+        const showPasswordBtns = document.querySelectorAll(".auth__section-form-input-hide");
+    
+        showPasswordBtns.forEach((showPasswordBtn, index) => {
+            showPasswordBtn.addEventListener("click", () => {
+                if (passwordInputs[index].type === "password") {
+                    passwordInputs[index].type = "text";
+                    showPasswordBtn.classList.add("active");
+                } else {
+                    passwordInputs[index].type = "password";
+                    showPasswordBtn.classList.remove("active");
+                }
+            });
+        });
+    </script>
+{% endblock base-content %}
+
+{% block title%} Login | Compas AI{% endblock %}

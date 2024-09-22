@@ -1,0 +1,45 @@
+{% extends "account/base_entrance.html" %}
+{% load allauth i18n %}
+{% load static %}
+{% block head_title %}
+    {% trans "Signup" %}
+{% endblock head_title %}
+{% block content %}
+
+    <div class="auth__section-header">
+        <img class="auth__section-header-logo" src="{% static 'images/logo/full.svg'%}" alt="">
+        <span class="auth__section-header-title">
+            {% trans "Sign Up" %}
+        </span>
+    </div>
+    {% setvar link %}
+        <a href="{{ login_url }}">
+        {% endsetvar %}
+        {% setvar end_link %}
+        </a>
+    {% endsetvar %}
+
+    <p class="auth__section-header-subtitle">
+        Create an account or {{ link }}sign in{{ end_link }} to save and see your conversation history.
+    </p>
+    {% if SOCIALACCOUNT_ENABLED %}
+        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+    {% endif %}
+    {% if not SOCIALACCOUNT_ONLY %}
+        {% url 'account_signup' as action_url %}
+        {% element form form=form method="post" action=action_url tags="entrance,signup" %}
+            {% slot body %}
+                {% csrf_token %}
+                {% element fields form=form unlabeled=True %}
+                {% endelement %}
+                {{ redirect_field }}
+            {% endslot %}
+            {% slot actions %}
+                {% element button tags="prominent,signup" type="submit" %}
+                    {% trans "Create account" %}
+                {% endelement %}
+            {% endslot %}
+        {% endelement %}
+    {% endif %}
+    
+{% endblock content %}

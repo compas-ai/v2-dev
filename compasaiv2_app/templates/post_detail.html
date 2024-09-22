@@ -1,0 +1,1127 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="community__section">
+  <div class="community__section-left">
+    <span class="return_btn" onclick="toggleContainer()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      Return
+      </span>
+      <div class="community__section-left-header-container">
+        <div class="community__section-left-header">
+            <span>
+              Community Members
+            </span>
+        </div>
+        <div class="community__section-left-body">
+          {% for member in post.community.member.all %}
+            <a href="{% url 'profile' member.username %}" class="community__section-left-body-item">
+              <div class="community__section-left-body-item-img">
+                {% if member.profile_picture %}
+                <img  src="{{ member.profile_picture.url }}" alt="">
+                {% else %}
+                <img  src="{% static 'images/ava.png'%}" alt="">
+                {% endif %}
+              </div>
+              <span class="community__section-left-body-item-name">
+                  {{member.display_name}}
+              </span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="community__section-left-header-container">
+        <div class="community__section-left-header">
+          <span>
+            Open Office Hours
+          </span>
+      
+      </div>
+       
+        <div class="community__section-left-body-container">
+          {% if not office_hours %}
+            <div class="community__section-left-body-container-items">
+              <div class="community__section-left-body-container-item">
+                  <div class="community__section-left-body-container-item-left">
+                    <div class="community__section-left-body-container-item-icons">
+                   
+                      <span>
+                        {% if profile.profile_picture %}
+                      <img  src="{{ profile.profile_picture.url }}" alt="">
+                      {% else %}
+                      <img  src="{% static 'images/ava.png'%}" alt="">
+                      {% endif %}
+                      </span>
+                      <span>
+                        <i class='bx bxs-buildings' ></i>
+                      </span>
+                        
+                    </div>
+                    <div class="community__section-left-body-container-item-info">
+                        <span class="community__section-left-body-container-item-info-title">
+                              FinTech Workshop
+                        </span>
+                        <span class="community__section-left-body-container-item-info-date">
+                              Every Wed, Thurs & Fri - 3:00PM
+                        </span>
+                        <!-- <span class="community__section-left-body-container-item-info-slot">
+                           $5 | 3 slots left
+                      </span> -->
+                    </div>
+                  </div>
+                  <div class="community__section-left-body-container-item-right">
+                    <div class="community__section-left-body-container-item-btn">
+                        <span class="">
+                              Join
+                        </span>
+                    </div>
+                  </div>
+                 
+                  
+              </div>
+              <div class="community__section-left-body-container-item">
+                <div class="community__section-left-body-container-item-left">
+                  <div class="community__section-left-body-container-item-icons">
+                 
+                    <span>
+                      {% if profile.profile_picture %}
+                    <img  src="{{ profile.profile_picture.url }}" alt="">
+                    {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+                    </span>
+                    <span>
+                      <i class='bx bxs-buildings' ></i>
+                    </span>
+                      
+                  </div>
+                  <div class="community__section-left-body-container-item-info">
+                      <span class="community__section-left-body-container-item-info-title">
+                            FinTech Workshop
+                      </span>
+                      <span class="community__section-left-body-container-item-info-date">
+                            Every Wed, Thurs & Fri - 3:00PM
+                      </span>
+                      <!-- <span class="community__section-left-body-container-item-info-slot">
+                         $5 | 3 slots left
+                    </span> -->
+                  </div>
+                </div>
+                <div class="community__section-left-body-container-item-right">
+                  <div class="community__section-left-body-container-item-btn">
+                      <span class="">
+                            Join
+                      </span>
+                  </div>
+                </div>
+               
+                
+              </div>
+              <div class="community__section-left-body-container-item">
+                <div class="community__section-left-body-container-item-left">
+                  <div class="community__section-left-body-container-item-icons">
+                 
+                    <span>
+                      {% if profile.profile_picture %}
+                    <img  src="{{ profile.profile_picture.url }}" alt="">
+                    {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+                    </span>
+                    <span>
+                      <i class='bx bxs-buildings' ></i>
+                    </span>
+                      
+                  </div>
+                  <div class="community__section-left-body-container-item-info">
+                      <span class="community__section-left-body-container-item-info-title">
+                            FinTech Workshop
+                      </span>
+                      <span class="community__section-left-body-container-item-info-date">
+                            Every Wed, Thurs & Fri - 3:00PM
+                      </span>
+                      <!-- <span class="community__section-left-body-container-item-info-slot">
+                         $5 | 3 slots left
+                    </span> -->
+                  </div>
+                </div>
+                <div class="community__section-left-body-container-item-right">
+                  <div class="community__section-left-body-container-item-btn">
+                      <span class="">
+                            Join
+                      </span>
+                  </div>
+                </div>
+               
+                
+              </div>
+            </div>
+          {% else %}
+            <div class="community__section-left-body-container-no-item">
+              <span>
+                No Open Office Hours.
+              </span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="community__section-left-header-container">
+        <div class="community__section-left-header">
+            <span>
+              Groups
+            </span>
+            <span>
+              <i class='bx bx-plus-circle' ></i>
+            </span> 
+        </div>
+        <div class="community__section-left-body-container">
+         
+          <div class="community__section-left-body-container">
+            {% if not groups %}
+              <div class="community__section-left-body-container-items">
+                <div class="community__section-left-body-container-item">
+                    <div class="community__section-left-body-container-item-left">
+                      <div class="community__section-left-body-container-item-image">
+                     
+                        <span>
+                            {% if profile.profile_picture %}
+                          <img  src="{{ profile.cover_picture.url }}" alt="">
+                          {% else %}
+                          <img  src="{% static 'images/ava.png'%}" alt="">
+                          {% endif %}
+                        </span>
+                       
+                          
+                      </div>
+                      <div class="community__section-left-body-container-item-info">
+                          <span class="community__section-left-body-container-item-info-title">
+                                UI Design Class
+                          </span>
+                          
+                          <span class="community__section-left-body-container-item-info-slot">
+                               3.4k members
+                        </span>
+                      </div>
+                    </div>
+                    <div class="community__section-left-body-container-item-right">
+                      <div class="community__section-left-body-container-item-btn">
+                          <span class="">
+                                Join
+                          </span>
+                      </div>
+                    </div>
+                   
+                    
+                </div>
+                <div class="community__section-left-body-container-item">
+                  <div class="community__section-left-body-container-item-left">
+                    <div class="community__section-left-body-container-item-image">
+                   
+                      <span>
+                          {% if profile.profile_picture %}
+                        <img  src="{{ profile.cover_picture.url }}" alt="">
+                        {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                        {% endif %}
+                      </span>
+                     
+                        
+                    </div>
+                    <div class="community__section-left-body-container-item-info">
+                        <span class="community__section-left-body-container-item-info-title">
+                              UI Design Class
+                        </span>
+                        
+                        <span class="community__section-left-body-container-item-info-slot">
+                             3.4k members
+                      </span>
+                    </div>
+                  </div>
+                  <div class="community__section-left-body-container-item-right">
+                    <div class="community__section-left-body-container-item-btn">
+                        <span class="">
+                              Join
+                        </span>
+                    </div>
+                  </div>
+                 
+                  
+                </div>
+                <div class="community__section-left-body-container-item">
+                  <div class="community__section-left-body-container-item-left">
+                    <div class="community__section-left-body-container-item-image">
+                  
+                      <span>
+                          {% if profile.profile_picture %}
+                        <img  src="{{ profile.cover_picture.url }}" alt="">
+                        {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                        {% endif %}
+                      </span>
+                    
+                        
+                    </div>
+                    <div class="community__section-left-body-container-item-info">
+                        <span class="community__section-left-body-container-item-info-title">
+                              UI Design Class
+                        </span>
+                        
+                        <span class="community__section-left-body-container-item-info-slot">
+                            3.4k members
+                      </span>
+                    </div>
+                  </div>
+                  <div class="community__section-left-body-container-item-right">
+                    <div class="community__section-left-body-container-item-btn">
+                        <span class="">
+                              Join
+                        </span>
+                    </div>
+                  </div>
+                
+                  
+                </div>
+              </div>
+            {% else %}
+              <div class="community__section-left-body-container-no-item">
+                <span>
+                  No Group Created.
+                </span>
+              </div>
+            {% endif %}
+          </div>
+           
+        </div>
+      </div>
+   </div>
+   <div class="community__section-right">
+      <div class="community__section-right-header">
+        <div class="community__section-right-header-pictures">
+            <span class="community__section-right-header-pictures-cover">
+              <span class="community__section-right-header-settings" onclick="toggleContainer()">
+                <i class='bx bx-cog'></i>
+              </span>
+            </span>
+            <span class="community__section-right-header-pictures-dp">
+                <span class="community__section-right-header-pictures-dp-container">
+                  <img src="{% static 'images/paths/' %}{{ post.community.name.suggested_skill.icon }}" alt="Skill Image" 
+                  onerror="this.onerror=null; this.src='{% static 'images/paths/default.svg' %}';">   
+                </span>
+            </span>
+        </div>
+        <div class="community__section-right-header-info">
+            <span class="community__section-right-header-info-name">
+                {{ post.community.name.name }}
+            </span>
+                
+            <span class="community__section-right-header-info-numbers">
+                <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M11.3337 14V12.6667C11.3337 11.9594 11.0527 11.2811 10.5526 10.781C10.0525 10.281 9.37424 10 8.66699 10H3.33366C2.62641 10 1.94814 10.281 1.44804 10.781C0.947944 11.2811 0.666992 11.9594 0.666992 12.6667V14M15.3337 14V12.6667C15.3332 12.0758 15.1366 11.5018 14.7746 11.0349C14.4126 10.5679 13.9057 10.2344 13.3337 10.0867M10.667 2.08667C11.2406 2.23353 11.749 2.56713 12.1121 3.03487C12.4752 3.50261 12.6722 4.07789 12.6722 4.67C12.6722 5.26211 12.4752 5.83739 12.1121 6.30513C11.749 6.77287 11.2406 7.10647 10.667 7.25333M8.66699 4.66667C8.66699 6.13943 7.47308 7.33333 6.00033 7.33333C4.52757 7.33333 3.33366 6.13943 3.33366 4.66667C3.33366 3.19391 4.52757 2 6.00033 2C7.47308 2 8.66699 3.19391 8.66699 4.66667Z" stroke="#4F4F2A" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg></span>
+                <span>{{post.community.member.count }} members</span>
+            </span>
+        </div>
+      </div>
+      <div class="community__section-right-body">
+          <div class="community__section-right-body-top" onclick="showCreateContainer()"
+           >
+            <div class="community__section-right-body-top-add-file-container">
+              <span class="community__section-right-body-top-add-file">
+                <i class='bx bx-plus' ></i>
+              </span>
+              
+            </div>
+            <div class="community__section-right-body-top-input">
+                <input type="text" placeholder="Share your thoughts">
+            </div>
+            
+          </div>
+          <div class="community__section-right-body-container">
+              <div class="community__section-right-body-container-header">
+                  <span class="community__section-right-body-container-header-divider">
+
+                  </span>
+                  <span class="community__section-right-body-container-header-sort">Sort by: Top</span>
+              </div>
+              <div class="community__section-right-body-container-posts">
+                {% if post.community.posts.all %}
+                {% for post in post.community.posts.all reversed%}
+                  <div class="community__section-right-body-container-posts-item" data-id={{post.id}}>
+                      <div class="community__section-right-body-container-posts-item-header">
+                          <div class="community__section-right-body-container-posts-item-header-info">
+                          
+                            <div class="community__section-right-body-container-posts-item-header-info-img">
+                              {% if post.profile.profile_picture %}
+                              <img  src="{{ post.profile.profile_picture.url }}" alt="">
+                              {% else %}
+                              <img  src="{% static 'images/ava.png'%}" alt="">
+                              {% endif %}
+                                <div class="active-indicator"></div>
+                            </div>
+                            <div class="community__section-right-body-container-posts-item-header-info-profile">
+                              <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                  {{post.profile.display_name}}
+                              </span>
+                              <span class="community__section-right-body-container-posts-item-header-info-profile-title">
+                                  {{post.profile.bio}}
+                              </span>
+                              <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                {{post.get_time}}
+                            </span>
+                              
+                            </div>
+                          </div>
+                          <div class="community__section-right-body-container-posts-item-header-info-menu">
+                              <i class='bx bx-dots-horizontal-rounded'></i>
+                              <div class="community__section-right-body-container-posts-item-header-info-menu-items">
+                               
+                                <span class="community__section-right-body-container-posts-item-header-info-menu-item" onclick="copyToClipboard(this)" data-link="{{post.url}}">
+                                  <i class='bx bx-copy-alt'></i>
+                                  <span id="copy-link" class="copy-link">
+                                    Copy link
+                                  </span>
+                                  
+                                </span>
+                                <span class="community__section-right-body-container-posts-item-header-info-menu-item delete" onclick="deletePost(this)" data-id={{post.id}}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                  </svg>
+                                  <span>
+                                    Delete
+                                  </span>
+                                  
+                                </span>
+                              </div>
+                            
+                          </div>
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-body">
+                          <div class="community__section-right-body-container-posts-item-body-text">
+                              <span class="community__section-right-body-container-posts-item-body-text-value">
+                                {{post.post_text}}</span>
+                              </span>
+                          </div>
+                          {% if post.images.all %}
+                          {% with post.images.all|length as image_count %}
+                          <div class="community__section-right-body-container-posts-item-body-media {% if image_count == 1%} single-image {% endif %}" data-id={{post.id}}>
+                            {% for image in post.images.all %}
+                                {% if forloop.counter <= 4 %}
+                                    <div class="community__section-right-body-container-posts-item-body-media-item">
+                                        <img src="{{ image.image.url }}" alt="" class="image-preview" data-index="{{ forloop.counter0 }}">
+                                        {% if forloop.counter == 4 and post.images.count > 4 %}
+                                            <div class="overlay" data-image-url="{{ image.image.url }}">+{{ post.images.all.count|add:-4 }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endwith %}
+                        
+                          {% endif %}
+                      </div>
+
+                      <div id="imageModal" class="image-modal">
+                        <span class="close">&times;</span>
+                        <img class="modal-content" id="modalImage">
+                        <div id="caption"></div>
+                        <div class="modal-btns">
+                          <a class="prev">&#10094;</a>
+                          <a class="next">&#10095;</a>
+                        </div>
+                      
+                    </div>
+                    
+                    <div class="community__section-right-body-container-posts-item-stats">
+                          <div class="community__section-right-body-container-posts-item-stats-item" id="like_post_{{post.id}}"
+                          hx-post="{% url 'like_post' %}" 
+                          hx-trigger="click"
+                          hx-vals='{"id": "{{ post.id }}"  }'
+                          hx-target="#like_post_{{post.id}}"
+                          hx-push-url="false"
+                          hx-swap="innerHTML">
+                            <span>
+                              {% if profile in post.likes.all %}
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M22 8.69C22 9.88 21.81 10.98 21.48 12H2.52C2.19 10.98 2 9.88 2 8.69C2 5.6 4.49 3.1 7.56 3.1C9.37 3.1 10.99 3.98 12 5.33C13.01 3.98 14.63 3.1 16.44 3.1C19.51 3.1 22 5.6 22 8.69Z" fill="#17191D"/>
+                                <path opacity="0.4" d="M21.48 12C19.9 17 15.03 19.99 12.62 20.81C12.28 20.93 11.72 20.93 11.38 20.81C8.97002 19.99 4.10002 17 2.52002 12H21.48Z" fill="#17191D"/>
+                                </svg>
+                              {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                  <path d="M12.62 20.8116C12.28 20.9316 11.72 20.9316 11.38 20.8116C8.48 19.8216 2 15.6916 2 8.69156C2 5.60156 4.49 3.10156 7.56 3.10156C9.38 3.10156 10.99 3.98156 12 5.34156C13.01 3.98156 14.63 3.10156 16.44 3.10156C19.51 3.10156 22 5.60156 22 8.69156C22 15.6916 15.52 19.8216 12.62 20.8116Z" stroke="#9E9E54" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                              {% endif %}
+                            </span>
+                            <span>
+                              {{post.likes.count}}
+                            </span>
+                          </div>
+                          <div class="community__section-right-body-container-posts-item-stats-item" id="comment_post">
+                            <span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M8.5 10.5H15.5" stroke="#9E9E54" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7 18.4297H11L15.45 21.3897C16.11 21.8297 17 21.3597 17 20.5597V18.4297C20 18.4297 22 16.4297 22 13.4297V7.42969C22 4.42969 20 2.42969 17 2.42969H7C4 2.42969 2 4.42969 2 7.42969V13.4297C2 16.4297 4 18.4297 7 18.4297Z" stroke="#9E9E54" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </span>
+                            <span class="comment_count">
+                              {{post.comments.count}}
+                            </span>
+                          </div>
+                         
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-comment">
+                        <div class="community__section-right-body-container-posts-item-comment-container">
+                          <span>
+                            
+                              <i class='bx bxs-smile'></i>
+                            
+                           
+                          </span>
+                          <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+                          <input type="text" placeholder="Add a comment" id="comment_text" name="comment_text">
+                          <span  id="comment_btn">
+                            
+                            <i class='bx bx-right-arrow-circle'></i>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="community__section-right-body-container-posts-item-comment-details" id="comment_detail_{{post.id}}">
+                        {% if post.comments.all %}
+                        {% for comment in post.comments.all reversed %}
+                          <div class="community__section-right-body-container-posts-item-comment-details-item">
+                            <div class="community__section-right-body-container-posts-item-header">
+                              <div class="community__section-right-body-container-posts-item-header-info">
+                              
+                                <div class="community__section-right-body-container-posts-item-header-info-img">
+                                  {% if comment.comment_author.profile_picture %}
+                                  <img  src="{{ comment.comment_author.profile_picture.url }}" alt="">
+                                  {% else %}
+                                  <img  src="{% static 'images/ava.png'%}" alt="">
+                                  {% endif %}
+                                    <div class="active-indicator"></div>
+                                </div>
+                                <div class="community__section-right-body-container-posts-item-header-info-profile">
+                                  <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                      {{comment.comment_author.display_name}}
+                                  </span>
+                                 
+                                  <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                    {{comment.get_time}}
+                                </span>
+                                  
+                                </div>
+                              </div>
+                              <div class="community__section-right-body-container-posts-item-header-info-menu">
+                                  <i class='bx bx-dots-horizontal-rounded'></i>
+                                  <div class="community__section-right-body-container-posts-item-header-info-menu-items">
+                                    <span class="community__section-right-body-container-posts-item-header-info-menu-item">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                      </svg>
+                                      <span>
+                                        Delete
+                                      </span>
+                                      
+                                    </span>
+                                    <span class="community__section-right-body-container-posts-item-header-info-menu-item delete">
+                                      <i class='bx bx-copy-alt'></i>
+                                      <span>
+                                        Copy link
+                                      </span>
+                                      
+                                    </span>
+                                  </div>
+                                
+                              </div>
+                            </div>
+                            <div class="community__section-right-body-container-posts-item-body-text">
+                              <span class="community__section-right-body-container-posts-item-body-text-value">
+                                {{comment.comment_text}}</span>
+                              </span>
+                          </div>
+                          </div>
+                          {% endfor %}
+                        {% else %}
+                          <span class="no__comment">Be the first to make a comment.</span>
+                        {%endif%}
+                      </div>
+                  </div>
+                {% endfor %}
+                {% else %}
+                <span class="messages__section-right-no-message">
+                  <span>
+                    Be the first to make a post in this community
+                  </span>
+                </span>
+
+
+                {% endif %}
+              </div>
+          </div>
+      </div>
+</div>
+  <div class="view__post-section" id="create_post">
+    <div class="view__post-container">
+        <div class="view__post-section-container-header-nav ">
+            <a href="/" >
+              <i class='bx bx-left-arrow-alt'></i> Back
+            </a>
+        </div>
+        <div class="view__post-container-body">
+
+       
+
+        <div class="community__section-right-body-container-posts-item" data-id={{post.id}}>
+            <div class="community__section-right-body-container-posts-item-header">
+                <div class="community__section-right-body-container-posts-item-header-info">
+                
+                  <div class="community__section-right-body-container-posts-item-header-info-img">
+                    {% if post.profile.profile_picture %}
+                    <img  src="{{ post.profile.profile_picture.url }}" alt="">
+                    {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+                      <div class="active-indicator"></div>
+                  </div>
+                  <div class="community__section-right-body-container-posts-item-header-info-profile">
+                    <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                        {{post.profile.display_name}}
+                    </span>
+                    <span class="community__section-right-body-container-posts-item-header-info-profile-title">
+                        {{post.profile.bio}}
+                    </span>
+                    <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                      {{post.get_time}}
+                  </span>
+                    
+                  </div>
+                </div>
+                
+            </div>
+            <div class="community__section-right-body-container-posts-item-body">
+                <div class="community__section-right-body-container-posts-item-body-text">
+                    <span class="community__section-right-body-container-posts-item-body-text-value">
+                      {{post.post_text}}</span>
+                    </span>
+                </div>
+                {% if post.images.all %}
+                {% with post.images.all|length as image_count %}
+                <div class="community__section-right-body-container-posts-item-body-media view_post{% if image_count == 1%} single-image {% endif %}" data-id={{post.id}}>
+                  {% for image in post.images.all %}
+                     
+                          <div class="community__section-right-body-container-posts-item-body-media-item">
+                              <img src="{{ image.image.url }}" alt="" class="image-preview" data-index="{{ forloop.counter0 }}">
+                              
+                                  
+                             
+                          </div>
+                   
+                  {% endfor %}
+              </div>
+              {% endwith %}
+              
+                {% endif %}
+            </div>
+
+            <div id="imageModal" class="image-modal">
+              <span class="close">&times;</span>
+              <img class="modal-content" id="modalImage">
+              <div id="caption"></div>
+              <div class="modal-btns">
+                <a class="prev">&#10094;</a>
+                <a class="next">&#10095;</a>
+              </div>
+            
+          </div>
+          
+          <div class="community__section-right-body-container-posts-item-stats">
+                <div class="community__section-right-body-container-posts-item-stats-item" id="view_like_post_{{post.id}}"
+                hx-post="{% url 'like_post' %}" 
+                hx-trigger="click"
+                hx-vals='{"id": "{{ post.id }}"  }'
+                hx-target="#view_like_post_{{post.id}}"
+                hx-push-url="false"
+                hx-swap="innerHTML">
+                  <span>
+                    {% if profile in post.likes.all %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M22 8.69C22 9.88 21.81 10.98 21.48 12H2.52C2.19 10.98 2 9.88 2 8.69C2 5.6 4.49 3.1 7.56 3.1C9.37 3.1 10.99 3.98 12 5.33C13.01 3.98 14.63 3.1 16.44 3.1C19.51 3.1 22 5.6 22 8.69Z" fill="#17191D"/>
+                      <path opacity="0.4" d="M21.48 12C19.9 17 15.03 19.99 12.62 20.81C12.28 20.93 11.72 20.93 11.38 20.81C8.97002 19.99 4.10002 17 2.52002 12H21.48Z" fill="#17191D"/>
+                      </svg>
+                    {% else %}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12.62 20.8116C12.28 20.9316 11.72 20.9316 11.38 20.8116C8.48 19.8216 2 15.6916 2 8.69156C2 5.60156 4.49 3.10156 7.56 3.10156C9.38 3.10156 10.99 3.98156 12 5.34156C13.01 3.98156 14.63 3.10156 16.44 3.10156C19.51 3.10156 22 5.60156 22 8.69156C22 15.6916 15.52 19.8216 12.62 20.8116Z" stroke="#9E9E54" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    {% endif %}
+                  </span>
+                  <span>
+                    {{post.likes.count}}
+                  </span>
+                </div>
+                <div class="community__section-right-body-container-posts-item-stats-item" id="comment_post">
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M8.5 10.5H15.5" stroke="#9E9E54" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M7 18.4297H11L15.45 21.3897C16.11 21.8297 17 21.3597 17 20.5597V18.4297C20 18.4297 22 16.4297 22 13.4297V7.42969C22 4.42969 20 2.42969 17 2.42969H7C4 2.42969 2 4.42969 2 7.42969V13.4297C2 16.4297 4 18.4297 7 18.4297Z" stroke="#9E9E54" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="comment_count">
+                    {{post.comments.count}}
+                  </span>
+                </div>
+               
+            </div>
+            <div class="community__section-right-body-container-posts-item-comment">
+              <div class="community__section-right-body-container-posts-item-comment-container">
+                <span>
+                  
+                    <i class='bx bxs-smile'></i>
+                  
+                 
+                </span>
+                <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+                <input type="text" placeholder="Add a comment" id="comment_text" name="comment_text">
+                <span  id="comment_btn">
+                  
+                  <i class='bx bx-right-arrow-circle'></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="community__section-right-body-container-posts-item-comment-details" id="comment_detail_{{post.id}}">
+              {% if post.comments.all %}
+              {% for comment in post.comments.all reversed %}
+                <div class="community__section-right-body-container-posts-item-comment-details-item">
+                  <div class="community__section-right-body-container-posts-item-header">
+                    <div class="community__section-right-body-container-posts-item-header-info">
+                    
+                      <div class="community__section-right-body-container-posts-item-header-info-img">
+                        {% if comment.comment_author.profile_picture %}
+                        <img  src="{{ comment.comment_author.profile_picture.url }}" alt="">
+                        {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                        {% endif %}
+                          <div class="active-indicator"></div>
+                      </div>
+                      <div class="community__section-right-body-container-posts-item-header-info-profile">
+                        <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                            {{comment.comment_author.display_name}}
+                        </span>
+                       
+                        <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                          {{comment.get_time}}
+                      </span>
+                        
+                      </div>
+                    </div>
+                   
+                  </div>
+                  <div class="community__section-right-body-container-posts-item-body-text">
+                    <span class="community__section-right-body-container-posts-item-body-text-value">
+                      {{comment.comment_text}}</span>
+                    </span>
+                </div>
+                </div>
+            {% endfor%}
+            {% endif %}
+       
+            </div>
+
+        </div>
+</div>
+</div>
+
+
+<script>
+  const posts = document.querySelectorAll('.community__section-right-body-container-posts-item');
+
+  posts.forEach(postContainer => {
+      const commentIcon = postContainer.querySelector('#comment_post');
+      const commentContainer = postContainer.querySelector('.community__section-right-body-container-posts-item-comment-details');
+
+      commentIcon.addEventListener("click", function() {
+          commentContainer.classList.toggle('active');
+      });
+
+      const commentBtn = postContainer.querySelector('#comment_btn');
+
+      commentBtn.addEventListener("click", function() {
+
+        const commentText = postContainer.querySelector('#comment_text');
+        const commentVal = commentText.value;
+        console.log
+      
+        const commentPostId = postContainer.getAttribute('data-id');
+
+        const formData = new FormData();
+        formData.append('text', commentVal);
+        formData.append('id', commentPostId);
+        const csrfToken = getCookie('csrftoken');
+
+        const commentEl = (comment, profile) => {
+              const dateEl = document.createElement("div");
+              dateEl.classList.add("community__section-right-body-container-posts-item-comment-details-item");
+              dateEl.innerHTML = ` <div class="community__section-right-body-container-posts-item-header">
+                              <div class="community__section-right-body-container-posts-item-header-info">
+                              
+                                <div class="community__section-right-body-container-posts-item-header-info-img">
+                                  ${profile.profile_picture ? `<img src="${profile.profile_picture}" alt="">` : ''}
+                                    <div class="active-indicator"></div>
+                                </div>
+                                <div class="community__section-right-body-container-posts-item-header-info-profile">
+                                  <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                      ${profile.display_name}
+                                  </span>
+                                 
+                                  <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                    now
+                                </span>
+                                  
+                                </div>
+                              </div>
+                              <div class="community__section-right-body-container-posts-item-header-info-menu">
+                                  <i class='bx bx-dots-horizontal-rounded'></i>
+                                  <div class="community__section-right-body-container-posts-item-header-info-menu-items">
+                                    <span class="community__section-right-body-container-posts-item-header-info-menu-item">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                                      </svg>
+                                      <span>
+                                        Delete
+                                      </span>
+                                      
+                                    </span>
+                                    <span class="community__section-right-body-container-posts-item-header-info-menu-item delete">
+                                      <i class='bx bx-copy-alt'></i>
+                                      <span>
+                                        Copy link
+                                      </span>
+                                      
+                                    </span>
+                                  </div>
+                                
+                              </div>
+                            </div>
+                            <div class="community__section-right-body-container-posts-item-body-text">
+                              <span class="community__section-right-body-container-posts-item-body-text-value">
+                                ${comment}</span>
+                              </span>
+                          </div>`;
+              return dateEl;
+          };
+
+        $.ajax({
+          url: '/comment_post',
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': csrfToken
+          },
+          data: formData,
+          processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+          contentType: false, 
+          success: function (response) {
+            
+            const noComment = commentContainer.querySelector('.no__comment');
+
+            if (noComment)
+              {
+                noComment.style.display = 'none';
+              }
+            postContainer.querySelector(".community__section-right-body-container-posts-item-comment-details").style.display = "block";
+          
+            postContainer.querySelector(".community__section-right-body-container-posts-item-comment-details").prepend(commentEl(commentVal, response.profile))
+            commentText.value = "";
+            const count = postContainer.querySelector('.comment_count');
+            console.log(count.textContent);
+            count.textContent = int(count) + 1;
+          },
+          error: function (xhr, status, error) {
+              setTimeout(() => {
+                  console.log("Error:", status, error);
+                  document.querySelector('.error').style.display = 'block';
+            
+                  postBtn.textContent = "Post"
+                  postBtn.classList.remove("disabled")
+         
+                  
+              }, 1000);
+          }
+      });
+
+      
+      });
+
+
+
+   
+      // Function to toggle the emoji picker visibility
+      function toggleCommEmojiPicker() {
+            const emojiPickerComm = postContainer.querySelector('#emoji-picker');
+            emojiPickerComm.style.display = emojiPickerComm.style.display === 'block' ? 'none' : 'block';
+        }
+
+      function insertCommentEmoji(emojiObject) {
+     
+        const commentText = postContainer.querySelector('#comment_text'); // Replace with your post text field ID
+        const emoji = emojiObject.unicode;
+
+        commentText.value += emoji; // Append the selected emoji to the current text
+        toggleCommEmojiPicker(); // Hide the emoji picker
+      }
+
+
+        // Add a click event listener to the smile icon to show/hide the emoji picker
+        const smileIconComm = postContainer.querySelector('.bxs-smile'); // Replace with the correct selector
+        smileIconComm.addEventListener('click', toggleCommEmojiPicker);
+
+        // Initialize the emoji picker
+        const emojiPickerComm = postContainer.querySelector('#emoji-picker');
+        emojiPickerComm.innerHTML = '<emoji-picker></emoji-picker>';
+        emojiPickerComm.addEventListener('emoji-click', (event) => {
+
+            insertCommentEmoji(event.detail.emoji);
+            emojiPickerComm.style.display = 'none';
+        });
+
+  });
+</script>
+
+
+
+
+
+<script>
+  let selectedImages = [];
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageUploadInput = document.getElementById('image-upload-input');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    
+
+    imageUploadInput.addEventListener('change', function() {
+        const files = imageUploadInput.files;
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            selectedImages.push(file); // Store the file in the array
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgPreview = document.createElement('div');
+                imgPreview.classList.add('image-preview');
+                imgPreview.innerHTML = `
+                    <img src="${e.target.result}" alt="Image Preview">
+                    <i class="bx bx-x remove-image-btn"> </i>
+                `;
+                imagePreviewContainer.appendChild(imgPreview);
+
+                // Handle image deletion
+                imgPreview.querySelector('.remove-image-btn').addEventListener('click', function() {
+                    const index = selectedImages.indexOf(file);
+                    if (index > -1) {
+                        selectedImages.splice(index, 1); // Remove from the array
+                    }
+                    imgPreview.remove();
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Reset the input field to allow uploading the same file again
+        imageUploadInput.value = '';
+    });
+
+    
+
+});
+
+
+function showCreateContainer()
+    {
+      document.querySelector('.create__post-section').style.display = 'flex';
+    }
+  function hideCreateContainer()
+    {
+      document.querySelector('.create__post-section').style.display = 'none';
+    }
+  function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
+  
+document.getElementById('submit_post').addEventListener('click', function () {
+    const formData = new FormData();
+    const postText = document.getElementById('create-post__text').value;
+    const images = document.querySelector('.image-upload-input');
+    const postBtn = document.getElementById('submit_post');
+    const containerBody = document.querySelector('.create__post-container-body');
+    const community = containerBody.getAttribute('data-community');
+    const csrfToken = getCookie('csrftoken');
+    
+
+    const files = selectedImages;
+    console.log(files);
+    formData.append('text', postText);
+    formData.append('community', community);
+    // Append each file individually
+    Array.from(files).forEach((file, index) => {
+        formData.append('images_' + index, file);
+    });
+    postBtn.textContent = "Please wait...";
+    postBtn.classList.add("disabled");
+    console.log(formData);
+    $.ajax({
+          url: '/new_post',
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': csrfToken
+          },
+          data: formData,
+          processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+          contentType: false, 
+          success: function (response) {
+            if (response.nothing)
+              {
+                  document.querySelector('.error').style.display = 'block';
+                  document.querySelector('.error').textContent = "Empty Post!"
+                  postBtn.textContent = "Post"
+                  postBtn.classList.remove("disabled")
+   
+              } else {
+                window.location.href = '/community';
+              }
+            
+          },
+          error: function (xhr, status, error) {
+              setTimeout(() => {
+                  console.log("Error:", status, error);
+                  document.querySelector('.error').style.display = 'block';
+            
+                  postBtn.textContent = "Post"
+                  postBtn.classList.remove("disabled")
+         
+                  
+              }, 1000);
+          }
+      });
+});
+
+function getCookie(name) {
+    const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return cookieValue ? cookieValue.pop() : '';
+}
+</script>
+
+<script>
+  function toggleContainer() {
+    console.log("dsahsah");
+    const settings = document.querySelector('.community__section-right-header-settings');
+    const left_overlay = document.querySelector('.community__section-left');
+
+    
+      if (left_overlay.classList.contains('visible')) {
+        left_overlay.classList.remove('visible');
+      } else {
+        left_overlay.classList.add('visible');
+      }
+    
+  }
+</script>
+
+<script>
+      // Function to toggle the emoji picker visibility
+      function toggleEmojiPicker() {
+            const emojiPicker = document.getElementById('create-emoji-picker');
+            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+        }
+
+      // Function to insert the selected emoji into the post text field
+      function insertEmoji(emojiObject) {
+        console.log('Received emojiObject:', emojiObject);
+
+        const postText = document.getElementById('create-post__text'); // Replace with your post text field ID
+        const emoji = emojiObject.unicode;
+
+        postText.value += emoji; // Append the selected emoji to the current text
+        toggleEmojiPicker(); // Hide the emoji picker
+      }
+
+
+        // Add a click event listener to the smile icon to show/hide the emoji picker
+        const smileIcon = document.querySelector('.bx-smile'); // Replace with the correct selector
+        smileIcon.addEventListener('click', toggleEmojiPicker);
+
+        // Initialize the emoji picker
+        const emojiPicker = document.getElementById('create-emoji-picker');
+        emojiPicker.innerHTML = '<emoji-picker></emoji-picker>';
+        emojiPicker.addEventListener('emoji-click', (event) => {
+
+            insertEmoji(event.detail.emoji);
+           
+        });
+</script>
+
+
+<script>
+    function deletePost(element)
+      {
+        const postId = element.getAttribute('data-id');
+        const csrfToken = getCookie('csrftoken');
+        const formData = new FormData();
+        formData.append('id', postId);
+        let parentDiv = element.closest('.community__section-right-body-container-posts-item');
+
+       
+
+        $.ajax({
+          url: '/delete_post',
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': csrfToken
+          },
+          data: formData,
+          processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+          contentType: false, 
+          success: function (response) {
+           
+            parentDiv.style.display = 'none';
+          },
+          error: function (xhr, status, error) {
+              
+          }
+      });
+
+      }
+
+ 
+  function copyToClipboard(element) {
+    element.querySelector("#copy-link").innerText = ""
+      var text = element.getAttribute('data-link');
+
+      navigator.clipboard.writeText(text).then(function() {
+          element.querySelector("#copy-link").innerText = "Copied!";
+      }, function(err) {
+          console.error('Failed to copy: ', err);
+      });
+  }
+
+</script>
+
+
+{% endblock main-content %}
+
+{% block title%} Community | Compas AI{% endblock %}
+
+{% block community%} active{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

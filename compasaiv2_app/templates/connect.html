@@ -1,0 +1,100 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+   <div class="connect__section">
+     <div class="connect__headers">
+          <span class="connect__headers-item  {% block connect_mentors %} {% endblock %}"
+                hx-post="{% url 'connect_mentors' %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap="outerHTML"
+                hx-include="[name='activeButton']"
+                hx-on="htmx:beforeRequest:toggleActiveClass(this)">
+              Mentors
+          </span> 
+
+          <span class="connect__headers-item {% block connect_peers %} {% endblock %}"
+                hx-post="{% url 'connect_peers' %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap="innerHTML"
+                hx-include="[name='activeButton']"
+                hx-on="htmx:beforeRequest:toggleActiveClass(this)">
+              Peers
+          </span>
+     </div>
+     <div class="connect__filters">
+        <div class="connect__filters-search">
+          <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input" placeholder="Search by name, field or company">
+        </div>
+     </div>
+     <div class="connect__body" id="connect__body">
+        {% block connect-content %} {% endblock%}
+     </div>
+   </div>
+ 
+   {% block connect-overlay %} {% endblock%}
+
+   <script>
+    document.addEventListener('htmx:beforeRequest', function(event) {
+        toggleActiveClass(event.target);
+    });
+
+    function toggleActiveClass(element) {
+        // Remove 'active' class from all buttons
+        document.querySelectorAll('.connect__headers-item').forEach(function(item) {
+            item.classList.remove('active');
+        });
+
+        // Add 'active' class to the clicked button
+        element.classList.add('active');
+    }
+</script>
+
+<script>
+  function setupSearch(inputId, resultsContainerId, notFoundId) {
+      const searchInput = document.getElementById(inputId);
+      const resultsContainer = document.getElementById(resultsContainerId);
+      const notFoundElement = document.getElementById(notFoundId);
+
+      searchInput.addEventListener('keyup', function() {
+          const query = searchInput.value.trim().toLowerCase();
+          const courseItems = resultsContainer.getElementsByClassName('connect__body-item');
+          let found = false;
+
+              for (let i = 0; i < courseItems.length; i++) {
+                  const spans = courseItems[i].getElementsByTagName('span');
+                  let itemText = '';
+
+                  for (let j = 0; j < spans.length; j++) {
+                      itemText += spans[j].textContent.toLowerCase() + ' ';
+                  }
+
+                  if (itemText.includes(query)) {
+                      courseItems[i].style.display = 'flex';
+                      found = true;
+                  } else {
+                      courseItems[i].style.display = 'none';
+                  }
+              }
+
+              if (found) {
+                  notFoundElement.style.display = 'none';
+              } else {
+                  notFoundElement.style.display = 'flex';
+              }
+          });
+  }
+
+  // Example usage:
+  setupSearch('search-input', 'search-results', 'not-found');
+</script>
+
+
+{% endblock main-content %}
+
+{% block title%} Connect | Compas AI{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}
+{% block connect%} active{% endblock %}

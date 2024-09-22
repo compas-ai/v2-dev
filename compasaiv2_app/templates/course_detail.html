@@ -1,0 +1,93 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<a  href="/" class="return_btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    Return
+    </a>
+<div class="course-detail__section">
+    
+    <div class="course-detail__section-left">   
+        <div class="course-detail__section-left-container">
+            <div class="course-detail__section-left-container-img">
+                <img src="{% static 'images/course.png'%}" alt="">
+            </div>
+            <div class="course-detail__section-left-container-details">
+                <div class="course-detail__section-left-container-details-icon">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M15.5253 5.95747C15.5587 6.46581 15.517 7.04081 15.417 7.68247L14.8087 11.5908C14.292 14.8491 12.7837 15.9491 9.52532 15.4408L5.61698 14.8241C4.49198 14.6491 3.62532 14.3491 2.99199 13.8991C1.78365 13.0575 1.43365 11.6741 1.76699 9.54081L2.38365 5.63247C2.90032 2.37414 4.40865 1.27414 7.66698 1.78247L11.5753 2.39914C14.192 2.80747 15.417 3.87414 15.5253 5.95747Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17.0829 11.2257L15.8329 14.984C14.7912 18.1173 13.1245 18.9507 9.99121 17.909L6.23288 16.659C4.34121 16.034 3.29121 15.1673 2.99121 13.9007C3.62454 14.3507 4.49121 14.6507 5.61621 14.8257L9.52454 15.4423C12.7829 15.9507 14.2912 14.8507 14.8079 11.5923L15.4162 7.68398C15.5162 7.04232 15.5579 6.46732 15.5245 5.95898C17.5162 7.01732 17.9495 8.61732 17.0829 11.2257Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.86699 7.48398C7.66781 7.48398 8.31699 6.8348 8.31699 6.03398C8.31699 5.23317 7.66781 4.58398 6.86699 4.58398C6.06618 4.58398 5.41699 5.23317 5.41699 6.03398C5.41699 6.8348 6.06618 7.48398 6.86699 7.48398Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                    </span>
+                </div>
+                <div class="course-detail__section-left-container-details-content">
+                    <span class="course-detail__section-left-container-details-title">
+                        Become a professional in Product Design
+                    </span>
+                    <span class="course-detail__section-left-container-details-others">
+                        Beginner | 15 lectures
+                    </span>
+                </div>
+            </div>
+            <div class="course-detail__section-left-container-info">
+                <div class="course-detail__section-left-container-info-price">
+                    <span>
+                        $7.89
+                    </span>
+                </div>
+                <div class="course-detail__section-left-container-info-author">
+                    <div class="course-detail__section-left-container-info-author-img">
+                        <img src="{% static 'images/mentor.jpg'%}" alt="">
+                    </div>
+                    <span>
+                        Olivia Rhye
+                    </span>
+                </div>
+                <div class="course-detail__section-left-container-info-ratings">
+                    <span>
+                        <i class='bx bx-star' ></i>
+                        <i class='bx bx-star' ></i>
+                        <i class='bx bx-star' ></i>
+                        <i class='bx bx-star' ></i>
+                        <i class='bx bx-star' ></i>
+                    </span>
+                    <span class="course-detail__section-left-container-info-ratings-value">0 ratings</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="course-detail__section-right">
+        <div class="course-detail__section-right-container">
+            <div class="course-detail__section-right-btn">
+                <span>Enroll now</span>
+            </div>
+            <div class="course-detail__section-right-subtitle">
+                <span class="course-detail__section-right-subtitle-text">What this course is all about</span>
+                <span class="course-detail__section-right-subtitle-value">
+                    Enrol in this course and you'll get a lifetime link to download all course materials, instructional videos, and example files!
+                </span>
+            </div>
+            <div class="course-detail__section-right-description">
+                <span>
+                    The Product Design Masterclass teaches the art and technique of product design.
+
+                    With tutorial videos, guides, and LOTS of example files, this digital course shows you, Step-by-Step, how to design digital products.
+                    
+                    Available now for $7.89!
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main-content %}
+
+{% block title%} Course | Compas AI{% endblock %}
+{% block path %} active{% endblock %}

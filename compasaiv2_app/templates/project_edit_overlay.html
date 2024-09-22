@@ -1,0 +1,55 @@
+{% extends 'project_detail.html' %}
+{% load static %}
+{% block project-content %} 
+<div class="project__add-overlay">
+    <div class="project__add-overlay-container">
+        <div class="project__add-overlay-container-nav"
+        
+            hx-post="{% url 'project_detail' %}"
+            hx-trigger="click"
+            hx-target="#body"
+            hx-swap = "outerHTML"
+            hx-push-url="true">
+                <i class='bx bx-left-arrow-alt' ></i>
+            <span >Back</span>
+        </div>
+        <div class="project__add-overlay-container-header">
+            <span>
+                Edit Project
+            </span>
+        </div>
+        <div class="project__add-overlay-container-body">
+            <div class="project__add-overlay-container-body-item">
+                <label for="">Project Name</label>
+                <input type="text" placeholder="name your project" disabled>
+            </div>
+            <div class="project__add-overlay-container-body-item">
+                <label for="">Project Image</label>
+                <input type="file" id="imageUpload" name="image" accept="image/*">
+            </div>
+            
+            <div class="project__add-overlay-container-body-item">
+                <label for="">Scenario</label>
+                <textarea name="" id="" placeholder="e.g As a Product designer for a hiring service, your task is to improve the profile page of users based on user feedback. The goal is to make the profile page visually clear and straightforward for potential hiring managers."></textarea>
+                
+            </div>
+            <div class="project__add-overlay-container-body-item">
+                <label for="">Tasks (5 max)</label>
+                <input type="text" placeholder="Select a hiring service and the device type for your profile page design.">
+                <input type="text" placeholder="Identify and analyze the main issues that users, both hiring managers and job seekers, encounter when interacting with the profile page.">
+                <input type="text" placeholder="Design an improved profile page.">
+                <input type="text" placeholder="Provide a detailed justification for your design decisions.">
+                <input type="text" placeholder="Select a hiring service and the device type for your profile page design.">
+            </div>
+        </div>
+
+        <div class="project__add-overlay-container-btn">
+            <span>
+                Update project
+            </span>
+        </div>
+       
+    </div>
+</div>
+{% endblock %}
+{% block profile_projects %} active{% endblock %}

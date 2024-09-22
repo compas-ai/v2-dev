@@ -1,0 +1,53 @@
+{% extends 'profile.html' %}
+{% load static %}
+{% block profile-content %} 
+<div class="profile-skills__section">
+    <div class="profile-skills__header">
+        <span>
+            Core Skills
+        </span>
+        {% if is_profile %} 
+        <span class="profile-skills__header-btn">
+            Develop your skills
+        </span>
+        {% endif %}
+    </div>
+    <div class="profile-skills__body">
+        <div class="profile-skills__body-left">
+            <div class="profile-skills__body-items">
+                {% if skills %}
+                    {% for skill in skills %}
+                    <div class="profile-skills__body-item">
+                        <span class="profile-skills__body-item-skill">
+                            {{skill.name}}
+                        </span>
+                        <div class="profile-skills__body-item-progress">
+                            <div class="profile-skills__body-item-progress-bar" style="width: {{skill.progress}}">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}  
+                    <span class="profile-skills__body-item-no__skill">
+                        No skills added yet.
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="profile-skills__body-right">
+            <div class="profile-skills__body-right-image">
+                <img src="{% static 'images/robot.png' %}" alt="">
+            </div>
+            <div class="profile-skills__body-right-body">
+                <span class="profile-skills__body-right-attr">
+                    Childlike Curiosity
+                </span>
+                <span class="profile-skills__body-right-description">
+                    You are always willing to learn and you’re amassing knowledge to becime the best you can be.
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block profile_skills %} active{% endblock %}

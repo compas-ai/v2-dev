@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django development settings
+*.log
+*.pot
+*.pyc
+*.env
+local_settings.py
+
+.env
+# Static files
+staticfiles/
+/compasai_data
+/compasai_moderator
+admin.json
+!.gitkeep
+
+/compasaiv2_proj/.env
+
+# Media files
+/media/
+
+# Secret keys
+*.secret_key
+uploads/
+# Database
+*.sqlite3
+
+
+/recording.wav
+/video.mp4
+uncompleted_chats.csv
+unenrolled_chats.csv
+cai.csv
+# Python virtual environment
+venv/
+/dathwayenv/

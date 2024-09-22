@@ -1,0 +1,141 @@
+{% load static %}
+
+<div class="roadmap_detail-section-header">
+    <a href="/roadmap" class="return_btn show" >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        Return
+    </a>
+    
+</div>
+<div class="roadmap_detail-section-body">
+    <div class="roadmap_detail-section-body-top">
+        <div class="home_section-chat-roadmap-item-tasks-item-info-progress">
+            <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle">
+
+            </div>
+        </div>
+        <div class="roadmap_detail-section-body-title">
+            <span>
+                {{item.title}}
+            </span>
+            <div class="roadmap__section-container-body-container-content-item-right">
+                {% if item.progress == 100 %}
+                <span class="completed_text">COMPLETED</span>
+                {% else %}
+                    <span class="child-el">{{item.duration}} weeks</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="roadmap_detail-section-body-container">
+        {% for task in  item.tasks %}
+        <div class="home_section-chat-roadmap-item-tasks-item">
+            <div class="home_section-chat-roadmap-item-tasks-item-border-tabs">
+                <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+
+                </span>
+                <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+                    
+                </span>
+            </div>
+            <div class="home_section-chat-roadmap-item-tasks-item-info">
+                
+                <div class="home_section-chat-roadmap-item-tasks-item-info-title">
+                    <span class="home_section-chat-roadmap-item-tasks-item-info-title-name">
+                         {{task.name}}
+                    </span>
+                    <div class="home_section-chat-roadmap-item-tasks-item-info-title-date">
+                       
+                        <span>
+                            {{task.description}}
+                        </span>
+                    </div>
+                    {% if task.status == "pending" and task.action != "roadmap" %}
+                        {% if task.status == "pending" and task.action == "path_courses" %}
+                        <a href="{% url task.action path.suggested_skill.value %}" class="task_action">
+                            Start Tasks
+                        </a>
+                        {% else %}
+                        <a href="{% url task.action %}" class="task_action">
+                            Start Tasks
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="home_section-chat-roadmap-item-tasks-item-duration" onclick="markTask(this)" data-id={{item.id}} data-subid={{task.sub_id}}>
+               
+                    {% if task.status == "pending" %}
+                   
+                    <span>
+                        <input type="checkbox" id="mark_task" > Done?
+                    </span>
+                    {% else %}
+                    <i class='bx bxs-calendar-check'></i>
+                    
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+    
+   
+    
+</div>
+
+<script>
+    
+    
+    function markTask(element)
+        {
+            
+            const checkbox = element.querySelector('#mark_task');
+            const itemId =element.getAttribute('data-id'); 
+            const taskId =element.getAttribute('data-subid'); 
+            const formData = new FormData();
+            formData.append('task_id', taskId);
+            formData.append('item_id', itemId);
+            const csrfToken = getCookie('csrftoken');
+            if (checkbox)
+                {
+                    if (checkbox.checked)
+                        {
+                            $.ajax({
+                                url: '/mark_task',  // Replace with your backend endpoint
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': csrfToken  // Ensure you have the CSRF token included
+                                },
+                                data: formData,
+                                processData: false,  // Prevent jQuery from converting the formData to a query string
+                                contentType: false,
+                                success: function(response) {
+                                    element.innerHTML = `<i class='bx bxs-calendar-check'></i>`
+                                    // Optionally, redirect or update the UI after successful submission
+                                },
+                                error: function(error) {
+                                    
+                                    console.error(error);
+                                }
+                            });
+                        }
+                }
+           
+        }
+
+                    
+       
+
+    function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+</script>
+
+

@@ -1,0 +1,560 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+
+{% if active_path != None %}
+<div class="home_section" id="main__section">
+    <div class="home_section-mentors">
+        <div class="home_section-mentors-header">
+            <span class="home_section-mentors-header-title">
+                Connect with Worldclass Mentors 
+                <span>
+                    <a href="/connect">
+                        See all <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </span>
+            </span>
+        </div>
+        <div class="home_section-mentors-frames">
+            {% for mentor in mentors %}
+                <a href="{% url 'profile' mentor.username %}" class="home_section-mentors-frames-item">
+                    {% if mentor.profile_picture %}
+                    <img class="home_section-mentors-frames-item-img" src="{{ mentor.profile_picture.url }}" alt="">
+                    {% else %}
+                    <img class="home_section-mentors-frames-item-img" src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+                    <span class="home_section-mentors-frames-item-name">{{mentor.display_name}}</span>
+                </a>
+            {% endfor %}
+           
+        </div>
+    </div>
+    <div class="home_section-chat-roadmap">
+        <div class="home_section-chat-roadmap-item">
+            <span class="home_section-chat-roadmap-item-header">
+                Recent Conversations
+                <i class='bx bx-expand-alt' ></i>
+            </span>
+            <div class="home_section-chat-roadmap-item-messages">
+                <div class="home_section-chat-roadmap-item-messages-item">
+                    <span>Hello! I'm excited to help you explore potential career paths. To get started, I need to understand a bit more about you. Let's begin with some questions about your interests and strengths. 
+
+                        </span>
+                        <span class="home_section-chat-roadmap-item-messages-item-btns">
+                            <img src="{% static 'images/chat/audio.svg'%}" alt="">
+                            <img src="{% static 'images/chat/copy.svg'%}" alt="">
+                            <img src="{% static 'images/chat/like.svg'%}" alt="">
+                        </span>
+                </div>
+                <div class="home_section-chat-roadmap-item-messages-item user_message">
+                    <span>I'm really passionate about technology and how it can be used to solve everyday problems. I love staying updated on the latest tech trends, and I enjoy working on personal coding projects in my spare time.</span>
+                        
+                </div>
+
+            </div>
+            <div class="home_section-chat-roadmap-item-message-input">
+                <i class='bx bx-plus'></i>
+                <input type="text" placeholder="Ask a follow up question">
+                <i class='bx bx-up-arrow-alt' ></i>
+            </div>
+        </div>
+        <div class="home_section-chat-roadmap-item">
+            <span class="home_section-chat-roadmap-item-header">
+                Next Steps
+                <a href="/roadmap">View roadmap <i class='bx bx-right-arrow-alt'></i></a>
+            </span>
+            <div class="home_section-chat-roadmap-item-tasks">
+                <span class="home_section-chat-roadmap-item-tasks-update">
+                    <span>Update your profile</span>
+                    
+                </span>
+                <div class="home_section-chat-roadmap-item-tasks-container">
+                    <div class="home_section-chat-roadmap-item-tasks-item active">
+                        <div class="home_section-chat-roadmap-item-tasks-item-border-tabs">
+                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+
+                            </span>
+                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+                                
+                            </span>
+                        </div>
+                        <div class="home_section-chat-roadmap-item-tasks-item-info">
+                            <div class="home_section-chat-roadmap-item-tasks-item-info-progress" >
+                                <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle">
+                                    <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle-overlay"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="home_section-chat-roadmap-item-tasks-item-info-title">
+                                <span class="home_section-chat-roadmap-item-tasks-item-info-title-name">
+                                     Take Introduction Course
+                                </span>
+                                <div class="home_section-chat-roadmap-item-tasks-item-info-title-date">
+                                    <i class='bx bx-calendar' ></i>
+                                    <span>
+                                        Sep 1 - Sep 7
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-chat-roadmap-item-tasks-item-duration">
+                            <span>
+                                2 weeks
+                            </span>
+                        </div>
+                    </div>
+                    <div class="home_section-chat-roadmap-item-tasks-item">
+                        <div class="home_section-chat-roadmap-item-tasks-item-border-tabs">
+                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+
+                            </span>
+                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+                                
+                            </span>
+                        </div>
+                        <div class="home_section-chat-roadmap-item-tasks-item-info">
+                            <div class="home_section-chat-roadmap-item-tasks-item-info-progress" >
+                                <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle">
+                                    <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle-overlay"></div>
+                                </div>
+                            </div>
+                            <div class="home_section-chat-roadmap-item-tasks-item-info-title">
+                                <span class="home_section-chat-roadmap-item-tasks-item-info-title-name">
+                                     Setup your Portfolio
+                                </span>
+                                <div class="home_section-chat-roadmap-item-tasks-item-info-title-date">
+                                    <i class='bx bx-calendar' ></i>
+                                    <span>
+                                        Sep 7 - Sep 14
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-chat-roadmap-item-tasks-item-duration">
+                            <span>
+                                2 weeks
+                            </span>
+                        </div>
+                    </div>
+                    <span class="home_section-chat-roadmap-item-tasks-container-next-icon"><i class='bx bx-down-arrow-alt' ></i></span>
+                </div>
+                <div class="home_section-chat-roadmap-item-tasks-timeline">
+                    <span class="home_section-chat-roadmap-item-tasks-timeline-title">
+                        OVERALL PROGRESS (36%)
+                    </span>
+                    <div class="home_section-chat-roadmap-item-tasks-timeline-container">
+                        <div class="home_section-chat-roadmap-item-tasks-timeline-container-bar">
+                            <div class="home_section-chat-roadmap-item-tasks-timeline-container-progress-bar">
+                                <div class="home_section-chat-roadmap-item-tasks-timeline-container-progress-bar-current"></div>
+                            </div>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            
+                            
+                        </div>
+                       
+                        <div class="home_section-chat-roadmap-item-tasks-timeline-container-labels">
+                            <span>
+                                W1
+                            </span>
+                            <span>
+                                W10
+                            </span>
+                            <span>
+                                W20
+                            </span>
+                            <span>
+                                W30
+                            </span>
+                            <span>
+                                W40
+                            </span>
+                            <span>
+                                W50
+                            </span>
+                            
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="home_section-courses">
+        <span class="home_section-courses-header">
+            Explore Courses 
+            <span >See all <i class='bx bx-right-arrow-alt'></i></span>
+        </span>
+        <div class="home_section-courses-body">
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                
+                
+                <span class="home_section-courses-body-item-title">
+                    Design Thinking for Businesses
+                </span>
+              
+                
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        4.3 <i class='bx bxs-star' ></i>  (145 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Beginner | 36 lectures | 15.4 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Product Design & Business
+                </span>
+               
+                
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Beginner | 36 lectures | 15.4 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/3.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Design Thinking for Businesses
+                </span>
+                
+               
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        3.8 <i class='bx bxs-star' ></i>  (45 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Intermediate | 41 lectures | 22 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Principles of Iconography
+                </span>
+                
+               
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        4.0 <i class='bx bxs-star' ></i>  (78 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Advanced | 12 lectures | 7 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Product Design & Business
+                </span>
+               
+                
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Beginner | 36 lectures | 15.4 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/3.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Design Thinking for Businesses
+                </span>
+                
+               
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        3.8 <i class='bx bxs-star' ></i>  (45 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Intermediate | 41 lectures | 22 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Principles of Iconography
+                </span>
+                
+               
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        4.0 <i class='bx bxs-star' ></i>  (78 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Advanced | 12 lectures | 7 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+            <a href="/course_detail" class="home_section-courses-body-item">
+                <div class="home_section-courses-body-item-img">
+                    <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
+                    <div class="home_section-courses-body-item-img-cover"></div>
+                </div>
+                <span class="home_section-courses-body-item-title">
+                    Product Design & Business
+                </span>
+               
+                
+                <span class="home_section-courses-body-item-reviews">
+                     
+                    <span>
+                        4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                    </span>
+                </span>
+                <span class="home_section-courses-body-item-details">
+                    Beginner | 36 lectures | 15.4 hours 
+                </span>
+                <span class="home_section-courses-body-item-author">
+                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                    Learnpally
+                </span>
+            </a>
+
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="profile-paths__section">
+    {% if is_profile %} 
+    <div class="profile-paths__how-it-works recommendation">
+        <div class="profile-paths__how-it-works__header">
+            <span>
+                How it Works
+            </span>
+        </div>
+        <div class="profile-paths__how-it-works__body">
+                <div class="profile-paths__how-it-works__body-left">
+                    <span>
+                        Based on your background, interests, motivations and your core strengths, we were able to recommend these career paths that to help you make your decisions on what skills to acquire.
+                    </span>
+                    <div class="profile-paths__how-it-works__body-left-note">
+                        Upgrade your account to access more than one path at a time. But you can only choose one learning path at a time on the free plan. Carefully preview the recommended paths and then commit to one. 
+                    </div>
+                </div>
+                <div class="profile-paths__how-it-works__body-right">
+                    <div class="disable-container">
+                        <i class='bx bxs-lock'></i>
+                    </div>
+                    <div class="profile-paths__how-it-works__body-right-item">
+                        <span class="profile-paths__how-it-works__body-right-item-title">
+                            Work availability
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-description">
+                            Let the community know if you’re looking for new roles
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-btn">
+                            <select name="" id="">
+                                <option value="">Available for work</option>
+                            </select>
+                        </span>
+                    </div>
+                    <div class="profile-paths__how-it-works__body-right-item">
+                        <span class="profile-paths__how-it-works__body-right-item-title">
+                            Resume
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-description">
+                            Generate a a PDF version of your Resume
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-btn">
+                           <button>Generate</button>
+                        </span>
+                    </div>
+                </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if recommended_paths %}
+    <div class="profile-paths-recommended">
+        <div class="profile-paths__recommended__header">
+            <span>
+                Select a path from your recommended paths
+            </span>
+        </div>
+        <div class="profile-paths__recommended__body">
+            {% for skill in recommended_paths %}
+            <div class="profile-paths__recommended__body-item child-color "
+                {% if is_profile %} 
+                    hx-post="{% url 'paths_view' user_profile.username skill %}"
+                    hx-trigger="click"
+                    hx-target="#overlay"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true"
+                {% endif %}>
+                {% if skill.ranking == 1%}
+                <div class="profile-paths__recommended__body-item-header">
+                    <span class="profile-paths__recommended__body-item-header-number" >01</span>
+                    <span class="profile-paths__recommended__body-item-header-rank child-el">Most Recommended</span>
+                </div>
+                {% elif skill.ranking == 2%}
+                <div class="profile-paths__recommended__body-item-header">
+                    <span class="profile-paths__recommended__body-item-header-number" >02</span>
+                    <span class="profile-paths__recommended__body-item-header-rank child-el">More Recommended</span>
+                </div>
+                {% else %}
+                <div class="profile-paths__recommended__body-item-header">
+                    <span class="profile-paths__recommended__body-item-header-number" >03</span>
+                    <span class="profile-paths__recommended__body-item-header-rank child-el">Recommended</span>
+                </div>
+                {% endif %}
+                <div class="profile-paths__recommended__body-item-image child-el">
+                    <img src="{% static 'images/paths/product-design.svg' %}" alt="">
+                    {% if skill.active %}
+                    <span class="profile-paths__recommended__body-item-active">Active</span>
+                    {% endif %}
+                </div>
+                <div class="profile-paths__recommended__body-item-info">
+                    <span class="profile-paths__recommended__body-item-info-title">
+                        {{skill.suggested_skill.name}}
+                    </span>
+                    <span class="profile-paths__recommended__body-item-info-description">
+                        {{skill.reason}}
+                    </span>
+                    {% if is_profile %} 
+                    <span class="profile-paths__recommended__body-item-info-btn">
+                        {% if skill.active %}
+                            Go to Path
+                        {% else %}
+                            Explore path
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+           {% endfor %}
+            
+        </div>
+    </div>
+    {% endif %}
+    {% if selected_paths %}
+    <div class="profile-paths-recommended">
+        <div class="profile-paths__recommended__header">
+            <span>
+                Selected Paths
+            </span>
+        </div>
+        <div class="profile-paths__recommended__body">
+            {% for skill in selected_paths %}
+            <div class="profile-paths__recommended__body-item child-color "
+                {% if is_profile %} 
+                    hx-post="{% url 'paths_view' user_profile.username skill %}"
+                    hx-trigger="click"
+                    hx-target="#overlay"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true"
+                {% endif %}>
+                
+                <div class="profile-paths__recommended__body-item-image child-el">
+                    <img src="{% static 'images/paths/product-design.svg' %}" alt="">
+                    {% if skill.active %}
+                        <span class="profile-paths__recommended__body-item-active">Active</span>
+                    {% endif %}
+                </div>
+                <div class="profile-paths__recommended__body-item-info">
+                    <span class="profile-paths__recommended__body-item-info-title">
+                        {{skill.suggested_skill.name}}
+                    </span>
+                    <span class="profile-paths__recommended__body-item-info-description">
+                        {{skill.reason}}
+                    </span>
+                    {% if is_profile %} 
+                    <span class="profile-paths__recommended__body-item-info-btn">
+                        {% if skill.active %}
+                            Go to Path
+                        {% else %}
+                            Explore path
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+           {% endfor %}
+            
+        </div>
+    </div>
+    {% endif %}
+    
+  <div class="" id="overlay"></div>
+</div>
+{% block profile-content-overlay %} {% endblock %}
+{% endif %}
+{% endblock main-content %}
+
+{% block title%} Dashboard | Compas AI{% endblock %}
+
+{% block home%} active{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'connect.html' %}
+{% load static %}
+
+
+{% block connect-content %} 
+
+<div class="connect__body-items" id="search-results">
+    {% for peer in peers %}
+      <div class="connect__body-item" >
+        <a class="connect__body-item-img" href="{% url 'profile' peer.username %}">
+          {% if peer.profile_picture %}
+          <img class="connect__body-item-img-dp" src="{{ peer.profile_picture.url }}" alt="">
+          {% else %}
+          <img class="connect__body-item-img-dp" src="{% static 'images/ava.png'%}" alt="">
+          {% endif %}
+          <img class="connect__body-item-img-avatar" src="{% static 'images/peer-avatar.jpg'%}" alt="">
+        </a>
+        
+        <a class="connect__body-item_info" href="{% url 'profile' peer.username %}">
+          <span class="connect__body-item-name">{{ peer.display_name }}</span>
+          <span class="connect__body-item-role">{{peer.bio}}</span>
+        </a>
+      
+        <span class="connect__body-item-btn follow_btn" data-id="{{peer.username}}" onclick="toggleFollow(this)">
+          {% if profile in peer.followers.all %}
+          <i class='bx bx-check'></i>
+            <span class="connect__body-item-btn-text"  >
+              Following
+            </span>
+           
+          {% else %}
+          <i class='bx bx-plus' ></i>
+          <span class="connect__body-item-btn-text"  >
+            Follow
+          </span>
+          {% endif %}
+        </span>
+      </div>
+    {% endfor %}
+</div>
+<div id="not-found" class="not__found" style="display: none;">
+  <span>No peer found.</span>
+</div>
+
+
+<script>
+  function toggleFollow(element) {
+    const username = element.getAttribute('data-id');
+    console.log("cliksks");
+    
+    $.ajax({
+                url: `follow/${username}/`, // Replace with the URL to your Django view for saving the profile
+                type: 'POST',
+                data: "",
+                processData: false, // Important: Prevent jQuery from processing the data
+                contentType: false, // Important: Set the content type to false
+                success: function (response) {
+                  if (response.message) {
+                      console.log(response.message);
+                      // Toggle the text content based on the action performed
+                      if (response.message === 'follow') {
+                          element.innerHTML = ` <i class='bx bx-check'></i>
+                                              <span class="connect__body-item-btn-text"  >
+                                                Following
+                                              </span>`;
+                      } else {
+                          element.innerHTML = `<i class='bx bx-plus' ></i>
+                                                <span class="connect__body-item-btn-text"  >
+                                                  Follow
+                                                </span>`;
+                      }
+
+                  }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    // Handle errors if needed
+                    console.error('Error:', errorThrown);
+                }
+        });
+
+}
+
+
+</script>
+
+
+ {% endblock %}
+
+ {% block connect_peers %} active{% endblock %}

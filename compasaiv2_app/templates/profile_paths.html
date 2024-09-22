@@ -1,0 +1,168 @@
+{% extends 'profile.html' %}
+{% load static %}
+{% block profile-content %} 
+<div class="profile-paths__section">
+    {% if recommended_paths %}
+    <div class="profile-paths-recommended">
+        <div class="profile-paths__recommended__header">
+            <span>
+                Recommended Paths
+            </span>
+        </div>
+        <div class="profile-paths__recommended__body">
+            {% for skill in recommended_paths %}
+            <div class="profile-paths__recommended__body-item child-color "
+                {% if is_profile %} 
+                    hx-post="{% url 'paths_view' user_profile.username skill %}"
+                    hx-trigger="click"
+                    hx-target="#overlay"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true"
+                {% endif %}>
+                {% if skill.ranking == 1%}
+                <div class="profile-paths__recommended__body-item-header">
+                    <span class="profile-paths__recommended__body-item-header-number" >01</span>
+                    <span class="profile-paths__recommended__body-item-header-rank child-el">Most Recommended</span>
+                </div>
+                {% elif skill.ranking == 2%}
+                <div class="profile-paths__recommended__body-item-header">
+                    <span class="profile-paths__recommended__body-item-header-number" >02</span>
+                    <span class="profile-paths__recommended__body-item-header-rank child-el">More Recommended</span>
+                </div>
+                {% else %}
+                <div class="profile-paths__recommended__body-item-header">
+                    <span class="profile-paths__recommended__body-item-header-number" >03</span>
+                    <span class="profile-paths__recommended__body-item-header-rank child-el">Recommended</span>
+                </div>
+                {% endif %}
+                <div class="profile-paths__recommended__body-item-image child-el">
+                    <img src="{% static 'images/paths/product-design.svg' %}" alt="">
+                    {% if skill.active %}
+                    <span class="profile-paths__recommended__body-item-active">Active</span>
+                    {% endif %}
+                </div>
+                <div class="profile-paths__recommended__body-item-info">
+                    <span class="profile-paths__recommended__body-item-info-title">
+                        {{skill.suggested_skill.name}}
+                    </span>
+                    <span class="profile-paths__recommended__body-item-info-description">
+                        {{skill.reason}}
+                    </span>
+                    {% if is_profile %} 
+                    <span class="profile-paths__recommended__body-item-info-btn">
+                        {% if skill.active %}
+                            Go to Path
+                        {% else %}
+                            Explore path
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+           {% endfor %}
+            
+        </div>
+    </div>
+    {% endif %}
+    {% if selected_paths %}
+    <div class="profile-paths-recommended">
+        <div class="profile-paths__recommended__header">
+            <span>
+                Selected Paths
+            </span>
+        </div>
+        <div class="profile-paths__recommended__body">
+            {% for skill in selected_paths %}
+            <div class="profile-paths__recommended__body-item child-color "
+                {% if is_profile %} 
+                    hx-post="{% url 'paths_view' user_profile.username skill %}"
+                    hx-trigger="click"
+                    hx-target="#overlay"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true"
+                {% endif %}>
+                
+                <div class="profile-paths__recommended__body-item-image child-el">
+                    <img src="{% static 'images/paths/product-design.svg' %}" alt="">
+                    {% if skill.active %}
+                        <span class="profile-paths__recommended__body-item-active">Active</span>
+                    {% endif %}
+                </div>
+                <div class="profile-paths__recommended__body-item-info">
+                    <span class="profile-paths__recommended__body-item-info-title">
+                        {{skill.suggested_skill.name}}
+                    </span>
+                    <span class="profile-paths__recommended__body-item-info-description">
+                        {{skill.reason}}
+                    </span>
+                    {% if is_profile %} 
+                    <span class="profile-paths__recommended__body-item-info-btn">
+                        {% if skill.active %}
+                            Go to Path
+                        {% else %}
+                            Explore path
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+           {% endfor %}
+            
+        </div>
+    </div>
+    {% endif %}
+    {% if is_profile %} 
+    <div class="profile-paths__how-it-works">
+        <div class="profile-paths__how-it-works__header">
+            <span>
+                How it Works
+            </span>
+        </div>
+        <div class="profile-paths__how-it-works__body">
+                <div class="profile-paths__how-it-works__body-left">
+                    <span>
+                        Based on your background, interests, motivations and your core strengths, we were able to recommend these career paths that to help you make your decisions on what skills to acquire.
+                    </span>
+                    <div class="profile-paths__how-it-works__body-left-note">
+                        Upgrade your account to access more than one path at a time. But you can only choose one learning path at a time on the free plan. Carefully preview the recommended paths and then commit to one. 
+                    </div>
+                </div>
+                <div class="profile-paths__how-it-works__body-right">
+                    <div class="disable-container">
+                        <i class='bx bxs-lock'></i>
+                    </div>
+                    <div class="profile-paths__how-it-works__body-right-item">
+                        <span class="profile-paths__how-it-works__body-right-item-title">
+                            Work availability
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-description">
+                            Let the community know if you’re looking for new roles
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-btn">
+                            <select name="" id="">
+                                <option value="">Available for work</option>
+                            </select>
+                        </span>
+                    </div>
+                    <div class="profile-paths__how-it-works__body-right-item">
+                        <span class="profile-paths__how-it-works__body-right-item-title">
+                            Resume
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-description">
+                            Generate a a PDF version of your Resume
+                        </span>
+                        <span class="profile-paths__how-it-works__body-right-item-btn">
+                           <button>Generate</button>
+                        </span>
+                    </div>
+                </div>
+        </div>
+    </div>
+    {% endif %}
+  <div class="" id="overlay"></div>
+</div>
+{% block profile-content-overlay %} {% endblock %}
+{% endblock %}
+
+
+{% block profile_paths %} active{% endblock %}

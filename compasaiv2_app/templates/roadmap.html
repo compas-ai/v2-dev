@@ -1,0 +1,333 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="roadmap__section">
+    <div class="roadmap__section-container">
+        <div class="roadmap__section-container-header">
+            <div class="roadmap__section-container-header-left">
+                <span class="roadmap__section-container-header-left-subtitle">
+                    Your Learning Roadmap
+                </span>
+                <span class="roadmap__section-container-header-left-title">
+                Timeline
+                </span>
+            </div>
+            <div class="roadmap__section-container-header-right">
+                <span class="roadmap__section-container-header-right-period">
+                    <select name="" id="">
+                        <option value="">Weekly</option>
+                    </select>
+                </span>
+                <span class="roadmap__section-container-header-right-type">
+                    
+                    <span class="roadmap__section-container-header-right-type-first">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M13.9582 2.96797V1.66797C13.9582 1.3263 13.6749 1.04297 13.3332 1.04297C12.9915 1.04297 12.7082 1.3263 12.7082 1.66797V2.91797H7.29153V1.66797C7.29153 1.3263 7.0082 1.04297 6.66653 1.04297C6.32487 1.04297 6.04153 1.3263 6.04153 1.66797V2.96797C3.79153 3.1763 2.69987 4.51797 2.5332 6.50964C2.51653 6.7513 2.71653 6.9513 2.94987 6.9513H17.0499C17.2915 6.9513 17.4915 6.74297 17.4665 6.50964C17.2999 4.51797 16.2082 3.1763 13.9582 2.96797Z" fill="#9E9E54"/>
+                            <path d="M16.6667 8.19922H3.33333C2.875 8.19922 2.5 8.57422 2.5 9.03255V14.1659C2.5 16.6659 3.75 18.3326 6.66667 18.3326H13.3333C16.25 18.3326 17.5 16.6659 17.5 14.1659V9.03255C17.5 8.57422 17.125 8.19922 16.6667 8.19922ZM7.675 15.1742C7.59167 15.2492 7.5 15.3076 7.4 15.3492C7.3 15.3909 7.19167 15.4159 7.08333 15.4159C6.975 15.4159 6.86667 15.3909 6.76667 15.3492C6.66667 15.3076 6.575 15.2492 6.49167 15.1742C6.34167 15.0159 6.25 14.7992 6.25 14.5826C6.25 14.3659 6.34167 14.1492 6.49167 13.9909C6.575 13.9159 6.66667 13.8576 6.76667 13.8159C6.96667 13.7326 7.2 13.7326 7.4 13.8159C7.5 13.8576 7.59167 13.9159 7.675 13.9909C7.825 14.1492 7.91667 14.3659 7.91667 14.5826C7.91667 14.7992 7.825 15.0159 7.675 15.1742ZM7.85 11.9826C7.80833 12.0826 7.75 12.1742 7.675 12.2576C7.59167 12.3326 7.5 12.3909 7.4 12.4326C7.3 12.4742 7.19167 12.4992 7.08333 12.4992C6.975 12.4992 6.86667 12.4742 6.76667 12.4326C6.66667 12.3909 6.575 12.3326 6.49167 12.2576C6.41667 12.1742 6.35833 12.0826 6.31667 11.9826C6.275 11.8826 6.25 11.7742 6.25 11.6659C6.25 11.5576 6.275 11.4492 6.31667 11.3492C6.35833 11.2492 6.41667 11.1576 6.49167 11.0742C6.575 10.9992 6.66667 10.9409 6.76667 10.8992C6.96667 10.8159 7.2 10.8159 7.4 10.8992C7.5 10.9409 7.59167 10.9992 7.675 11.0742C7.75 11.1576 7.80833 11.2492 7.85 11.3492C7.89167 11.4492 7.91667 11.5576 7.91667 11.6659C7.91667 11.7742 7.89167 11.8826 7.85 11.9826ZM10.5917 12.2576C10.5083 12.3326 10.4167 12.3909 10.3167 12.4326C10.2167 12.4742 10.1083 12.4992 10 12.4992C9.89167 12.4992 9.78333 12.4742 9.68333 12.4326C9.58333 12.3909 9.49167 12.3326 9.40833 12.2576C9.25833 12.0992 9.16667 11.8826 9.16667 11.6659C9.16667 11.4492 9.25833 11.2326 9.40833 11.0742C9.49167 10.9992 9.58333 10.9409 9.68333 10.8992C9.88333 10.8076 10.1167 10.8076 10.3167 10.8992C10.4167 10.9409 10.5083 10.9992 10.5917 11.0742C10.7417 11.2326 10.8333 11.4492 10.8333 11.6659C10.8333 11.8826 10.7417 12.0992 10.5917 12.2576Z" fill="#9E9E54"/>
+                          </svg>
+                    </span>
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <g clip-path="url(#clip0_1_15332)">
+                              <path d="M18.3337 9.23159V9.99826C18.3326 11.7953 17.7507 13.5438 16.6748 14.9831C15.5988 16.4224 14.0864 17.4753 12.3631 17.9848C10.6399 18.4944 8.79804 18.4332 7.11238 17.8104C5.42673 17.1877 3.98754 16.0367 3.00946 14.5291C2.03138 13.0216 1.56682 11.2383 1.68506 9.44519C1.80329 7.65206 2.498 5.9452 3.66556 4.57915C4.83312 3.21311 6.41098 2.26108 8.16382 1.86505C9.91665 1.46902 11.7505 1.65021 13.392 2.38159M18.3337 3.33159L10.0003 11.6733L7.50033 9.17326" stroke="#858D9D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_1_15332">
+                                <rect width="20" height="20" fill="white"/>
+                              </clipPath>
+                            </defs>
+                          </svg>
+                    </span>
+                    <span class="disable-container">
+
+                    </span>
+                </span>
+                <a  href="/" class="roadmap__section-container-header-right-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    Return
+                    </a>
+            </div>
+        </div>
+        <div class="roadmap__section-container-body">
+            <div class="roadmap__section-container-body-container">
+               
+                <div class="roadmap__section-container-body-container-header">
+                    {% for week, date in  roadmap_weeks.items %}
+                    <div class="roadmap__section-container-body-container-header-item">
+                        <div class="roadmap__section-container-body-container-header-item-top">
+                            <span class="roadmap__section-container-body-container-header-item-top-week">
+                                Week {{week}}
+                            </span>
+                            <span class="roadmap__section-container-body-container-header-item-top-date">
+                                {{date}}
+                            </span>
+                        </div>
+                       
+                        <div class="roadmap__section-container-body-container-header-item-body">
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="roadmap__section-container-body-container-section">
+     
+                    {% for road in roadmap %}
+                    <div class="roadmap__section-container-body-container-content child-color" 
+                           >
+                        <div class="roadmap__section-container-body-container-content-header">
+                            <div class="roadmap__section-container-body-container-content-header-point child-el-text"></div>
+                            <div class="roadmap__section-container-body-container-content-header-title"><span>{{road.level}}</span></div>
+                            <div class="roadmap__section-container-body-container-content-header-line child-el-text"></div>
+                            
+                        </div>
+                        <div class="roadmap__section-container-body-container-content-items">
+                            {% for task in road.sections %}
+                            <div class="roadmap__section-container-body-container-content-item {% if task.progress == 100 %}completed {% elif task.progress > 0 %} current {% endif %} child-color {{road.level}}" data-duration={{task.duration}}
+                                hx-post="{% url 'roadmap_detail' task.id  %}"
+                                hx-trigger="click"
+                                hx-target="#roadmap_detail"
+                                hx-swap = "innerHTML"
+                                hx-push-url="false"
+                                {% if task.progress > 0 %}
+                                    onclick="toggleContainer()"
+                                {% endif %}>
+                                {% if task.progress == 0 %}
+                                <div class="disable-container">
+                                    <i class='bx bxs-lock'></i>
+                                </div>
+                                {% endif %}
+                                <div class="roadmap__section-container-body-container-content-item-left">
+                                  
+                                    <div class="home_section-chat-roadmap-item-tasks-item-info-progress child-el" >
+                                         <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle child-el-text {% if task.progress >= 0 %}active{% endif %}" data-progress={{task.progress}}>
+                                            <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle-overlay">
+                                                <!-- Inner content goes here -->
+                                            </div>
+                                        </div>
+                                        {% if task.progress <= 0 %}
+                                        <div class="disable-container">
+                                            
+                                        </div>
+                                        {% endif %}
+
+                                    </div>
+                                    <div class="roadmap__section-container-body-container-content-item-info-title">
+                                        <div class="roadmap__section-container-body-container-content-item-title">
+                                            <span class="ellipsis">
+                                                {{task.title}}
+                                            </span>
+                                        </div>
+                                        <ul class="roadmap__section-container-body-container-content-item-tasks">
+                                            {% for item in task.tasks %}
+                                            <li class="roadmap__section-container-body-container-content-item-tasks-item {% if item.status == 'done' %}done {% endif%}">
+                                                {{item.name}}
+                                            </li>
+                                            {% endfor %}
+                                           
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="roadmap__section-container-body-container-content-item-right">
+                                    {% if task.progress == 100 %}
+                                        <span class="completed_text">COMPLETED</span>
+                                    {% else %}
+                                        <span class="child-el">{{task.duration}} weeks</span>
+                                    {% endif %}
+
+                                </div>
+                                <div class="roadmap__section-container-body-container-content-item-overlay">
+                                    <div class="roadmap__section-container-body-container-content-item-overlay-container">
+                                        {% if not active %}
+                                        <span class="roadmap__section-container-body-container-content-item-overlay-title">
+                                            Crash Course
+                                        </span>
+                                        <span class="roadmap__section-container-body-container-content-item-overlay-subtitle">
+                                            Click here to start a crash course.. This will help you get vstarted in this career path.
+                                        </span>
+                                        <span class="roadmap__section-container-body-container-content-item-overlay-status">
+                                            Done ? <input type="checkbox">
+                                        </span>
+                                        {% else %}
+                                        <span class="roadmap__section-container-body-container-content-item-overlay-locked">
+                                            <i class='bx bxs-lock'></i> Task is Locked!
+                                        </span>
+                                        {% endif %}
+                                    </div>  
+                                    
+                                </div>
+                            </div>
+                            {% endfor %}
+                           
+                           
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="roadmap_detail-section" id="roadmap_detail">
+        
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const currentItem = document.querySelector(".roadmap__section-container-body-container-content-item.current");
+
+    if (currentItem) {
+        const container = currentItem.closest('.roadmap__section-container-body-container'); // Adjust this selector to match the container class
+        
+        if (container) {
+            console.log("djbxs");
+            container.scroll({
+                left: currentItem.offsetLeft - container.offsetWidth / 2 + currentItem.offsetWidth / 2,
+                behavior: 'smooth'
+            });
+        }
+    }
+});
+
+</script>
+
+<script>
+
+    function toggleContainer() {
+     
+      const left_overlay = document.querySelector('.roadmap_detail-section');
+
+        if (left_overlay.classList.contains('visible')) {
+          left_overlay.classList.remove('visible');
+        } else {
+          left_overlay.classList.add('visible');
+        }
+      
+    }
+    
+       
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    // Select all elements with the specified class
+    const roadmapItems = document.querySelectorAll('.roadmap__section-container-body-container-content-item');
+
+    // Loop through each item
+    roadmapItems.forEach(item => {
+        // Get the duration from the data-duration attribute
+        const duration = parseFloat(item.getAttribute('data-duration'));
+
+        // Calculate the width based on the duration (multiply by 300px)
+        const newWidth = duration * 100;
+
+        // Update the width of the element
+        item.style.width = newWidth + 'px';
+    });
+});
+
+</script>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+    const classGroups = ['BEGINNER', 'INTERMEDIATE', 'PROFESSIONAL'];
+
+    classGroups.forEach(className => {
+        const items = document.querySelectorAll(`.roadmap__section-container-body-container-content-item.${className}`);
+        
+        let cumulativeWidth = 0;
+
+        items.forEach((item, index) => {
+            if (index > 0) {
+                item.style.marginLeft = `${cumulativeWidth}px`;
+            }
+            cumulativeWidth += item.offsetWidth - 2;
+        });
+    });
+});
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const items = document.querySelectorAll('.roadmap__section-container-body-container-content');
+        
+        let cumulativeWidth = 0;
+        let cumulativeHeight = 0;
+    
+        items.forEach((item, index) => {
+            if (index > 0) {
+                item.style.marginLeft = `${cumulativeWidth}px`;
+                item.style.marginTop = `${cumulativeHeight}px`;
+            }
+            cumulativeWidth += item.offsetWidth -2;
+            cumulativeHeight += item.offsetHeight/3;
+        });
+    });
+</script>
+
+<script>
+       document.addEventListener("DOMContentLoaded", function() {
+    const items = document.querySelectorAll('.roadmap__section-container-body-container-content-item');
+
+    function updateFlexDirection() {
+        items.forEach(item => {
+            const contentItemLeft = item.querySelector('.roadmap__section-container-body-container-content-item-left');
+            const title = item.querySelector('.roadmap__section-container-body-container-content-item-title');
+            if (item.offsetWidth <= 205) {
+                item.classList.add('small');
+                contentItemLeft.classList.add('small');
+                
+            } else {
+                contentItemLeft.style.flexDirection = 'row'; // Reset to the original direction
+            }
+
+           
+        });
+    }
+
+    // Run on load
+    updateFlexDirection();
+
+    // Optionally, you can run this function on window resize
+    window.addEventListener('resize', updateFlexDirection);
+
+});
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const progressCircles = document.querySelectorAll('.home_section-chat-roadmap-item-tasks-item-info-progress-circle.active');
+
+    progressCircles.forEach(circle => {
+        let progress = parseFloat(circle.dataset.progress); // Progress value in percentage (0 to 100)
+
+        // Ensure progress is between 0 and 100
+        progress = Math.max(0, Math.min(100, progress));
+
+        // Set the rotation values for both halves based on progress
+        if (progress <= 50) {
+            // Rotate the right half (first 0-50%)
+            circle.style.setProperty('--before-rotation', `${(progress / 50) * 180}deg`);
+            circle.style.setProperty('--after-rotation', `0deg`); // Left half remains static
+        } else {
+            // Full rotation of right half (50%) and partial rotation of left half
+            circle.style.setProperty('--before-rotation', `180deg`); // Right half stays at 180deg
+            circle.style.setProperty('--after-rotation', `${((progress - 50) / 50) * 180}deg`); // Rotate the left half
+        }
+    });
+});
+
+
+</script>
+
+
+{% endblock %}
+
+{% block title%} Roadmap | Compas AI{% endblock %}
+
+{% block home%} active{% endblock %}

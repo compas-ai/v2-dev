@@ -1,0 +1,136 @@
+{% extends 'profile.html' %}
+{% load static %}
+{% block profile-content %} 
+<div class="profile-project__section">
+    <div class="profile-project__header">
+        <span>
+            Projects 
+        </span>
+        {% if is_profile %} 
+        <span class="profile-project__header-btn">
+            Create new project
+        </span>
+        {% endif %}
+    </div>
+    <div class="profile-project__body">
+        <div class="profile-project-items">
+            <div class="profile-project-item">
+                <div class="profile-project-item-img">
+                    <img src="{% static 'images/projects/1.jpg'%}" alt="">
+                </div>
+                <div class="profile-project-item-overlay">
+                    <div class="profile-project-item-overlay-container">
+                        <span class="profile-project-item-overlay-title">
+                            Booking App
+                        </span>
+                        <span class="profile-project-item-overlay-subtitle">
+                            Design for creativity
+                        </span>
+                        <span class="profile-project-item-overlay-footer">
+                            <span class="profile-project-item-overlay-footer-left">
+                                <i class='bx bx-show'></i> 3.7k
+                            </span>
+                            <span class="profile-project-item-overlay-footer-right">
+                                <span>
+                                    <i class='bx bxs-message-square-minus'></i> 235
+                                </span>
+                                <span>
+                                    <i class='bx bxs-star'></i> 4.5
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="profile-project-item">
+                <div class="profile-project-item-img">
+                    <img src="{% static 'images/projects/2.jpg'%}" alt="">
+                </div>
+                <div class="profile-project-item-overlay">
+                    <div class="profile-project-item-overlay-container">
+                    <span class="profile-project-item-overlay-title">
+                        Big Data
+                    </span>
+                    <span class="profile-project-item-overlay-subtitle">
+                        Data in Healthcare
+                    </span>
+                    <span class="profile-project-item-overlay-footer">
+                        <span class="profile-project-item-overlay-footer-left">
+                            <i class='bx bx-show'></i> 7.4k
+                        </span>
+                        <span class="profile-project-item-overlay-footer-right">
+                            <span>
+                                <i class='bx bxs-message-square-minus'></i> 835
+                            </span>
+                            <span>
+                                <i class='bx bxs-star'></i> 4.9
+                            </span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+            </div>
+            <div class="profile-project-item">
+                <div class="profile-project-item-img">
+                    <img src="{% static 'images/projects/3.jpg'%}" alt="">
+                </div>
+                <div class="profile-project-item-overlay">
+                    <div class="profile-project-item-overlay-container">
+                        <span class="profile-project-item-overlay-title">
+                            Social Media
+                        </span>
+                        <span class="profile-project-item-overlay-subtitle">
+                            Audience optimization.
+                        </span>
+                        <span class="profile-project-item-overlay-footer">
+                            <span class="profile-project-item-overlay-footer-left">
+                                <i class='bx bx-show'></i> 5.4k
+                            </span>
+                            <span class="profile-project-item-overlay-footer-right">
+                                <span>
+                                    <i class='bx bxs-message-square-minus'></i> 669
+                                </span>
+                                <span>
+                                    <i class='bx bxs-star'></i> 4.3
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                  
+                </div>
+            </div>
+            <div class="profile-project-item">
+                <div class="profile-project-item-img">
+                    <img src="{% static 'images/projects/4.jpg'%}" alt="">
+                </div>
+                <div class="profile-project-item-overlay">
+                    <div class="profile-project-item-overlay-container">
+                        <span class="profile-project-item-overlay-title">
+                            Cloud Security
+                        </span>
+                        <span class="profile-project-item-overlay-subtitle">
+                            Protect the cloud
+                        </span>
+                        <span class="profile-project-item-overlay-footer">
+                            <span class="profile-project-item-overlay-footer-left">
+                                <i class='bx bx-show'></i> 1.2k
+                            </span>
+                            <span class="profile-project-item-overlay-footer-right">
+                                <span>
+                                    <i class='bx bxs-message-square-minus'></i> 35
+                                </span>
+                                <span>
+                                    <i class='bx bxs-star'></i> 2.1
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block profile_projects %} active{% endblock %}

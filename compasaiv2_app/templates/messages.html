@@ -1,0 +1,466 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+   <div class="messages__section">
+    <div class="messages__section-left">
+      <div class="messages__section-left-top">
+        <div class="messages__section-left-top-header">
+            <span>
+              Start a Conversation
+            </span>
+        </div>
+        <div class="messages__section-left-top-body large_screen">
+            <div class="messages__section-left-top-body-item"
+                  hx-post="{% url 'message' aiprofile.username %}"
+                  hx-trigger="click"
+                  hx-target="#message_detail"
+                  hx-push-url="true"
+                  hx-swap="innerHTML swap:0.2s">
+                <div class="messages__section-left-top-body-item-img">
+                  {% if aiprofile.profile_picture %}
+                  <img  src="{{ aiprofile.profile_picture.url }}" alt="">
+                  {% else %}
+                  <img  src="{% static 'images/ava.png'%}" alt="">
+                  {% endif %}
+                </div>
+                <span class="messages__section-left-top-body-item-name">
+                    {{aiprofile.display_name}}
+                </span>
+            </div>
+            {% for prof in  profile.new_connections  %}
+            <div  class="messages__section-left-top-body-item"
+                  hx-post="{% url 'message' prof.username %}"
+                  hx-trigger="click"
+                  
+                  hx-target="#message_detail"
+                  hx-push-url="true"
+                  hx-swap="innerHTML swap:0.2s">
+                <div class="messages__section-left-top-body-item-img">
+                  {% if prof.profile_picture %}
+                  <img  src="{{ prof.profile_picture.url }}" alt="">
+                  {% else %}
+                  <img  src="{% static 'images/ava.png'%}" alt="">
+                  {% endif %}
+                  
+                </div>
+                <span class="messages__section-left-top-body-item-name">
+                    {{prof.display_name}}
+                </span>
+              </div>
+            {% endfor %}
+
+        </div>
+        <div class="messages__section-left-top-body small_screen">
+          <a href="{% url 'message' aiprofile.username %}" class="messages__section-left-top-body-item"
+               >
+              <div class="messages__section-left-top-body-item-img">
+                {% if aiprofile.profile_picture %}
+                <img  src="{{ aiprofile.profile_picture.url }}" alt="">
+                {% else %}
+                <img  src="{% static 'images/ava.png'%}" alt="">
+                {% endif %}
+              </div>
+              <span class="messages__section-left-top-body-item-name">
+                  {{aiprofile.display_name}}
+              </span>
+          </a>
+          {% for prof in  profile.new_connections  %}
+          <a href="{% url 'message' prof.username %}" class="messages__section-left-top-body-item">
+              <div class="messages__section-left-top-body-item-img">
+                {% if prof.profile_picture %}
+                <img  src="{{ prof.profile_picture.url }}" alt="">
+                {% else %}
+                <img  src="{% static 'images/ava.png'%}" alt="">
+                {% endif %}
+                
+              </div>
+              <span class="messages__section-left-top-body-item-name">
+                  {{prof.display_name}}
+              </span>
+           
+          </a>
+          {% endfor %}
+
+      </div>
+     </div>
+     <div class="messages__section-left-bottom">
+        <span class="messages__section-left-bottom-header">
+          Messages
+        </span>
+        <div class="messages__section-left-bottom-body">
+            <div class="messages__section-left-bottom-body-sub-header">
+              <span 
+                  class="menu-item active" 
+                  onclick="setActive(this)"
+                  hx-post="{% url 'all_messages' %}"
+                  hx-trigger="click"
+                  hx-target="#search-results"
+                  hx-push-url="false"
+                  hx-swap="innerHTML swap:0.2s">All</span>
+
+              <span 
+                  class="menu-item"
+                  onclick="setActive(this)"
+                  hx-post="{% url 'archived' %}"
+                  hx-trigger="click"
+                  hx-target="#search-results"
+                  hx-push-url="false"
+                  hx-swap="innerHTML swap:0.2s">Archive</span>
+
+             
+            </div>
+            <div class="connect__filters-search">
+              <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input" placeholder="Search by name, field or company">
+            </div>
+            
+            <div  id="search-results" class="messages__section-left-bottom-body-inbox large_screen">
+              {% if profile.existing_connections %}
+                {% for prof in  profile.existing_connections  %}
+                <div id="{% if prof == user_profile %}active-profile{% endif %}" class="messages__section-left-bottom-body-inbox-item {% if prof == user_profile %} active {% endif %}" onclick="setItemActive(this)"
+                  >
+                  <div class="messages__section-left-bottom-body-inbox-item-img"
+
+            
+                  hx-post="{% url 'message' prof.username %}"
+                  hx-trigger="click"
+                  hx-vals='{"type": "{{prof.is_group}}" }'
+                  hx-target="#message_detail"
+                  hx-push-url="true"
+                  hx-swap="innerHTML swap:0.2s"
+                 
+                  >
+                    {% if prof.profile_picture %}
+                    <img  src="{{ prof.profile_picture.url }}" alt="">
+                    {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+                    {% if prof.is_group == False %}
+                      <div class="active-indicator"></div>
+                      {% endif %}
+                  </div>
+                  <div class="messages__section-left-bottom-body-inbox-item-info"
+
+                  hx-post="{% url 'message' prof.username %}"
+                  hx-trigger="click"
+                  hx-vals='{"type": "{{prof.is_group}}" }'
+                  hx-target="#message_detail"
+                  hx-push-url="true"
+                  hx-swap="innerHTML swap:0.2s"
+                  >
+                    <span class="messages__section-left-bottom-body-inbox-item-info-name">
+                        {{prof.display_name}}
+                    </span>
+                    <span class="messages__section-left-bottom-body-inbox-item-info-message">
+                      {{prof.last_message}}
+                    </span>
+                    <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
+                      {{prof.last_message_time}}
+                    </span>
+                  </div>
+                  {% if prof.is_group == False %}
+                  <div class="messages__section-left-bottom-body-inbox-item-menu">
+                    <i class='bx bx-dots-horizontal-rounded'></i>
+                    <div class="messages__section-left-bottom-body-inbox-item-menu-items">
+                      <span class="messages__section-left-bottom-body-inbox-item-menu-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span 
+                        hx-post="{% url 'archive_message' prof.username %}"
+                        hx-vals='{"is_group": "{{prof.is_group}}" }'
+                        hx-trigger="click"
+                        hx-target="#search-results"
+                        hx-push-url="false"
+                        hx-swap="innerHTML swap:0.2s">
+                          Archive
+                        </span>
+                        
+                      </span>
+                      <span class="messages__section-left-bottom-body-inbox-item-menu-item delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M14 3.98568C11.78 3.76568 9.54667 3.65234 7.32 3.65234C6 3.65234 4.68 3.71901 3.36 3.85234L2 3.98568" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M5.66699 3.31203L5.81366 2.4387C5.92033 1.80536 6.00033 1.33203 7.12699 1.33203H8.87366C10.0003 1.33203 10.087 1.83203 10.187 2.44536L10.3337 3.31203" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12.5669 6.09375L12.1336 12.8071C12.0603 13.8537 12.0003 14.6671 10.1403 14.6671H5.86026C4.00026 14.6671 3.94026 13.8537 3.86693 12.8071L3.43359 6.09375" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6.88672 11H9.10672" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6.33301 8.33203H9.66634" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span 
+                        hx-post="{% url 'delete_message' prof.username %}"
+                        hx-trigger="click"
+                        hx-vals='{"is_group": "{{prof.is_group}}" }'
+                        hx-target="#search-results"
+                        hx-push-url="false"
+                        hx-swap="innerHTML swap:0.2s">
+                          Delete
+                        </span>
+                        
+                      </span>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="messages__section-left-bottom-body-inbox-item-menu">
+                    <i class='bx bxs-chevrons-right'></i>
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                
+                <div id="not-found" class="not__found">
+                  <span>Start a Conversation</span>
+              </div>
+              {% endif %}
+ 
+              
+            </div>
+            <div id="small-search-results" class="messages__section-left-bottom-body-inbox small_screen">
+              {% if profile.existing_connections %}
+                {% for prof in  profile.existing_connections  %}
+                <div class="messages__section-left-bottom-body-inbox-item {% if prof == user_profile %} active {% endif %}">
+                  <a href="{% url 'message' prof.username %}"  class="messages__section-left-bottom-body-inbox-item-img">
+                    {% if prof.profile_picture %}
+                    <img  src="{{ prof.profile_picture.url }}" alt="">
+                    {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+
+                    {% if prof.is_group == False %}
+                      <div class="active-indicator"></div>
+                      {% endif %}
+                  </a>
+                  <a href="{% url 'message' prof.username %}"  class="messages__section-left-bottom-body-inbox-item-info">
+                    <span class="messages__section-left-bottom-body-inbox-item-info-name">
+                        {{prof.display_name}}
+                    </span>
+                    <span class="messages__section-left-bottom-body-inbox-item-info-message">
+                      {{prof.last_message}}
+                    </span>
+                    <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
+                      {{prof.last_message_time}}
+                    </span>
+                  </a>
+                  {% if prof.is_group == False %}
+                  <div class="messages__section-left-bottom-body-inbox-item-menu">
+                    <i class='bx bx-dots-horizontal-rounded'></i>
+                    <div class="messages__section-left-bottom-body-inbox-item-menu-items">
+                      <span class="messages__section-left-bottom-body-inbox-item-menu-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M13 6.8125V12.6658C13 13.9992 12.6667 14.6658 11 14.6658H5C3.33333 14.6658 3 13.9992 3 12.6658V6.8125" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M3.33301 1.33203H12.6663C13.9997 1.33203 14.6663 1.9987 14.6663 3.33203V4.66536C14.6663 5.9987 13.9997 6.66536 12.6663 6.66536H3.33301C1.99967 6.66536 1.33301 5.9987 1.33301 4.66536V3.33203C1.33301 1.9987 1.99967 1.33203 3.33301 1.33203Z" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6.78711 9.33203H9.21378" stroke="#5D5F63" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span 
+                        hx-post="{% url 'archive_message' prof.username %}"
+                        hx-vals='{"is_group": "{{prof.is_group}}" }'
+                        hx-trigger="click"
+                        hx-target="#search-results"
+                        hx-push-url="false"
+                        hx-swap="innerHTML swap:0.2s">
+                          Archive
+                        </span>
+                        
+                      </span>
+                      <span class="messages__section-left-bottom-body-inbox-item-menu-item delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M14 3.98568C11.78 3.76568 9.54667 3.65234 7.32 3.65234C6 3.65234 4.68 3.71901 3.36 3.85234L2 3.98568" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M5.66699 3.31203L5.81366 2.4387C5.92033 1.80536 6.00033 1.33203 7.12699 1.33203H8.87366C10.0003 1.33203 10.087 1.83203 10.187 2.44536L10.3337 3.31203" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12.5669 6.09375L12.1336 12.8071C12.0603 13.8537 12.0003 14.6671 10.1403 14.6671H5.86026C4.00026 14.6671 3.94026 13.8537 3.86693 12.8071L3.43359 6.09375" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6.88672 11H9.10672" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6.33301 8.33203H9.66634" stroke="#D31311" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span 
+                        hx-post="{% url 'delete_message' prof.username %}"
+                        hx-trigger="click"
+                        hx-vals='{"is_group": "{{prof.is_group}}" }'
+                        hx-target="#search-results"
+                        hx-push-url="false"
+                        hx-swap="innerHTML swap:0.2s">
+                          Delete
+                        </span>
+                        
+                      </span>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="messages__section-left-bottom-body-inbox-item-menu">
+                    <i class='bx bxs-chevrons-right'></i>
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+              <div id="not-found" class="not__found" >
+                <span>Start a Conversation</span>
+              </div>
+              {% endif %}
+            </div>
+            <div id="not-found" class="not__found" style="display: none;">
+              <span>No conversation found.</span>
+          </div>
+        </div>
+     </div>
+    </div>
+   
+     <div class="messages__section-right large_screen" id="message_detail">
+      {% if not messages %}
+        <span class="messages__section-right-no-message">
+          <span>
+            No message selected
+          </span>
+        </span>
+      {% else %}
+          {% block message_detail %}{% endblock%}
+      {% endif %}
+     </div>
+
+     
+     {% if messages %}
+        <div class="messages__section-right small_screen" id="message_detail">
+              {% block message_detail_small %}{% endblock%}
+        </div>
+     {% endif %}
+   </div>    
+
+
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Get the active element by its id
+    var activeElement = document.getElementById("active-profile");
+  
+    // Check if the active element exists
+    if (activeElement) {
+      // Scroll to the active element
+      activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+</script>
+<script>
+  function setupSearch(inputId, resultsContainerId, notFoundId) {
+  const searchInput = document.getElementById(inputId);
+  const resultsContainer = document.getElementById(resultsContainerId);
+  const notFoundElement = document.getElementById(notFoundId);
+
+  searchInput.addEventListener('keyup', function() {
+      const query = searchInput.value.trim().toLowerCase();
+      const courseItems = resultsContainer.getElementsByClassName('messages__section-left-bottom-body-inbox-item');
+      let found = false;
+
+      for (let i = 0; i < courseItems.length; i++) {
+          const spans = courseItems[i].getElementsByTagName('span');
+          let itemText = '';
+
+          for (let j = 0; j < spans.length; j++) {
+              itemText += spans[j].textContent.toLowerCase() + ' ';
+          }
+
+          if (itemText.includes(query)) {
+              courseItems[i].style.display = 'flex';
+              found = true;
+          } else {
+              courseItems[i].style.display = 'none';
+          }
+      }
+
+      if (found) {
+          notFoundElement.style.display = 'none';
+      } else {
+          notFoundElement.style.display = 'flex';
+      }
+  });
+}
+
+// Example usage:
+setupSearch('search-input', 'search-results', 'not-found');
+
+</script>
+
+<script>
+  function setupSearch(inputId, resultsContainerId, notFoundId) {
+  const searchInput = document.getElementById(inputId);
+  const resultsContainer = document.getElementById(resultsContainerId);
+  const notFoundElement = document.getElementById(notFoundId);
+
+  searchInput.addEventListener('keyup', function() {
+      const query = searchInput.value.trim().toLowerCase();
+      const courseItems = resultsContainer.getElementsByClassName('messages__section-left-bottom-body-inbox-item');
+      let found = false;
+
+      for (let i = 0; i < courseItems.length; i++) {
+          const spans = courseItems[i].getElementsByTagName('span');
+          let itemText = '';
+
+          for (let j = 0; j < spans.length; j++) {
+              itemText += spans[j].textContent.toLowerCase() + ' ';
+          }
+
+          if (itemText.includes(query)) {
+              courseItems[i].style.display = 'flex';
+              found = true;
+          } else {
+              courseItems[i].style.display = 'none';
+          }
+      }
+
+      if (found) {
+          notFoundElement.style.display = 'none';
+      } else {
+          notFoundElement.style.display = 'flex';
+      }
+  });
+}
+
+// Example usage:
+setupSearch('search-input', 'small-search-results', 'not-found');
+
+</script>
+<script>
+  document.addEventListener('htmx:afterSwap', function(evt) {
+      // Update the #small-search-results element with the same content
+      const searchResults = document.querySelector('#search-results').innerHTML;
+      document.querySelector('#small-search-results').innerHTML = searchResults;
+  });
+</script>
+<script>
+  function setActive(clickedElement) {
+      // Remove the 'active' class from all elements with the class 'menu-item'
+      document.querySelectorAll('.menu-item').forEach(function(element) {
+          element.classList.remove('active');
+      });
+      
+      // Add the 'active' class to the clicked element
+      clickedElement.classList.add('active');
+  }
+
+
+</script>
+
+<script>
+  function setItemActive(clickedElement) {
+      // Remove the 'active' class from all elements with the class 'menu-item'
+      document.querySelectorAll('.messages__section-left-bottom-body-inbox-item').forEach(function(element) {
+          element.classList.remove('active');
+      });
+      
+      // Add the 'active' class to the clicked element
+      clickedElement.classList.add('active');
+  }
+
+
+</script>
+
+
+
+{% endblock main-content %}
+
+{% block title%} Messages | Compas AI{% endblock %}
+
+{% block messages%} active{% endblock %}
+
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

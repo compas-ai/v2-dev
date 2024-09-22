@@ -1,0 +1,1116 @@
+
+{% load static %}
+
+{% block message_detail%}
+<div class="messages__section-right-container">
+
+    {% if is_group == "False" %}
+    <a href="{% url 'profile' user_profile.username %}" class="messages__section-right-container-header">
+      <div class="messages__section-right-container-header-img">
+        {% if user_profile.profile_picture %}
+                  <img  src="{{ user_profile.profile_picture.url }}" alt="">
+                  {% else %}
+                  <img  src="{% static 'images/ava.png'%}" alt="">
+                  {% endif %}
+                  <div class="active-indicator"></div>
+      </div>
+      <div class="messages__section-right-container-header-info">
+        <span class="messages__section-right-container-header-info-name">
+            {{user_profile.display_name}}
+        </span>
+        <span class="messages__section-right-container-header-info-status">
+           Online
+        </span>
+      </div>
+    </a>
+    {% else %}
+    <div class="messages__section-right-container-header" 
+    {% if profile in group.conversation.participants.all %}
+        {% if group.deleted == False or profile not in group.conversation.removed  %} 
+            onclick="showGroupInfoContainer()" 
+        {% endif %}
+    {% endif %}>
+        <div class="messages__section-right-container-header-img">
+          {% if group.image %}
+                    <img  src="{{ group.image.url }}" alt="">
+                    {% else %}
+                    <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+           
+        </div>
+        <div class="messages__section-right-container-header-info group">
+          <span class="messages__section-right-container-header-info-name">
+              {{group.name}}  
+          </span>
+          <span class="messages__section-right-container-header-info-status group">
+            
+            {% if group.deleted == True or profile in group.conversation.removed.all or profile not in group.conversation.participants.all %}
+                You do not have access to this group.
+            {% elif is_office and in_session == False %}
+                {{group.time_slots }} 
+            {% elif is_office and in_session %}
+               <span id="session_countdown" ></span>
+                <script>
+                    // Inject Django template variables into JavaScript
+                    var nextSessionDate = "{{ group.next_schedule.date }}"; // e.g., "2024-09-30"
+                    var nextSessionStartTime = "{{ group.next_schedule.start_time }}"; // e.g., "09:00:00"
+                    var nextSessionEndTime = "{{ group.next_schedule.end_time }}"; // e.g., "10:00:00" (when the session ends)
+                    
+                    // Combine the date and time into one string in ISO format and append 'Z' to indicate UTC (GMT+0)
+                    var sessionStartTime = nextSessionDate + "T" + nextSessionStartTime + "Z";
+                    var sessionEndTime = nextSessionDate + "T" + nextSessionEndTime + "Z";
+                    
+                    // Convert session start and end times to JavaScript Date objects
+                    var countDownStartTime = new Date(sessionStartTime).getTime();
+                    var countDownEndTime = new Date(sessionEndTime).getTime();
+                    
+                    // Update the countdown every 1 second
+                    var countdownInterval = setInterval(function() {
+                        // Get current date and time (in GMT)
+                        var now = new Date().getTime();
+                    
+                        // Calculate the distance between now and the session start
+                        var timeToStart = countDownStartTime - now;
+                    
+                        // Calculate the remaining time during the session
+                        var timeToEnd = countDownEndTime - now;
+                    
+                       if (timeToEnd > 0) {
+                            // Time calculations for hours, minutes, and seconds until the session ends
+                            var hours = Math.floor((timeToEnd % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            var minutes = Math.floor((timeToEnd % (1000 * 60 * 60)) / (1000 * 60));
+                            var seconds = Math.floor((timeToEnd % (1000 * 60)) / 1000);
+                    
+                            // Display the remaining time during the session
+                            document.getElementById("session_countdown").innerHTML = "Session is ongoing. Time remaining: " + hours + "h " + minutes + "m " + seconds + "s ";
+                        }
+                        // If the session has ended
+                        else {
+                            clearInterval(countdownInterval);
+                            document.getElementById("session_countdown").innerHTML = "Session has ended!";
+                            document.querySelector('.messages__section-right-container-message-input-container.large').style.display = 'none';
+                        }
+                    }, 1000);
+                </script>
+                
+            {% else %}
+                {{group.conversation.participant_names }} 
+            {% endif %}
+          </span>
+        </div>
+    </div>
+      
+    {% endif %}
+
+    <div class="messages__section-right-container-messages large" >
+        {% if profile not in group.conversation.participants.all %}
+            <div class="messages__section-right-container-messages-overlay">
+                <div class="messages__section-right-container-messages-overlay-container">
+                    <div class="messages__section-right-container-messages-overlay-header">
+                        <span class="messages__section-right-container-messages-overlay-header-title">
+                            {% if is_office %}  Office Hour Description {% else %}  Group Description  {% endif %}
+                        </span>
+                        <span class="messages__section-right-container-messages-overlay-header-content">
+                            {{group.description}}
+                        </span>
+                       
+                        <span class="messages__section-right-container-messages-overlay-header-members">
+                            {% if is_office %}
+                                {{ group.time_slots }} 
+                            {% else %}
+                                {{ group.conversation.participants.count }} members
+                            {% endif %}
+                        </span>
+                        <span class="messages__section-right-container-messages-overlay-header-created">
+                           Created by: <br> {{group.admin.display_name}} on {{group.created.date }}
+                        </span>
+                    </div>
+                    <div class="messages__section-right-container-messages-overlay-participants">
+
+                    </div>
+                    <div class="messages__section-right-container-messages-overlay-btn">
+                        <span  
+                        hx-post="{% url 'add_participant' group.username profile.username %}"
+                        hx-trigger="click"
+                        onclick="reload()">
+                        {% if is_office %} 
+                            Join Office Hour
+                        {% else %}
+                            Join Group
+                        {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+      <div class="messages__section-right-container-messages-items large" data-unread-messages={{unread_messages}}>
+
+       {% if chat_messages %}
+          {% for chat in chat_messages %}
+
+          {% ifchanged chat.timestamp.date %}
+                    <div class="messages__section-right-container-messages-datestamp">
+                        <span>
+                            {% if chat.timestamp.date == today %}
+                                Today
+                            {% elif chat.timestamp.date == yesterday %}
+                                Yesterday
+                            {% else %}
+                                {{ chat.timestamp.date }}
+                            {% endif %}
+                        </span>
+                    </div>
+                {% endifchanged %}
+            
+                {% if chat.msg_type == 'event' %}
+                    {% if chat.event.action == "create" %}
+                        <div class="messages__section-right-container-messages-datestamp">
+                            <span>
+                                {% if chat.event.user_1 == profile.display_name %} You {% else%} {{chat.event.user_1}} {% endif %} created this group.
+                            </span>
+                        </div>
+                    {% endif %}
+                    {% if chat.event.action == "remove"%}
+                        <div class="messages__section-right-container-messages-datestamp">
+                            <span>
+                                {% if chat.event.user_1 == profile.display_name %} You {% else%} {{chat.event.user_1}} {% endif %} removed {{chat.event.user_2}}.
+                            </span>
+                        </div>
+                    {% endif %}
+                    {% if chat.event.action == "delete" %}
+                        <div class="messages__section-right-container-messages-datestamp">
+                            <span>
+                                {% if chat.event.user_1 == profile.display_name %} You {% else%} {{chat.event.user_1}} {% endif %} deleted this group.
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    {% if chat.event.action == "left"%}
+                        <div class="messages__section-right-container-messages-datestamp">
+                            <span>
+                                {% if chat.event.user_1 == profile.display_name %} You {% else%} {{chat.event.user_1}} {% endif %} left this group.
+                            </span>
+                        </div>
+                    {% endif %}
+                    {% if chat.event.action == "add"%}
+                        <div class="messages__section-right-container-messages-datestamp">
+                            <span>
+                                {% if chat.event.user_1 == profile.display_name %} You {% else%} {{chat.event.user_1}} {% endif %} joined this group.
+                            </span>
+                        </div>
+                    {% endif %}
+                {% else %}
+                
+
+                        {% if chat.id == first_message %}
+                            <div class="messages-detail__body-item-unread-messages-container large" id="unread"
+                            hx-post="{% url 'clear_unread' %}" 
+                            hx-trigger="load delay:10s"
+                            hx-vals='{"username": "{{ user_profile.username }}"  }'
+                            hx-target="#unread"
+                            hx-push-url="false"
+                            hx-swap="innerHTML swap:0.2s"
+                            
+                            >
+                                <p class="messages-detail__body-item-unread-messages large" id="messages-detail__body-item-unread-messages">{{unread_messages}} unread messages</p>
+                            </div>
+                        {% endif %}
+                        <div class="messages__section-right-container-messages-item  {% if chat.sender == profile %}user_message{% endif %}" id="message-{{ chat.id }}">
+                            <div class="messages__section-right-container-messages-item-img">
+                                {% if user_profile.profile_picture %}
+                                <img  src="{{ user_profile.profile_picture.url }}" alt="">
+                                {% else %}
+                                <img  src="{% static 'images/ava.png'%}" alt="">
+                                {% endif %}
+                                    <div class="active-indicator-small"></div>
+                            </div>
+                            <div class="messages__section-right-container-messages-item-container">
+                                {% if is_group == "True" %}
+                                <span class="messages__section-right-container-messages-item-name">{{chat.sender.display_name}}</span>
+                                {% endif %}
+                                {% if chat.images.all %}
+                                {% with chat.images.all|length as image_count %}
+                                <div class="community__section-right-body-container-posts-item-body-media messages {% if image_count == 1%} single-image {% endif %}" data-id={{post.id}} data-images={{post.images.all}}>
+                                {% for image in chat.images.all %}
+                                    {% if forloop.counter <= 4 %}
+                                    
+                                        <div class="community__section-right-body-container-posts-item-body-media-item" data-id={{chat.id}}>
+                                            <img src="{{ image.image.url }}" alt="" class="image-preview large" data-index="{{ forloop.counter0 }}">
+                                            {% if forloop.counter == 4 and chat.images.count > 4 %}
+                                                <div class="overlay large" data-image-url="{{ image.image.url }}" data-id={{chat.id}}>
+                                                    +{{ chat.images.all.count|add:-4 }}
+                                                </div>
+                                                
+                                            {% endif %}
+                                        </div>
+                                    
+                                        {% else%}
+                                        <img src="{{ image.image.url }}" alt="" class="image-preview large hide"  data-index="{{ forloop.counter0 }}">
+            
+                                    {% endif %}
+                                {% endfor %}
+                                </div>
+                                {% endwith %}
+                                {% endif %}
+                            
+                                <span class="messages__section-right-container-messages-item-text">{{chat.text}}</span>
+                                <span class="messages__section-right-container-messages-item-time">{{chat.timestamp.time}}</span>
+                            </div>
+                            <div id="imageModal" class="image-modal">
+                                <span class="close large">&times;</span>
+                                <img class="modal-content" id="modalImage">
+                                <div id="caption"></div>
+                                <div class="modal-btns">
+                                <a class="prev large">&#10094;</a>
+                                <a class="next large">&#10095;</a>
+                                </div>
+                            
+                            </div>
+                            {% if chat.sender == profile %}
+                            <div class="messages__section-right-container-messages-item-text-status large">
+                                    <span>
+                                        {% if chat.read == True %}
+                                        <i class='bx bx-check-double' ></i>
+                                        {% else %}
+                                        <i class='bx bx-check'></i>
+                                        {% endif %}
+                                    </span>
+                            </div>
+                            {% endif %}
+
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                   
+        {% else %}
+            {% if is_group == "True" %}
+                <div class="messages__section-right-container-messages-item-no-messages large">
+                    <span class="">Send the first message to {{group.name}}</span>
+                </div>
+            {% else %}
+                <div class="messages__section-right-container-messages-item-no-messages large">
+                    <span class="">Send the first message to {{user_profile.display_name}}</span>
+                </div>
+            {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    {% if profile not in group.conversation.participants.all %}
+        <div class="not__found">
+            <p class="no-access">You can not send messages to this group yet.</p>
+        </div>
+    {% elif group.deleted == True or profile in group.conversation.removed  %}
+        <div class="not__found">
+                <p class="no-access">You can no longer send messages to this group</p>
+        </div>
+    {% elif is_office and in_session == False %}
+        <div class="not__found">
+            <p class="no-access countdown">Next session starts in: <span id="countdown"></span></p>
+        </div>
+        <script>
+            // Inject Django template variables into JavaScript
+            var nextSessionDate = "{{ group.next_schedule.date }}"; // e.g., "2024-09-30"
+            var nextSessionStartTime = "{{ group.next_schedule.start_time }}"; // e.g., "09:00:00"
+            
+            // Combine the date and time into one string in ISO format and append 'Z' to indicate UTC (GMT+0)
+            var nextSession = nextSessionDate + "T" + nextSessionStartTime + "Z";
+            
+            // Convert to a JavaScript Date object (using GMT timezone)
+            var countDownDate = new Date(nextSession).getTime();
+            
+            // Update the countdown every 1 second
+            var countdownInterval = setInterval(function() {
+                // Get current date and time (in GMT)
+                var now = new Date().getTime();
+            
+                // Calculate the distance between now and the next session
+                var distance = countDownDate - now;
+            
+                // Time calculations for days, hours, minutes, and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+                // Display the result in the element with id="countdown"
+                document.getElementById("countdown").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+            
+                // If the countdown is over, display "Session has started"
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").innerHTML = "Session has started! Reload page to join.";
+                }
+            }, 1000);
+        </script>
+    {% else %}
+        <div class="messages__section-right-container-message-input-container large">
+            <div id="image-preview-message-container-large" class="image-preview-message-container large"></div>
+            <span class="messages__section-right-container-message-input-btn" id="image-upload-input-btn-large">
+                <label class="image-upload-input-label" for="image-upload-input-large"> <i class='bx bx-plus'  id="image-upload-icon"></i></label>
+                <input class="image-upload-input" type="file" id="image-upload-input-large" accept="image/*" multiple >
+            </span>
+        
+        <div class="messages__section-right-container-message-input large">
+            <input type="text" placeholder="Type a message" id="message_text_large">
+            <span class="send_message_btn large" id="send_message_btn_large" data-display-name="{{profile.display_name}}" data-group-sender="{{profile.username}}" data-sender="{{username}}" data-group="{{is_group}}"  data-conversation-id="{{conversation.id}}" onclick="newChatlarge(this)">
+            <i class='bx bx-up-arrow-alt' ></i>
+            </span>
+        </div>
+        
+        </div>
+    {% endif %}
+</div>
+
+{% if is_group == "True" %}
+<div class="group__details-section" id="create_group">
+    <div class="group__details-container">
+        <div class="group__details-section-container-header-nav ">
+            <span onclick="hideGroupInfoContainer()" class="back_group">
+              <i class='bx bx-left-arrow-alt'></i> Back
+            </span>
+            {% if profile == group.admin and is_office == False %}
+                <span class="leave_group"
+                hx-post="{% url 'remove_participant' group.username profile.username %}"
+                hx-trigger="click"
+            
+                hx-target="#peer-{{profile.id}}"
+                hx-swap="innerHTML swap:0.2s">
+                    
+                    <i class='bx bxs-arrow-from-left'></i>
+                    Delete {% if is_office %}  Office hour {% else %} Group {% endif %}
+                </span>
+            {% else %}
+            <span class="leave_group"
+            hx-post="{% url 'remove_participant' group.username profile.username %}"
+            hx-trigger="click"
+        
+            hx-target="#peer-{{profile.id}}"
+            hx-swap="innerHTML swap:0.2s">
+                
+                
+                <i class='bx bxs-arrow-from-left'></i>
+                Leave {% if is_office %}  Office hour {% else %} Group {% endif %}
+            </span>
+            {% endif %}
+           
+        </div>
+
+        <div class="group__details-container-header-title">
+          <span>
+            {% if is_office %}  Office hour {% else %} Group {% endif %} Participants ({{group.conversation.participants.count}})
+          </span>
+
+        </div>
+        <div class="group__details-container-header-link"  onclick="copyToClipboard(this)" data-link="{{group.url}}">
+            <span>
+                <i class='bx bx-link-alt'></i>  Invite to   {% if is_office %}  office hour {% else %} group {% endif %} via link
+            </span>
+            
+            <span id="copy-link" class="copy-link">
+
+            </span>
+          </div>
+        <div class="group__details-container-body"  data-community={{community.name.value}}>
+            <div class="group__details-container-body-search">
+                <div class="connect__filters-search">
+                    <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input-participant" placeholder="Search participants by name" onkeydown="searchParticipant()">
+                  </div>
+            </div>
+            <div class="group__details-container-body-items" id="search-results-participant">
+                {% for peer in group.conversation.participants.all %}
+                <div class="group__details-container-body-item" id="peer-{{peer.id}}">
+                    <a href="{% url 'profile' peer.username %}"  class="profile__section-body-container-about-right-other-mentors-body-item">
+                        <div class="profile__section-body-container-about-right-other-mentors-body-item-left">
+                            <div class="profile__section-body-container-about-right-other-mentors-body-item-left-img">
+                                {% if peer.profile_picture %}
+                                <img src="{{peer.profile_picture.url}}" alt="">
+                                {% else %}
+                                    <img src="{% static 'images/frame.png' %}" alt="">
+                                {% endif %}
+    
+    
+                            </div>
+                            <div class="profile__section-body-container-about-right-other-mentors-body-item-left-info">
+                                <span class="profile__section-body-container-about-right-other-mentors-body-item-left-info-role">
+                                    {{peer.display_name}} {% if peer == group.admin %}(Admin) {% endif %}
+                                </span>
+                                <span class="profile__section-body-container-about-right-other-mentors-body-item-left-info-bio">
+                                    {{peer.bio}}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    {% if profile == group.admin and profile != peer %}
+                        <div class="group__details-container-body-item-remove"
+                        hx-post="{% url 'remove_participant' group.username peer.username %}"
+                        hx-trigger="click"
+                    
+                        hx-target="#peer-{{peer.id}}"
+                        hx-swap="innerHTML swap:0.2s">
+                            <span>Remove</span>
+                        </div>
+                    {% endif %}
+                </div>
+               
+                {% endfor %}
+            </div>
+            <div id="not-found-participant" class="not__found" style="display: none;">
+                <span>Participant not found.</span>
+            </div>
+        </div>
+    </div>
+
+   
+</div>
+{% endif %}
+
+<script src="https://cdn.socket.io/4.1.2/socket.io.min.js">
+</script>
+
+<script>
+    // <!-- RECEIVING WEB SOCKET -->
+    var chatContainer = document.querySelector('.send_message_btn.large');
+    var chatBodyConItems =  document.querySelector('.messages__section-right-container-messages-items.large');
+    var chatReceiver = chatContainer.getAttribute('data-receiver');
+    var chatIdentifier = chatContainer.getAttribute('data-conversation-id');
+    var chatDisplayName = chatContainer.getAttribute('data-display-name');
+    var typingContainer = document.querySelector('.messages__section-right-container-header-info-status');
+    var isGroup = chatContainer.getAttribute('data-group');
+   
+    var doneTypingInterval = 3000; // Time in milliseconds, adjust as needed
+
+    var chatSender;
+    if (isGroup === "True") {
+        // Use 'data-group-sender' if it's a group chat
+        chatSender = chatContainer.getAttribute('data-group-sender');
+    } else {
+        // Use 'data-sender' otherwise
+        chatSender = chatContainer.getAttribute('data-sender');
+    }
+
+    
+    var messagelargeEl = (message, time, sender,  id, images = [], dp) => {
+            var chatEl = document.createElement("div");
+            chatEl.classList.add("messages__section-right-container-messages-item");
+            chatEl.id = `message-${id}`;
+            // Create the images container if there are images
+            var imagesHtml = '';
+            if (images.length > 0) {
+                var imageCount = images.length;
+                imagesHtml = `
+                    <div class="community__section-right-body-container-posts-item-body-media messages ${imageCount === 1 ? 'single-image' : ''}" data-id=${id}>
+                `;
+                
+                images.forEach((image, index) => {
+                    if (index <= 3) {  // Display up to 4 images, similar to your logic
+                        imagesHtml += `
+                            <div class="community__section-right-body-container-posts-item-body-media-item" data-id=${id}>
+                                <img src="${image}" alt="Image" class="image-preview large" data-index=${index}>
+                                ${index === 3 && imageCount > 4 ? `<div class="overlay" data-image-url="${image}" data-id=${id}>
+                                    +${imageCount - 4}
+                                </div>` : ''}
+                            </div>
+                        `;
+                    } else {
+                        imagesHtml += `<img src="${image}" alt="Image" class="image-preview large hide" data-index=${index}>`;
+                    }
+                });
+
+                imagesHtml += `</div>`;
+            }
+
+            var dPImage;
+            var senderHtml;
+
+            if (isGroup == "True")
+            {
+                senderHtml = `<span class="messages__section-right-container-messages-item-name">${sender}</span>`
+            } else {
+                senderHtml = ``
+                
+            }
+            
+
+            if (dp)
+                {
+                    dPImage = dp
+            } else {
+                dPImage = `{% static 'images/ava.png'%}`
+            }
+
+            // Insert the message text and images into the chat element
+            chatEl.innerHTML = `
+                 <div class="messages__section-right-container-messages-item-img">
+                    <img  src="${dPImage}" alt="">
+                    <div class="active-indicator-small"></div>
+                 </div>
+                <div class="messages__section-right-container-messages-item-container">
+                    ${senderHtml}
+                    ${imagesHtml}
+                    <span class="messages__section-right-container-messages-item-text">${message}</span>
+                    <span class="messages__section-right-container-messages-item-time">${time}</span>
+                </div>
+                
+
+                <div id="imageModal" class="image-modal">
+                                <span class="close large">&times;</span>
+                                <img class="modal-content" id="modalImage">
+                                <div id="caption"></div>
+                                <div class="modal-btns">
+                                <a class="prev large">&#10094;</a>
+                                <a class="next large">&#10095;</a>
+                                </div>
+                            
+                            </div>
+            `;
+            
+            return chatEl;
+        };
+
+    
+
+    // const socket = new WebSocket(
+    //     'ws://'
+    //     + window.location.host
+    //     + '/ws/chat/public_room/'
+    //     + chatIdentifier
+    //     + '/'
+    // );
+        
+    // socket.onopen = function (e) {
+    //     console.log("The connection was setup successfully !");
+    //     //console.log(chatIdentifier);
+    //   };
+    // socket.onclose = function (e) {
+    //     console.log("Something unexpected happened !");
+    //   };
+
+    // socket.onmessage = function (event) {
+    //     const data = JSON.parse(event.data);
+    //     console.log("Waiting for message!");
+    //     console.log(data.sender);
+    //     console.log(chatSender);
+      
+    //     // if(unreadMessages)
+    //     // {
+    //     //     unreadMessages.style.display = 'none';
+    //     // }
+
+    //     if (chatSender != data.sender)
+    //         {
+    //             console.log(data)
+    //             console.log(data.timestamp);
+    //             if ( data.mode == "indicator")
+    //                 {
+    //                     if (isGroup == "True")
+    //                         {
+    //                              typingContainer.innerText = data.name + " is typing..."
+    //                         } else {
+    //                              typingContainer.innerText = "Typing..."
+    //                         }
+
+    //                     setTimeout(doneTyping, doneTypingInterval);
+                       
+
+    //                    // scrollToBottom();
+    //                 } else {
+    //                     chatBodyConItems.appendChild(messagelargeEl(data.message, data.timestamp, data.name, data.id, data.images, data.dp));
+    //                     scrollToBottomlarge();
+    //                     //typingContainer.style.display = "none"
+    //                     //scrollToBottom();
+    //                    //  clearMessages();
+
+    //                 }
+    //         }
+    // };
+
+    function doneTyping() {
+        // Replace this with your function to send the message over a web request
+        typingContainer.innerText = "Online"
+        console.log('User stopped typing.');
+    }
+
+    // <!-- SENDING WEB SOCKET -->
+
+    var textMessage = document.getElementById('message_text_large');
+    textMessage.addEventListener('input', function () {
+       console.log("typinngg");
+     
+        socket.send(JSON.stringify({
+            'message': "",
+            'sender': chatSender,
+            'name': chatDisplayName,
+            'mode': 'indicator',
+            'dp': '',
+            'images': '',
+            'id': ''
+        }));
+       
+        
+    });
+</script>
+
+<script>
+
+    function searchParticipant()
+        {
+            const searchInput = document.getElementById('search-input-participant');
+            const resultsContainer = document.getElementById('search-results-participant');
+            const notFoundElement = document.getElementById('not-found-participant');
+            
+            const query = searchInput.value.trim().toLowerCase();
+            const courseItems = resultsContainer.getElementsByClassName('group__details-container-body-item');
+            let found = false;
+
+            for (let i = 0; i < courseItems.length; i++) {
+                const spans = courseItems[i].getElementsByTagName('span');
+                let itemText = '';
+
+                for (let j = 0; j < spans.length; j++) {
+                    itemText += spans[j].textContent.toLowerCase() + ' ';
+                }
+
+                if (itemText.includes(query)) {
+                    courseItems[i].style.display = 'flex';
+                    found = true;
+                } else {
+                    courseItems[i].style.display = 'none';
+                }
+            }
+
+            if (found) {
+                notFoundElement.style.display = 'none';
+            } else {
+                notFoundElement.style.display = 'flex';
+            }
+            
+        }
+</script>
+
+<script>
+    function showGroupInfoContainer()
+    {
+      document.querySelector('.group__details-section').style.display = 'flex';
+      
+    }
+  function hideGroupInfoContainer()
+    {
+      window.location.reload();
+    }
+
+
+  function reload() {
+    setTimeout(function() {
+      location.reload();
+    }, 500); // Delay to allow the hx-post to complete
+  }
+
+
+    function copyToClipboard(element) {
+    
+    var text = element.getAttribute('data-link');
+
+  
+
+    navigator.clipboard.writeText(text).then(function() {
+        element.querySelector("#copy-link").innerText = "Copied!";
+        //setTimeout(element.querySelector("#copy-link").style.display = "none", 1000);
+    }, function(err) {
+        console.error('Failed to copy: ', err);
+    });
+}
+
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+       var currentPostImages = [];
+       var currentPostId = null;
+       var modal = document.getElementById('imageModal');
+       var modalImg = document.getElementById('modalImage');
+       var captionText = document.getElementById('caption');
+       var currentIndex;
+   
+       var overlays = document.querySelectorAll('.overlay.large');
+   
+       overlays.forEach(overlay => {
+           overlay.addEventListener('click', function() {
+               var imageUrl = this.getAttribute('data-image-url');
+               var postId = this.getAttribute('data-id');
+               var image = this.closest('.image-preview.large');
+               console.log(image);
+               console.log(postId);
+               openModalOverlay(imageUrl, postId);
+   
+           });
+       });
+   
+       function openModal(image, postId) {
+           // Find the images within the same post
+           currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.large`));
+         
+           currentIndex = currentPostImages.indexOf(image);
+   
+   
+           // Display the modal with the selected image
+           modal.style.display = "flex";
+           modalImg.src = image.src;
+           captionText.innerHTML = image.alt;
+           currentPostId = postId;
+           
+       }
+       function openModalOverlay(image, postId) {
+           // Find the images within the same post
+           currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.large`));
+         
+           currentIndex = currentPostImages.indexOf(image);
+   
+           // Display the modal with the selected image
+           modal.style.display = "flex";
+           modalImg.src = image;
+           captionText.innerHTML = image.alt;
+           currentPostId = postId;
+           
+       }
+   
+       document.querySelectorAll('.image-preview.large').forEach((image) => {
+           image.addEventListener('click', function() {
+               var postId = this.closest('.community__section-right-body-container-posts-item-body-media-item').getAttribute('data-id');
+               openModal(this, postId);
+           });
+       });
+   
+       var span = document.getElementsByClassName("close large")[0];
+       span.onclick = function() { 
+           modal.style.display = "none";
+       }
+   
+       var next = document.querySelector('.next.large');
+       next.onclick = function() {
+           if (currentPostImages.length > 0) {
+               currentIndex = (currentIndex + 1) % currentPostImages.length;
+               modalImg.src = currentPostImages[currentIndex].src;
+               captionText.innerHTML = currentPostImages[currentIndex].alt;
+           }
+       }
+   
+       var prev = document.querySelector('.prev.large');
+       prev.onclick = function() {
+           if (currentPostImages.length > 0) {
+               currentIndex = (currentIndex - 1 + currentPostImages.length) % currentPostImages.length;
+               modalImg.src = currentPostImages[currentIndex].src;
+               captionText.innerHTML = currentPostImages[currentIndex].alt;
+           }
+       }
+   });
+   
+   
+   document.addEventListener('DOMContentLoaded', function() {
+       
+   
+       function openImage(imageUrl) {
+           // Open the image in a full-screen overlay or a new window
+           var imgOverlay = document.createElement('div');
+           imgOverlay.classList.add('img-fullscreen-overlay');
+           imgOverlay.innerHTML = `
+               <img src="${imageUrl}" alt="Image">
+               <span class="close-btn">&times;</span>
+           `;
+           document.body.appendChild(imgOverlay);
+   
+           // Close the overlay when the close button is clicked
+           imgOverlay.querySelector('.close-btn').addEventListener('click', function() {
+               imgOverlay.remove();
+           });
+       }
+   });
+   
+   
+</script>
+
+<script>
+    console.log("dhdh");
+
+    var chatBodylarge = document.querySelector('.messages__section-right-container-messages-items.large');
+   
+    var sendMessageBtnlarge = document.querySelector('#send_message_btn_large');
+    var textMessagelarge = document.querySelector('#message_text_large');
+    
+    var unreadMessageslarge = document.querySelector('.messages-detail__body-item-unread-messages-container.large');
+  
+    console.log("wsbfchasbfa");
+    var chatBodyConlarge = document.querySelector('.messages__section-right-container-messages.large');
+    
+    // Make sure chatBodyCon is not null before getting attribute
+    if (chatBodyConlarge) {
+        var unreadMessagesCountlarge = chatBodyConlarge.getAttribute('data-unread-messages');
+      
+        // Move the unreadMessagesCount check inside here
+        if (unreadMessagesCountlarge > 0) {
+            scrollToUnreadlarge();
+        } else {
+            scrollToBottomlarge();
+        }
+    } else {
+        console.error("chatBodyCon is null or undefined");
+    }
+
+    textMessagelarge.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+          event.preventDefault();
+          newChatlarge(sendMessageBtnlarge);
+      }
+  });
+
+  var selectedlargeImages = [];
+
+    var imageUploadInput = document.getElementById('image-upload-input-large');
+    var imagePreviewContainer = document.getElementById('image-preview-message-container-large');
+    
+
+    imageUploadInput.addEventListener('change', function() {
+        var files = imageUploadInput.files;
+        
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            selectedlargeImages.push(file); // Store the file in the array
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var imgPreview = document.createElement('div');
+                imgPreview.classList.add('image-message-preview');
+                imgPreview.classList.add('large');
+                imgPreview.innerHTML = `
+                    <img src="${e.target.result}" alt="Image Preview">
+                    <i class="bx bx-x remove-image-message-btn large"> </i>
+                `;
+                imagePreviewContainer.appendChild(imgPreview);
+                console.log("doneee");
+
+                // Handle image devarion
+                imgPreview.querySelector('.remove-image-message-btn.large').addEventListener('click', function() {
+                    var index = selectedlargeImages.indexOf(file);
+                    if (index > -1) {
+                        selectedlargeImages.splice(index, 1); // Remove from the array
+                    }
+                    imgPreview.remove();
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Reset the input field to allow uploading the same file again
+        imageUploadInput.value = '';
+    });
+
+  
+
+  function scrollToUnreadlarge() {
+      var section = document.querySelector('.messages-detail__body-item-unread-messages-container.large');
+      if (section) {
+          section.scrollIntoView();
+      }
+  }
+
+  function scrollToBottomlarge() {
+      var chatBody = document.querySelector('.messages__section-right-container-messages.large');
+      chatBody.scrollTop = chatBody.scrollHeight;
+      console.log(chatBody.scrollHeight);
+  }
+
+
+
+  function getCookie(name) {
+      var cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return cookieValue ? cookieValue.pop() : '';
+  }
+
+  function newChatlarge(element)  {
+   
+    //var sendMessageBtn = document.querySelector('.send_message_btn');
+    var chatBody = document.querySelector('.messages__section-right-container-messages-items.large');
+    var firstMessage = document.querySelector('.messages__section-right-container-messages-item-no-messages.large span');
+    var messageSender = element.getAttribute('data-sender');
+    var senderURL = element.getAttribute('data-sender-dp');
+
+
+    var chatDisplayName = element.getAttribute('data-display-name');
+    var isGroup = element.getAttribute('data-group');
+    var textMessage = document.querySelector('#message_text_large');
+    var typingContainer = document.querySelector('.messages__section-right-container-header-info-status.large');
+    var csrfToken = getCookie('csrftoken');
+
+    var chatSender;
+    if (isGroup === "True") {
+        // Use 'data-group-sender' if it's a group chat
+        chatSender = chatContainer.getAttribute('data-group-sender');
+    } else {
+        // Use 'data-sender' otherwise
+        chatSender = chatContainer.getAttribute('data-sender');
+    }
+
+    console.log(element);
+
+    const socket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/public_room/'
+        + chatIdentifier
+        + '/'
+    );
+
+
+    function sendMessage(message, sender, name, id, images, dp) {
+        socket.send(JSON.stringify({
+            'message': message,
+            'sender': sender,
+            'name': chatDisplayName,
+            'dp': dp,
+            'id': id,
+            'images': images,
+            'mode': ''
+        }));
+    }
+
+    if (element) {
+        var textMessageValue = textMessage.value.trim();
+        console.log(textMessageValue);
+        console.log(selectedlargeImages);
+        if (textMessageValue !== '' || selectedlargeImages.length > 0) {
+            textMessage.value = "";
+            scrollToBottomlarge();
+            var formData = new FormData();
+            var files = selectedlargeImages;
+            console.log(files);
+            formData.append('text', textMessageValue);
+            formData.append('username', messageSender);
+            formData.append('is_group', isGroup);
+            // Append each file individually
+            Array.from(files).forEach((file, index) => {
+                formData.append('images_' + index, file);
+            });
+
+            $.ajax({
+                url: '/new_chat',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                data: formData,
+                processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+                contentType: false, 
+                success: function (response) {
+                    if (response.message === 'success') {
+                        
+                        if (firstMessage) {
+                            firstMessage.style.display = "none";
+                            if (!firstMessage.classList.contains("stop")) {
+                                chatBody.appendChild(dateConEllarge());
+                                firstMessage.classList.add("stop");
+                            }
+                        }
+                        if (imagePreviewContainer)
+                        {
+                            imagePreviewContainer.innerHTML = '';
+                        }
+
+                            // Append the images to the chat
+                       
+                        
+                        chatBody.appendChild(messagelargeEl(textMessageValue, response.time, response.id, response.images));
+                        
+                        
+                        scrollToBottomlarge();
+                        selectedlargeImages = [];
+                        sendMessage(textMessageValue, chatSender, chatDisplayName, response.id, response.images, response.dp);
+                    } else {
+                        console.log("Unexpected response:", response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    setTimeout(() => {
+                        console.log("Error:", status, error);
+                        chatBody.appendChild(messageEllarge("Error Sending Your Message", ""));
+                    }, 1000);
+                }
+            });
+        }
+    };
+
+    var dateConEllarge = () => {
+        var dateEl = document.createElement("div");
+        dateEl.classList.add("messages__section-right-container-messages-datestamp");
+        dateEl.innerHTML = `<span> Today </span>`;
+        return dateEl;
+    };
+
+    var messagelargeEl = (message, time, id, images = []) => {
+            var chatEl = document.createElement("div");
+            chatEl.classList.add("messages__section-right-container-messages-item", "user_message");
+            chatEl.id = `message-${id}`;
+            // Create the images container if there are images
+            var imagesHtml = '';
+            if (images.length > 0) {
+                var imageCount = images.length;
+                imagesHtml = `
+                    <div class="community__section-right-body-container-posts-item-body-media messages ${imageCount === 1 ? 'single-image' : ''}" data-id=${id}>
+                `;
+                
+                images.forEach((image, index) => {
+                    if (index <= 3) {  // Display up to 4 images, similar to your logic
+                        imagesHtml += `
+                            <div class="community__section-right-body-container-posts-item-body-media-item" data-id=${id}>
+                                <img src="${image}" alt="Image" class="image-preview large" data-index=${index}>
+                                ${index === 3 && imageCount > 4 ? `<div class="overlay" data-image-url="${image}" data-id=${id}>
+                                    +${imageCount - 4}
+                                </div>` : ''}
+                            </div>
+                        `;
+                    } else {
+                        imagesHtml += `<img src="${image}" alt="Image" class="image-preview large hide" data-index=${index}>`;
+                    }
+                });
+
+                imagesHtml += `</div>`;
+            }
+
+            // Insert the message text and images into the chat element
+            chatEl.innerHTML = `
+                <div class="messages__section-right-container-messages-item-container">
+                    ${imagesHtml}
+                    <span class="messages__section-right-container-messages-item-text">${message}</span>
+                    <span class="messages__section-right-container-messages-item-time">${time}</span>
+                </div>
+                <div class="messages__section-right-container-messages-item-text-status">
+                    <span><i class='bx bx-check'></i></span>
+                </div>
+
+                <div id="imageModal" class="image-modal">
+                                <span class="close large">&times;</span>
+                                <img class="modal-content" id="modalImage">
+                                <div id="caption"></div>
+                                <div class="modal-btns">
+                                <a class="prev large">&#10094;</a>
+                                <a class="next large">&#10095;</a>
+                                </div>
+                            
+                            </div>
+            `;
+            
+            return chatEl;
+        };
+
+
+   
+}
+</script>
+{% endblock %}
+
+
+{% block title%} {{user_profile.display_name}} | Compas AI{% endblock %}
+
+{% block messages%} active{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

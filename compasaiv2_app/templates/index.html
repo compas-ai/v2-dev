@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block base-content %}
+    <section class="dashboard__section" id="dashboard__section">
+        <div class="dashboard__section-container">
+                {% if active_path != None %}
+                    <div class="sidebar__section">
+                        <div class="sidebar__section-container">
+                            <a href="/" class="sidebar__section-logo">
+                                <img class="sidebar__section-logo-img" src="{% static 'images/logo/full.svg'%}"  alt="">
+                            </a>
+                            <div class="sidebar__section-menu">
+                                <a class="sidebar__section-menu-item {% block home%}{% endblock %}" href="/">
+                                    <img src="{% static 'images/icons/menu/home.svg'%}" alt="">
+                                    <p> Home</p>
+                                </a>
+                                <a href="/connect" class="sidebar__section-menu-item {% block connect%}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/connect.svg' %}" alt="">
+                                    <p>Connect</p>
+                                </a>
+                                <a href="/path" class="sidebar__section-menu-item {% block path%}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/path.svg' %}" alt="">
+                                    <p>Path</p>
+                                </a>
+                                <a href="/messages" class="sidebar__section-menu-item messages {% block messages%}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/messaging.svg' %}" alt="">
+                                    <p>Messages</p>
+                                </a>
+                                <a href="/community" class="sidebar__section-menu-item {% block community %}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/community.svg' %}" alt="">
+                                    <p>Community</p>
+                                </a>
+                                <a href="/project" class="sidebar__section-menu-item {% block project%}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/project.svg' %}" alt="">
+                                    <p>Project</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="mainbar__section {% if active_path == None %} recommendation {% endif %}">
+                    <div class="header__section">
+                        <div class="header__section-search" >
+                            <span class="header__section-search large_screen" {% block remove_search_bar%}{% endblock %}>
+                                <img class="header__section-search-loader spin-animation" src="{% static 'images/icons/header/loader.svg' %}" alt=""> <input type="text" class=""  placeholder="Search with CompasAI">
+                            </span>
+                            <span class="header__section-search small_screen">
+                                <img class="header__section-search-loader spin-animation" src="{% static 'images/icons/header/loader.svg' %}" alt=""> <input type="text" class="" placeholder="Search with CompasAI">
+                            </span>
+                            <div class="header__section-btns-item-overlay">
+                                <span class="header__section-btns-item-overlay-header">
+                                    Search Results...
+                                </span>
+
+                               <span class="header__section-btns-item-overlay-item">
+                                   No result found...
+                               </span>
+                              
+                            </div>
+                        </div>
+                        <div class="header__section-btns">
+
+                            {% if active_path != None %}
+                            <span class="header__section-btns-item coins">
+                                <img src="{% static 'images/icons/header/streak.svg' %}" alt="">
+                                <p>1</p>
+                            </span>
+                            <span class="header__section-btns-item coins">
+                                <img src="{% static 'images/icons/header/coin.svg' %}" alt="">
+                                <p>10</p>
+                            </span>
+                            <div class="header__section-btns-item notification">
+                                <img src="{% static 'images/icons/header/notification.svg' %}" alt="">
+                                <div class="header__section-btns-item-overlay">
+                                    <span class="header__section-btns-item-overlay-header">
+                                        Recent Notifications
+                                    </span>
+
+                                   <span class="header__section-btns-item-overlay-item">
+                                        You just created a profile • <span>2m</span>
+                                   </span>
+                                   <span class="header__section-btns-item-overlay-item">
+                                        Joshua reposted your photo • <span>15m</span>
+                                    </span>
+                                    <span class="header__section-btns-item-overlay-item">
+                                        You just created a profile • <span>32m</span>
+                                   </span>
+                                   <span class="header__section-btns-item-overlay-item">
+                                        Joshua reposted your photo • <span>45m</span>
+                                    </span>
+                                    <span class="header__section-btns-item-overlay-item">
+                                        Update your profile 90% complete profiles get better responses from mentors • <span>3h</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <a href="/messages" class="header__section-btns-item messaging">
+                                <img src="{% static 'images/icons/menu/messaging.svg' %}" alt="">
+                            </a>
+                            {% endif %}
+                            <div class="header__section-btns-item profile">
+                                {% if profile.profile_picture %}
+                                    
+                                        <img src="{{ profile.profile_picture.url }}" alt="">
+                                    
+                                {% else %}
+                                    <span>
+                                        <p>{{ profile.display_name|slice:":1" }}</p>
+                                    </span>
+                                {% endif %}
+                                <div class="header__section-btns-item-overlay">
+                                    <a href="{% url 'profile' profile.username %}">
+                                        <i class='bx bx-user' ></i>  My Profile
+                                    </a>
+                                    <a href="{% url 'profile_edit_settings' profile.username %}">
+                                        <i class='bx bx-cog' ></i> Settings
+                                    </a>
+                                    <a href="/logout">
+                                        <i class='bx bx-arrow-from-right'></i> Sign Out
+                                    </a>
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                    <div class="main__section" id="main__section">
+                        {% block main-content %} {% endblock %}
+                    </div>
+                </div>
+        </div>
+      
+
+    </section>
+
+{% endblock base-content %}
+

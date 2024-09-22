@@ -1,0 +1,160 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+   <div class="path-detail__section">
+    <a  href="/path" class="return_btn show">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        Return
+        </a>
+     <div class="path-detail__section-header">
+        <div class="path-detail__section-header-left">
+            <div class="path-detail__section-header-left-title">
+                <span>
+                    {% if path == None %}
+                        {{skill.name}}
+                    {% else %}
+                        {{path.suggested_skill.name}}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="path-detail__section-header-left-description">
+                Take your career to the next level and earn professional  {{path.suggested_skill.name}} certification.
+            </div>
+            <div class="path-detail__section-header-left-info">
+                
+                <div class="path-detail__section-header-left-info-item">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                            <path d="M8.87526 2.10873L3.85859 5.38373C2.25026 6.43373 2.25026 8.78373 3.85859 9.83373L8.87526 13.1087C9.77526 13.7004 11.2586 13.7004 12.1586 13.1087L17.1503 9.83373C18.7503 8.78373 18.7503 6.44206 17.1503 5.39206L12.1586 2.11706C11.2586 1.51706 9.77526 1.51706 8.87526 2.10873Z" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5.19193 10.9004L5.18359 14.8087C5.18359 15.8671 6.00026 17.0004 7.00026 17.3337L9.65859 18.2171C10.1169 18.3671 10.8753 18.3671 11.3419 18.2171L14.0003 17.3337C15.0003 17.0004 15.8169 15.8671 15.8169 14.8087V10.9421" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.333 12.5V7.5" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                    </span>
+                    
+                      <span>
+                        12 courses
+                      </span>
+                        
+                      
+                </div>
+                <div class="path-detail__section-header-left-info-item">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 12.75C8.83 12.75 6.25 10.17 6.25 7C6.25 3.83 8.83 1.25 12 1.25C15.17 1.25 17.75 3.83 17.75 7C17.75 10.17 15.17 12.75 12 12.75ZM12 2.75C9.66 2.75 7.75 4.66 7.75 7C7.75 9.34 9.66 11.25 12 11.25C14.34 11.25 16.25 9.34 16.25 7C16.25 4.66 14.34 2.75 12 2.75Z" fill="#17191D"/>
+                            <path d="M3.41016 22.75C3.00016 22.75 2.66016 22.41 2.66016 22C2.66016 17.73 6.85015 14.25 12.0002 14.25C13.0102 14.25 14.0001 14.38 14.9601 14.65C15.3601 14.76 15.5902 15.17 15.4802 15.57C15.3702 15.97 14.9601 16.2 14.5602 16.09C13.7402 15.86 12.8802 15.75 12.0002 15.75C7.68015 15.75 4.16016 18.55 4.16016 22C4.16016 22.41 3.82016 22.75 3.41016 22.75Z" fill="#17191D"/>
+                            <path d="M18 22.75C16.34 22.75 14.78 21.87 13.94 20.44C13.49 19.72 13.25 18.87 13.25 18C13.25 16.54 13.9 15.19 15.03 14.29C15.87 13.62 16.93 13.25 18 13.25C20.62 13.25 22.75 15.38 22.75 18C22.75 18.87 22.51 19.72 22.06 20.45C21.81 20.87 21.49 21.25 21.11 21.57C20.28 22.33 19.17 22.75 18 22.75ZM18 14.75C17.26 14.75 16.56 15 15.97 15.47C15.2 16.08 14.75 17.01 14.75 18C14.75 18.59 14.91 19.17 15.22 19.67C15.8 20.65 16.87 21.25 18 21.25C18.79 21.25 19.55 20.96 20.13 20.44C20.39 20.22 20.61 19.96 20.77 19.68C21.09 19.17 21.25 18.59 21.25 18C21.25 16.21 19.79 14.75 18 14.75Z" fill="#17191D"/>
+                            <path d="M17.4289 19.7401C17.2389 19.7401 17.0489 19.6701 16.8989 19.5201L15.9089 18.5301C15.6189 18.2401 15.6189 17.76 15.9089 17.47C16.1989 17.18 16.6789 17.18 16.9689 17.47L17.4489 17.9501L19.0489 16.47C19.3489 16.19 19.8289 16.2101 20.1089 16.5101C20.3889 16.8101 20.3689 17.2901 20.0689 17.5701L17.9389 19.54C17.7889 19.67 17.6089 19.7401 17.4289 19.7401Z" fill="#17191D"/>
+                          </svg>
+                    </span>
+                   
+                      <span>
+                        82 Mentors
+                      </span>
+                </div>
+                <div class="path-detail__section-header-left-info-item">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                            <path d="M10.8086 7.40039H15.1836" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5.81641 7.40039L6.44141 8.02539L8.31641 6.15039" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10.8086 13.2324H15.1836" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5.81641 13.2324L6.44141 13.8574L8.31641 11.9824" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8.00033 18.3327H13.0003C17.167 18.3327 18.8337 16.666 18.8337 12.4993V7.49935C18.8337 3.33268 17.167 1.66602 13.0003 1.66602H8.00033C3.83366 1.66602 2.16699 3.33268 2.16699 7.49935V12.4993C2.16699 16.666 3.83366 18.3327 8.00033 18.3327Z" stroke="#4F4F2A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                    </span>
+                    
+                      <span>
+                        2 projects
+                      </span>
+                </div>
+            </div>
+            <div class="path-detail__section-header-left-btns">
+                {% if  path.active == True %}
+                <span class="path-detail__section-header-left-btns-learning"
+                hx-post="{% url 'path_courses' path.suggested_skill.value  %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap = "outerHTML"
+                hx-push-url="true">
+                    Continue learning
+                </span>
+                
+                <a href="/roadmap" class="path-detail__section-header-left-btns-roadmap">
+                    View roadmap
+                </a>
+                {% elif path != None %}
+                <span class="path-detail__section-header-left-btns-learning"
+                        hx-post="{% url 'enrol_path_loader' profile.username path.suggested_skill.value %}"
+                        hx-trigger="click"
+                        hx-target="#body"
+                        hx-swap = "outerHTML">
+                    Switch to Path
+                </span>
+                {% else %}
+                <span class="path-detail__section-header-left-btns-learning"
+                        hx-post="{% url 'enrol_path_loader' profile.username skill.value %}"
+                        hx-trigger="click"
+                        hx-target="#body"
+                        hx-swap = "outerHTML">
+                    Enroll in path
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="path-detail__section-header-right">
+            <div class="path-detail__section-header-right-intro-video">
+                <video src="{% static 'videos/demo.mp4' %}" controls></video>
+            </div>
+        </div>
+     </div>
+     <div class="path-detail__section-body">
+        {% if path.active == True %}
+        <div class="path-detail__section-body-menu">
+            <span 
+                class="{% block path_about %} {% endblock %}"
+                hx-post="{% url 'path_detail' path.suggested_skill.value  %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap = "outerHTML"
+                hx-push-url="true">
+                About
+            </span>
+            <span class="{% block path_courses %} {% endblock %}"
+                hx-post="{% url 'path_courses' path.suggested_skill.value  %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap = "outerHTML"
+                hx-push-url="true">
+                Courses
+            </span>
+            <span class="{% block path_mentors %} {% endblock %}"
+                hx-post="{% url 'path_mentors' path.suggested_skill.value  %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap = "outerHTML"
+                hx-push-url="true">
+                Mentors
+            </span>
+            <span class="{% block path_projects %} {% endblock %}"
+                hx-post="{% url 'path_projects' path.suggested_skill.value  %}"
+                hx-trigger="click"
+                hx-target="#body"
+                hx-swap = "outerHTML"
+                hx-push-url="true">
+                Projects
+            </span>
+        </div>
+        {% endif %}
+        <div class="path-detail__section-body-section">
+            {% block path-detail__content %} {% endblock %}
+        </div>
+     </div>
+   </div>
+
+{% endblock main-content %}
+
+{% block title%} Path | Compas AI{% endblock %}
+{% block path%} active{% endblock %}
