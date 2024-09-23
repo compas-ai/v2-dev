@@ -3,13 +3,25 @@
 
 {% block main-content %}
    <div class="path-detail__section">
+
+    {% if active_path != None%}
     <a  href="/path" class="return_btn show">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         Return
-        </a>
+    </a>
+    {% else %}
+    <a  href="/" class="return_btn show">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        Return
+    </a>
+
+    {% endif %}
      <div class="path-detail__section-header">
         <div class="path-detail__section-header-left">
             <div class="path-detail__section-header-left-title">
@@ -85,7 +97,7 @@
                 <a href="/roadmap" class="path-detail__section-header-left-btns-roadmap">
                     View roadmap
                 </a>
-                {% elif path != None %}
+                {% elif active_path != None %}
                 <span class="path-detail__section-header-left-btns-learning"
                         hx-post="{% url 'enrol_path_loader' profile.username path.suggested_skill.value %}"
                         hx-trigger="click"

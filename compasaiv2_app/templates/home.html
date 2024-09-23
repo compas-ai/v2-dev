@@ -448,14 +448,7 @@
         </div>
         <div class="profile-paths__recommended__body">
             {% for skill in recommended_paths %}
-            <div class="profile-paths__recommended__body-item child-color "
-                {% if is_profile %} 
-                    hx-post="{% url 'paths_view' user_profile.username skill %}"
-                    hx-trigger="click"
-                    hx-target="#overlay"
-                    hx-swap = "outerHTML"
-                    hx-push-url="true"
-                {% endif %}>
+            <a href="{% url 'path_detail' skill.suggested_skill.value %}" class="profile-paths__recommended__body-item child-color">
                 {% if skill.ranking == 1%}
                 <div class="profile-paths__recommended__body-item-header">
                     <span class="profile-paths__recommended__body-item-header-number" >01</span>
@@ -490,12 +483,12 @@
                         {% if skill.active %}
                             Go to Path
                         {% else %}
-                            Explore path
+                            Enroll in path
                         {% endif %}
                     </span>
                     {% endif %}
                 </div>
-            </div>
+            </a>
            {% endfor %}
             
         </div>
@@ -548,7 +541,35 @@
         </div>
     </div>
     {% endif %}
-    
+    <div class="path__body-explore">
+        <div class="path__body-explore-header">
+          <span>Explore Other Paths</span>
+          <span class="path__body-explore-header-search">
+            <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input" placeholder="Search for paths">
+          </span>
+        </div>
+        <div class="path__body-explore-body">
+          <div id="search-results" class="path__body-explore-body-items">
+              {% for skill in skills %}
+              <a href="{% url 'path_detail' skill.value %}" class="path__body-explore-body-item">
+                  <div class="path__body-explore-body-item-img path">
+                      <img src="{% static 'images/paths/' %}{{ skill.icon }}" alt="Skill Image" 
+                           onerror="this.onerror=null; this.src='{% static 'images/paths/default.svg' %}';">
+                  </div>
+                  <div class="path__body-explore-body-item-title">
+                      <span class="skill-name">{{ skill.name }}</span>
+                  </div>
+                  <div class="path__body-explore-body-item-description">
+                      <span>Master the act of Web Development and get actionable insights on how to grow and scale your career</span>
+                  </div>
+              </a>
+              {% endfor %}
+          </div>
+          <div id="not-found" class="not__found" style="display: none;">
+              <span>No paths found.</span>
+          </div>
+      </div>
+      </div>
   <div class="" id="overlay"></div>
 </div>
 {% block profile-content-overlay %} {% endblock %}

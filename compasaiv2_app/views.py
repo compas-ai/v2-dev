@@ -116,11 +116,12 @@ def index(request):
     #update_skills()
 
     if Profile.objects.filter(user=request.user).exists() == False:
+            print("sjbxsjhb")
             return redirect('onboarding')
 
     profile = Profile.objects.get(user=request.user)
-
-    if profile.is_onboarded == False:
+    print("asjcbjsb")
+    if profile.is_onboarded == False and profile.user_type != 'mentor':
        return redirect('onboarding')
     
     is_profile = True
@@ -136,6 +137,9 @@ def index(request):
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
+    my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('-active','ranking')
+    skills = Skill.objects.exclude(id__in=Subquery(my_skills.values('suggested_skill')))
+
     context = {
         "profile": profile,
         "recommended_paths": recommended_paths,
@@ -143,7 +147,8 @@ def index(request):
         "mentors": mentors,
         "is_profile": is_profile,
         "user_profile": user_profile,
-        "active_path": active_path
+        "active_path": active_path,
+        'skills': skills
     }
     return render(request, 'home.html', context)
 
@@ -930,8 +935,12 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
+        try:
+            user_item = User.objects.get(email=email)
+        except:
+            user_item = None
     
-        user = auth.authenticate(username=email, password=password)
+        user = auth.authenticate(username=user_item.username, password=password, backend='django.contrib.auth.backends.ModelBackend')
         if user is not None:
             profile = Profile.objects.get(user=user)
             if not profile.is_confirmed:
@@ -948,10 +957,12 @@ def login(request):
             profile = Profile.objects.get(user=user_prof)
             if profile.is_confirmed == False:
                 return JsonResponse({'wrong': True, 'reason': 'Please confirm your email', 'no_password': False, 'is_confirmed': True, 'email': email})
-            if user_prof.check_password('12345'):
+            elif user_prof.check_password('12345'):
                 return JsonResponse({'wrong': True, 'reason': 'Password has not been set for this account', 'no_password': True, 'is_confirmed': False})
-        else:
-            return JsonResponse({'wrong': True, 'reason': 'Password is incorrect.', 'no_password': False, 'is_confirmed': False})
+            else:
+                print(user_prof.check_password('#Bobwebniche2002#'))
+                print("na here oooo")
+                return JsonResponse({'wrong': True, 'reason': 'Password is incorrect.', 'no_password': False, 'is_confirmed': False})
 
     return render(request, 'login.html')
 
@@ -989,7 +1000,7 @@ def onboarding(request):
             info = RecommenderInfo.objects.get(profile=profile)
             stage_dict = get_adjacent_stage(str(info.stage).upper(), "NEXT")
             stage = info.stage
-            if profile.is_onboarded:
+            if profile.is_onboarded or profile.user_type == 'mentor':
                 return redirect('index')
         except:
             pass
@@ -1059,9 +1070,7 @@ def onboarding(request):
             name = profile_data.get('name', '')
             email = profile_data.get('email', '')
             phone = profile_data.get('phone', '')
-            print(name)
-            print(email)
-            print(phone)
+
             password = "12345"
             username, host= email.split('@') 
             username = re.sub(r'[^\w]', '_', username)
