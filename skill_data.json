@@ -1,0 +1,464 @@
+[
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 1,
+    "fields": {
+        "name": "Graphics Design",
+        "value": "graphics-design",
+        "category": "Creative",
+        "icon": "graphics-design.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 2,
+    "fields": {
+        "name": "Web Design",
+        "value": "web-design",
+        "category": "Creative",
+        "icon": "web-design.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 3,
+    "fields": {
+        "name": "Motion Graphics",
+        "value": "motion-graphics",
+        "category": "Creative",
+        "icon": "motion-graphics.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 4,
+    "fields": {
+        "name": "Animation",
+        "value": "animation",
+        "category": "Creative",
+        "icon": "animation.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 5,
+    "fields": {
+        "name": "Video Editing",
+        "value": "video-editing",
+        "category": "Creative",
+        "icon": "video-editing.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 6,
+    "fields": {
+        "name": "Content Writing",
+        "value": "content-writing",
+        "category": "Creative",
+        "icon": "content-writing.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 7,
+    "fields": {
+        "name": "Content Creation",
+        "value": "content-creation",
+        "category": "Creative",
+        "icon": "content-creation.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 8,
+    "fields": {
+        "name": "Product Design",
+        "value": "product-design",
+        "category": "Product",
+        "icon": "product-design.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 9,
+    "fields": {
+        "name": "Product Management",
+        "value": "product-management",
+        "category": "Product",
+        "icon": "product-management.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 10,
+    "fields": {
+        "name": "Scrum Management",
+        "value": "scrum-management",
+        "category": "Product",
+        "icon": "scrum-management.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 11,
+    "fields": {
+        "name": "Product Marketing",
+        "value": "product-marketing",
+        "category": "Product",
+        "icon": "product-marketing.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 12,
+    "fields": {
+        "name": "Business Analysis",
+        "value": "business-analysis",
+        "category": "Business",
+        "icon": "business-analysis.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 13,
+    "fields": {
+        "name": "Business Intelligence",
+        "value": "business-intelligence",
+        "category": "Business",
+        "icon": "business-intelligence.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 14,
+    "fields": {
+        "name": "Business Analytics",
+        "value": "business-analytics",
+        "category": "Business",
+        "icon": "business-analytics.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 15,
+    "fields": {
+        "name": "Business Development",
+        "value": "business-development",
+        "category": "Business",
+        "icon": "business-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 16,
+    "fields": {
+        "name": "Financial Analysis",
+        "value": "financial-analysis",
+        "category": "Business",
+        "icon": "financial-analysis.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 17,
+    "fields": {
+        "name": "Legal and Compliance",
+        "value": "legal-and-compliance",
+        "category": "Business",
+        "icon": "legal-and-compliance.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 18,
+    "fields": {
+        "name": "Customer Relationship Management (CRM)",
+        "value": "customer-relationship-management-(crm)",
+        "category": "Business",
+        "icon": "customer-relationship-management-(crm).svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 19,
+    "fields": {
+        "name": "Digital Marketing",
+        "value": "digital-marketing",
+        "category": "Marketing",
+        "icon": "digital-marketing.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 20,
+    "fields": {
+        "name": "Content Marketing",
+        "value": "content-marketing",
+        "category": "Marketing",
+        "icon": "content-marketing.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 21,
+    "fields": {
+        "name": "Public Relations (PR)",
+        "value": "public-relations-(pr)",
+        "category": "Marketing",
+        "icon": "public-relations-(pr).svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 22,
+    "fields": {
+        "name": "Community Management",
+        "value": "community-management",
+        "category": "Marketing",
+        "icon": "community-management.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 23,
+    "fields": {
+        "name": "Game Development",
+        "value": "game-development",
+        "category": "Engineering",
+        "icon": "game-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 24,
+    "fields": {
+        "name": "Mobile App Development",
+        "value": "mobile-app-development",
+        "category": "Engineering",
+        "icon": "mobile-app-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 25,
+    "fields": {
+        "name": "Database Management",
+        "value": "database-management",
+        "category": "Engineering",
+        "icon": "database-management.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 26,
+    "fields": {
+        "name": "Frontend Development",
+        "value": "frontend-development",
+        "category": "Engineering",
+        "icon": "frontend-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 27,
+    "fields": {
+        "name": "Backend Development",
+        "value": "backend-development",
+        "category": "Engineering",
+        "icon": "backend-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 28,
+    "fields": {
+        "name": "Fullstack Development",
+        "value": "fullstack-development",
+        "category": "Engineering",
+        "icon": "fullstack-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 29,
+    "fields": {
+        "name": "Blockchain Development",
+        "value": "blockchain-development",
+        "category": "Engineering",
+        "icon": "blockchain-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 30,
+    "fields": {
+        "name": "Trading Algorithm Development",
+        "value": "trading-algorithm-development",
+        "category": "Engineering",
+        "icon": "trading-algorithm-development.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 31,
+    "fields": {
+        "name": "Quality Assurance",
+        "value": "quality-assurance",
+        "category": "Engineering",
+        "icon": "quality-assurance.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 32,
+    "fields": {
+        "name": "Cloud & DevOps",
+        "value": "cloud-&-devops",
+        "category": "Engineering",
+        "icon": "cloud-&-devops.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 33,
+    "fields": {
+        "name": "Cybersecurity",
+        "value": "cybersecurity",
+        "category": "Engineering",
+        "icon": "cybersecurity.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 34,
+    "fields": {
+        "name": "Data Analysis",
+        "value": "data-analysis",
+        "category": "Data",
+        "icon": "data-analysis.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 35,
+    "fields": {
+        "name": "Data Analytics",
+        "value": "data-analytics",
+        "category": "Data",
+        "icon": "data-analytics.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 36,
+    "fields": {
+        "name": "Data Science",
+        "value": "data-science",
+        "category": "Data",
+        "icon": "data-science.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 37,
+    "fields": {
+        "name": "Data Engineering",
+        "value": "data-engineering",
+        "category": "Data",
+        "icon": "data-engineering.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 38,
+    "fields": {
+        "name": "Artificial Intelligence",
+        "value": "artificial-intelligence",
+        "category": "Data",
+        "icon": "artificial-intelligence.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 39,
+    "fields": {
+        "name": "Project Management",
+        "value": "project-management",
+        "category": "Operations",
+        "icon": "project-management.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 40,
+    "fields": {
+        "name": "IT Administration",
+        "value": "it-administration",
+        "category": "Operations",
+        "icon": "it-administration.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 41,
+    "fields": {
+        "name": "Customer Support",
+        "value": "customer-support",
+        "category": "Operations",
+        "icon": "customer-support.svg",
+        "description": ""
+    }
+},
+{
+    "model": "compasaiv2_app.skill",
+    "pk": 42,
+    "fields": {
+        "name": "Virtual Assistant",
+        "value": "virtual-assistant",
+        "category": "Operations",
+        "icon": "virtual-assistant.svg",
+        "description": ""
+    }
+}
+]
