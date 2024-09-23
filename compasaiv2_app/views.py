@@ -856,7 +856,6 @@ def signup(request):
            
 
     if request.method == 'POST':
-        print("post methoddd")
         email = request.POST.get('email', '')
         password = request.POST.get('password', '')
         ref_code = request.POST.get('ref_code', '')
@@ -882,6 +881,7 @@ def signup(request):
                             send_activation_email(request, user, email)
                             
                         except:
+                            ref_profile = None
                             #send_activation_email(request, user, email)
                             #return JsonResponse({'message': 'activate'})
                             pass
@@ -907,7 +907,9 @@ def signup(request):
                     send_activation_email(request, user, email)
                     
                 except:
-                    send_activation_email(request, user, email)
+                    profile.is_confirmed = True
+                    profile.save()
+                    #send_activation_email(request, user, email)
                     #return JsonResponse({'message': 'activate'})
                     
                 stage = "CONFIRM"
