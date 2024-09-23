@@ -4468,7 +4468,7 @@ line-height: 16px; /* 133.333% */
    
 }
 
-.path__body-my-paths-body-item-img.recommended img {
+.path__body-my-paths-body-item-img.recommended{
     width: 50%;
 }
 .path__body-my-paths-body-item a {
