@@ -97,7 +97,7 @@
                 <a href="/roadmap" class="path-detail__section-header-left-btns-roadmap">
                     View roadmap
                 </a>
-                {% elif active_path != None && path != None %}
+                {% elif active_path != None %}
                 <span class="path-detail__section-header-left-btns-learning"
                         hx-post="{% url 'enrol_path_loader' profile.username skill.value %}"
                         hx-trigger="click"

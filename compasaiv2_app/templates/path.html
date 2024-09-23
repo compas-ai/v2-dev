@@ -19,7 +19,7 @@
                 {% for skill in my_skills %}
                 <div class="path__body-my-paths-body-item">
                   <a href="{% url 'path_detail' skill.suggested_skill.value %}">
-                    <div class="path__body-my-paths-body-item-img ">
+                    <div class="path__body-my-paths-body-item-img recommended">
                       <img src="{% static 'images/paths/' %}{{ skill.suggested_skill.icon }}" alt="Skill Image"  onerror="this.onerror=null; this.src='{% static 'images/paths/default.svg' %}';">
                     </div>
                     <div class="path__body-my-paths-body-item-title">

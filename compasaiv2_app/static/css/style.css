@@ -4467,6 +4467,10 @@ line-height: 16px; /* 133.333% */
     margin: 0 1rem;
    
 }
+
+.path__body-my-paths-body-item-img.recommended img {
+    width: 50%;
+}
 .path__body-my-paths-body-item a {
     display: flex;
     flex-direction: column;
