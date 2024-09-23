@@ -3548,10 +3548,10 @@ def generate_code():
 def add_community():
     skills = Skill.objects.all()
     for skill in skills:
-        Community.objects.create(name=skill)
+        Community.objects.get_or_create(name=skill)
         print("djsj")
 
-#add_community()
+add_community()
 
 def update_skills():
     skills = Skill.objects.all()
