@@ -190,7 +190,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET')
 # Add social auth URLs
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
-SITE_ID = 1
+SITE_ID = 2
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
