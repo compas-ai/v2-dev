@@ -837,7 +837,6 @@ def confirm_email(request, email):
 
 @csrf_exempt
 def signup(request):
-    add_community()
     stage = "EMAIL"
 
     if request.user.is_authenticated == True:
@@ -3547,13 +3546,12 @@ def generate_code():
         return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 
 def add_community():
-    print("sghcvbs")
     skills = Skill.objects.all()
     for skill in skills:
         Community.objects.get_or_create(name=skill)
         print("djsj")
 
-
+#add_community()
 
 def update_skills():
     skills = Skill.objects.all()
