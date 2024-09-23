@@ -916,15 +916,18 @@ def signup(request):
         elif(password):
             stage = "PASSWORD"
             print(password)
-            if request.user.check_password('12345'):
-                request.user.set_password(password)
-                request.user.save()
-                print("password changed")
-                update_session_auth_hash(request, request.user)
-                return redirect('onboarding')
+            if request.user.is_authenticated:
+                if request.user.check_password('12345'):
+                    request.user.set_password(password)
+                    request.user.save()
+                    print("password changed")
+                    update_session_auth_hash(request, request.user)
+                    return redirect('onboarding')
+                else:
+                    return redirect('onboarding')
             else:
-                return redirect('onboarding')
-            
+                # Handle the case for unauthenticated users, like redirecting to login or displaying a message
+                return redirect('login')
                
     context = {
                     "stage": stage,
@@ -958,12 +961,13 @@ def login(request):
             user_prof = User.objects.get(email=email)
             profile = Profile.objects.get(user=user_prof)
             if profile.is_confirmed == False:
+                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return JsonResponse({'wrong': True, 'reason': 'Please confirm your email', 'no_password': False, 'is_confirmed': True, 'email': email})
             elif user_prof.check_password('12345'):
+                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return JsonResponse({'wrong': True, 'reason': 'Password has not been set for this account', 'no_password': True, 'is_confirmed': False})
             else:
-                print(user_prof.check_password('#Bobwebniche2002#'))
-                print("na here oooo")
+               
                 return JsonResponse({'wrong': True, 'reason': 'Password is incorrect.', 'no_password': False, 'is_confirmed': False})
 
     return render(request, 'login.html')
