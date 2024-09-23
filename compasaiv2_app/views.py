@@ -961,10 +961,10 @@ def login(request):
             user_prof = User.objects.get(email=email)
             profile = Profile.objects.get(user=user_prof)
             if profile.is_confirmed == False:
-                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                auth.login(request, user_prof, backend='django.contrib.auth.backends.ModelBackend')
                 return JsonResponse({'wrong': True, 'reason': 'Please confirm your email', 'no_password': False, 'is_confirmed': True, 'email': email})
             elif user_prof.check_password('12345'):
-                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                auth.login(request, user_prof, backend='django.contrib.auth.backends.ModelBackend')
                 return JsonResponse({'wrong': True, 'reason': 'Password has not been set for this account', 'no_password': True, 'is_confirmed': False})
             else:
                
