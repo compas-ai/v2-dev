@@ -1,0 +1,1063 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="meetings__section">
+    <div class="meetings__section-header">
+        <a  href="/meetings" class="return_btn show">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7.97533 4.94141L2.91699 9.99974L7.97533 15.0581" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17.0836 10H3.05859" stroke="#023835" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            Back
+        </a>
+    </div>
+   
+    <div class="meetings__section-body">
+        <div class="meetings__section-body-left">
+            <div class="meetings__section-body-left-header">
+                <span class="meetings__section-body-left-header-title">
+                    New Event Type
+                </span>
+                <span class="meetings__section-body-left-header-subtitle">
+                    Fill all the information accordingly..
+                </span>
+            </div>
+            <div class="meetings__section-body-left-items">
+                <div class="meetings__section-body-left-item">
+                    <label for="">Select Session type*</label>
+                   
+                    <div class="book-a-session__section-container-body-info-body">
+                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                <i class='bx bx-coffee'></i>
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                Coffee Chat
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                Casual chat with mentor, anything.
+                            </span>
+                            <span class="created_session">Active</span>
+                           
+                        </div>
+                        <!-- <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="office_hours" data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                <i class='bx bxs-buildings' ></i>
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                Office Hours
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                Workshop with mentor and peers.
+                            </span>
+                            <span class="created_session">Active</span>
+                           
+                        </div> -->
+                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="speed_networking" data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                <i class='bx bx-bolt-circle'></i>
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                Speed Networking
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                Spend your time Networking
+                            </span>
+                            <span class="created_session">Active</span>
+                           
+                        </div>
+                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="mock_interview" data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                <i class='bx bxs-microphone-alt' ></i>
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                Mock Interview
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                Run practice interviews with mentor.
+                            </span>
+                            <span class="created_session">Active</span>
+                            
+                        </div>
+                        <!-- <div class="book-a-session__section-container-body-info-item disabled" onclick="toggleActiveSession(this)" data-value="check_ins" data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                <i class='bx bx-list-check' ></i>
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                Check Ins
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                Continuous accountability sessions.
+                            </span>
+                            <span class="created_session">Active</span>
+                            
+                        </div> -->
+                    </div>
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="">Event duration*</label>
+                    <select name="" id="event_duration">
+                        <option value="30">30 mins</option>
+                        <option value="60">60 mins</option>
+                        <option value="90">90 mins</option>
+                        <option value="120">120 mins</option>
+                        <option value="150">150 mins</option>
+                        <option value="180">180 mins</option>
+                    </select>
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="">Event Type*</label>
+                    <select class="disabled" name="" id="event_type" onchange="toggleEventType(this)">
+                        <option value="one_time">One Time</option>
+                        <option value="recurring">Recurring</option>
+                    </select>
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="">Event Frequency (If event type is recurring)</label>
+                    <input class="disabled" id="event_frequency" type="number" value="1">
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="">Location*</label>
+                    <div class="meetings__section-body-left-item-container location">
+                        <span class="active" id="video_call" data-id="video_call">
+                            <i class='bx bx-video' ></i>
+                            Video Call
+                        </span>
+                        <span class="disabled"  id="phone_call" data-id="phone_call">
+                            <i class='bx bx-phone' ></i>
+                            Phone Call
+                        </span>
+                        <span class="disabled"  id="in_person" data-id="in_person">
+                            <i class='bx bx-current-location' ></i>
+                           In-person
+                        </span>
+                        <span class="disabled"  id="ask_learner" data-id="ask_learner">
+                            <i class='bx bx-message-square-dots' ></i>
+                            Ask learner
+                        </span>
+                    </div>
+                    
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="meeting_link">Meeting Access (Link, Phone e.t.c)*</label>
+                    <input type="text" placeholder="e.g meet.google.com/" id="meeting_link">
+                </div>
+                <div class="meetings__section-body-left-item-title">
+                    <span>
+                        Availability Schedule
+                    </span>
+                    
+                </div>
+                <div class="meetings__section-body-left-item-availability">
+                   
+                    <div class="meetings__section-body-left-item-availability-header">
+                        <span>
+                            <label for="">Start Date</label>
+                            <input type="date" class="start-date" id="available_start_date">
+                        </span>
+                        <span>
+                            <label for="">End Date</label>
+                            <input type="date" class="end-date" id="available_end_date">
+                        </span>
+                       
+                    </div>
+                    
+                   
+                    <div class="meetings__section-body-left-item-availability-body">
+                        <div class="meetings__section-body-left-item-availability-body-top">
+                            <span class="meetings__section-body-left-item-availability-body-top-duration">
+                                No Duration Selected yet
+                            </span>
+                            <span class="meetings__section-body-left-item-availability-body-top-timezone">
+                                <select id="timezone-select">
+                                    <option value="WAT" selected>West African Time (WAT)</option>
+                                    <option value="UTC">Coordinated Universal Time (UTC)</option>
+                                    <option value="CET">Central European Time (CET)</option>
+                                    <option value="EST">Eastern Standard Time (EST)</option>
+                                    <option value="PST">Pacific Standard Time (PST)</option>
+                                    <option value="GMT">Greenwich Mean Time (GMT)</option>
+                                    <option value="IST">Indian Standard Time (IST)</option>
+                                    <option value="JST">Japan Standard Time (JST)</option>
+                                    <!-- Add more timezones as needed -->
+                                </select>
+                            </span>
+                           
+                        </div>
+                        <div class="meetings__section-body-left-item-availability-body-container">
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox">
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        SUN
+                                    </span>
+                                   
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                   <span class="time_unavailable">Unavailable</span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' style="display: none;" ></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox" checked>
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        MON
+                                    </span>
+                                    
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                    <span>
+                                        <select class="start_time_val">
+                <!-- Options will be populated here -->
+            </select>
+                                    </span>
+                                     <span class="time_divider"> - </span>
+                                    <span>
+                                       <select class="end_time_val">
+           <!-- Options will be populated here -->
+ </select>
+                                    </span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' ></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox" checked>
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        TUE
+                                    </span>
+                                   
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                    <span>
+                                        <select class="start_time_val">
+                <!-- Options will be populated here -->
+            </select>
+                                    </span>
+                                     <span class="time_divider"> - </span>
+                                    <span>
+                                       <select class="end_time_val">
+           <!-- Options will be populated here -->
+ </select>
+                                    </span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' ></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox" checked>
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        WED
+                                    </span>
+                                    
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                    <span>
+                                        <select class="start_time_val">
+                                            <!-- Options will be populated here -->
+                                        </select>
+                                    </span>
+                                     <span class="time_divider"> - </span>
+                                    <span>
+                                       <select class="end_time_val">
+           <!-- Options will be populated here -->
+ </select>
+                                    </span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' ></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox" checked>
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        THU
+                                    </span>
+                                   
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                    <span>
+                                        <select class="start_time_val">
+                <!-- Options will be populated here -->
+            </select>
+                                    </span>
+                                     <span class="time_divider"> - </span>
+                                    <span>
+                                       <select class="end_time_val">
+           <!-- Options will be populated here -->
+ </select>
+                                    </span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' ></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox" checked>
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        FRI
+                                    </span>
+                                   
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                    <span>
+                                        <select class="start_time_val">
+                <!-- Options will be populated here -->
+            </select>
+                                    </span>
+                                     <span class="time_divider"> - </span>
+                                    <span>
+                                       <select class="end_time_val">
+           <!-- Options will be populated here -->
+ </select>
+                                    </span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' ></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="meetings__section-body-left-item-availability-day">
+                                <div class="meetings__section-body-left-item-availability-day-left">
+                                    <span class="meetings__section-body-left-item-availability-day-active">
+                                        <input type="checkbox" >
+                                    </span>
+                                    <span class="meetings__section-body-left-item-availability-day-value">
+                                        SAT
+                                    </span>
+                                   
+
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-times">
+                                    <span class="time_unavailable">Unavailable</span>
+                                </div>
+                                <div class="meetings__section-body-left-item-availability-day-right">
+                                    <span>
+                                        <i class='bx bx-copy' style="display: none;" ></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+                </div>
+                <div class="meetings__section-body-left-item-title">
+                    <span>
+                        Session Info
+                    </span>
+                    
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="">Session Rate (USD)*</label>
+                    <span class="meetings__section-body-left-item-comment">20% platform fee</span>
+                    <input type="number" placeholder="USD" id="session_amount">
+                </div>
+                <div class="meetings__section-body-left-item">
+                    <label for="">About Session*</label>
+                    <textarea name="" id="session_about" placeholder="What to expect in the session"></textarea>
+                </div>
+                <div class="meetings__section-body-left-button" onclick="displayFunction()">
+                    <span>
+                        Preview session
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="meetings__section-body-right">
+            <div class="meetings__section-body-right-container">
+                <div class="meetings__section-body-right-container-header">
+                    <span>
+                        Preview
+                    </span>
+                </div>
+                <div class="meetings__section-body-right-container-body">
+                    <div class="book-a-session__section-container-body">
+                        <span class="book-a-session__section-container-body-title">
+                            Session Details
+                        </span>
+                        <a href="{% url 'profile' profile.username %}" class="book-a-session__section-container-body-profile">
+                          <div class="book-a-session__section-container-body-img">
+                            {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" alt="">
+                            {% else %}
+                            <img  src="{% static 'images/ava.png'%}" alt="">
+                            {% endif %}
+                              <span class="active-indicator"></span>
+                          </div>
+                          <div class="book-a-session__section-container-body-profile-info">
+                              <span class="book-a-session__section-container-body-profile-info-role">
+                                  {{profile.display_name}}
+                              </span>
+                              <span class="book-a-session__section-container-body-profile-info-bio">
+                                  {{profile.bio}}
+                              </span>
+                          </div>
+                        </a>
+                        <div class="book-a-session__section-container-body-info">
+                            
+                            <div class="book-a-session__section-container-body-info-body">
+                                <div class="book-a-session__section-container-body-info-item" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
+                                    <span class="book-a-session__section-container-body-info-item-icon">
+                                        <i class='bx bx-coffee'></i>
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-amount">
+                                        $15
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-title">
+                                        Coffee Chat
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-subtitle session_about">
+                                       
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-subtitle session_info">
+                                        30 Minutes | Recurring (2 times)
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-subtitle session_location">
+                                        <i class='bx bx-video' ></i> Google Meet
+                                    </span>
+                                   
+                                </div>
+                            </div>
+                
+                          <div class="note__section" id="note">
+                                <div class="note__section-header">
+                                    <div class="note__section-header-title">
+                                        <span>
+                                            Availability Details
+                                        </span>
+                                    </div>
+                                    <div class="note__section-header-info">
+                                        <div class="note__section-header-info-item">
+                                            <span id="booking_info_date_preview">
+                                                From Sep 7, 2024 to Oct 9, 2024
+                                            </span>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="note__section-header-info-items">
+                                        
+                                    
+                                    </div>
+                                
+                                </div>
+                        
+                                <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}">
+                                    <span>
+                                        Confirm Session
+                                    </span>
+                                </div>
+                          </div>
+                            
+                       
+                        </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    function submitBooking()
+        {
+            const selectedSessionContainer = document.querySelector('.book-a-session__section-container-body-info-item.active'); 
+            const selectedSession = selectedSessionContainer.getAttribute('data-value');
+            const eventDuration = document.getElementById('event_duration').value;
+            const eventType = document.getElementById('event_type').value;
+            const eventFrequency = document.getElementById('event_frequency').value;
+            const eventlocationSpan = document.querySelector('.meetings__section-body-left-item-container.location span.active')
+            const eventlocation = eventlocationSpan.getAttribute('data-id');
+            const eventStartDate = document.getElementById('available_start_date').value;
+            const eventEndDate =  document.getElementById('available_end_date').value;
+            const eventAmount = document.getElementById('session_amount').value;
+            const eventAbout = document.getElementById('session_about').value;
+            const eventTimes = JSON.stringify(getSelectedTimes());
+            const meetingLink = document.getElementById('meeting_link').value;
+
+            var formData = new FormData();
+            var csrfToken = getCookie('csrftoken');
+ 
+            formData.append('session', selectedSession);
+            formData.append('duration', eventDuration);
+            formData.append('type', eventType);
+            formData.append('frequency', eventFrequency);
+            formData.append('location', eventlocation);
+            formData.append('start_date', eventStartDate);
+            formData.append('end_date', eventEndDate);
+            formData.append('amount', eventAmount);
+            formData.append('about', eventAbout);
+            formData.append('times', eventTimes);
+            formData.append('link', meetingLink);
+          
+            $.ajax({
+                url: '/new_session',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                data: formData,
+                processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+                contentType: false, 
+                success: function (response) {
+                    window.location.href = '/meetings'
+                },
+                error: function (xhr, status, error) {
+                   
+                }
+            });
+        }
+
+        function getCookie(name) {
+            var cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+</script>
+
+
+<script>
+
+function checkFormCompletion() {
+    const sessionItems = document.querySelectorAll('.book-a-session__section-container-body-info-item');
+    const eventDuration = document.getElementById('event_duration');
+    const eventType = document.getElementById('event_type');
+    const eventDate = document.querySelector('#available_start_date');
+    const eventFrequency = document.getElementById('event_frequency');
+    const sessionAmount = document.getElementById('session_amount');
+    const sessionAbout = document.getElementById('session_about');
+    const previewButton = document.querySelector('.meetings__section-body-left-button');
+    const meetingLink = document.getElementById('meeting_link');
+
+    let activeSessionSelected = false;
+    let allInputsFilled = true;
+
+    // Check if there is an active session item
+    sessionItems.forEach(item => {
+        if (!item.classList.contains('disabled') && item.classList.contains('active')) {
+            activeSessionSelected = true;
+        }
+    });
+
+    console.log(eventDate.value);
+    // Check if all required inputs are filled
+    if (!eventDuration.value || !meetingLink.value || !eventType.value || (eventType.value === "recurring" && !eventFrequency.value) ||
+        !sessionAmount.value || !sessionAbout.value || !activeSessionSelected || eventDate.value == '') {
+        allInputsFilled = false;
+    }
+
+    // Enable or disable the preview button based on the checks
+    if (allInputsFilled) {
+        previewButton.classList.remove('disabled');
+    } else {
+        previewButton.classList.add('disabled');
+    }
+}
+
+// Add event listeners to inputs and session items
+document.addEventListener('DOMContentLoaded', () => {
+    // Add change event listeners for the required fields
+    const inputs = document.querySelectorAll('select, input, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', checkFormCompletion);
+    });
+
+    // Initial check on page load
+    checkFormCompletion();
+});
+
+// Function to toggle active session
+
+
+</script>
+
+<script>
+    // Function to populate select elements with time options
+    function populateTimeSelects() {
+    const startTimeSelects = document.querySelectorAll('.start_time_val');
+    const endTimeSelects = document.querySelectorAll('.end_time_val');
+
+    // Generate options for 30-minute intervals
+    let options = '';
+    for (let hour = 0; hour < 24; hour++) {
+        for (let minute of [0, 30]) {
+            const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            // Set selected for default start and end times
+            const isStartSelected = time === '07:00' ? 'selected' : '';
+            const isEndSelected = time === '23:30' ? 'selected' : '';
+            options += `<option value="${time}" ${isStartSelected || isEndSelected}>${time}</option>`;
+        }
+    }
+
+    // Populate the selects
+    startTimeSelects.forEach(select => {
+        select.innerHTML = options;
+        select.value = '07:00'; // Set default start time
+    });
+    endTimeSelects.forEach(select => {
+        select.innerHTML = options;
+        select.value = '23:30'; // Set default end time
+    });
+}
+
+// Call the function to populate the selects
+populateTimeSelects();
+
+   function displayFunction()
+    {
+        
+        const previewContainer = document.querySelector('.meetings__section-body-right');
+        previewContainer.style.display = 'block';
+        scrollToPreview();
+
+        const selectedSessionContainer = document.querySelector('.book-a-session__section-container-body-info-item.active'); 
+        const selectedSession = selectedSessionContainer.getAttribute('data-value');
+        const selectedTitle = selectedSessionContainer.querySelector('.book-a-session__section-container-body-info-item-title');
+        const selectedIcon = selectedSessionContainer.querySelector('.book-a-session__section-container-body-info-item-icon');
+        const eventDuration = document.getElementById('event_duration').value;
+        const eventType = document.getElementById('event_type').value;
+        const eventFrequency = document.getElementById('event_frequency').value;
+        const eventlocationSpan = document.querySelector('.meetings__section-body-left-item-container.location span.active')
+        const eventlocation = eventlocationSpan.getAttribute('data-id');
+        const meetingLink = document.getElementById('meeting_link').value;
+        const eventDates = updateDurationText();
+        const eventAmount = document.getElementById('session_amount').value;
+        const eventAbout = document.getElementById('session_about').value;
+
+        const previewSessionIcon = document.querySelector('.meetings__section-body-right .book-a-session__section-container-body-info-item-icon');
+        const previewSessionTitle = document.querySelector('.meetings__section-body-right .book-a-session__section-container-body-info-item-title');
+        const previewSessionAmount = document.querySelector('.meetings__section-body-right .book-a-session__section-container-body-info-item-amount');
+        const previewSessionAbout = document.querySelector('.meetings__section-body-right .book-a-session__section-container-body-info-item-subtitle.session_about');
+        const previewSessionInfo = document.querySelector('.meetings__section-body-right .book-a-session__section-container-body-info-item-subtitle.session_info');
+        const previewSessionLocation = document.querySelector('.meetings__section-body-right .book-a-session__section-container-body-info-item-subtitle.session_location');
+        const previewSessionDates = document.getElementById('booking_info_date_preview');
+        const previewMeetinLink = document.querySelector(".book-a-session__section-container-body-info-item-subtitle.session_location");
+        previewSessionIcon.innerHTML = selectedIcon.innerHTML;
+        previewSessionTitle.textContent = selectedTitle.textContent;        
+        previewSessionAmount.textContent = '$' + eventAmount;
+        previewSessionAbout.textContent = eventAbout;
+        previewMeetinLink.innerHTML = `<i class='bx bx-video' > ${meetingLink}`;
+        var eventTypeFormat = ''
+
+        if (eventType == 'one_time')
+            {
+                eventTypeFormat = 'One Time'
+            } else 
+            {
+                eventTypeFormat = `Recurring (${eventFrequency})`
+            }
+        previewSessionInfo.textContent = eventDuration + 'minutes | ' + eventTypeFormat;
+
+        previewSessionDates.textContent = eventDates
+        console.log(getSelectedTimes())
+        populateBookingInfo(getSelectedTimes());
+        
+    }
+    function populateBookingInfo(availability) {
+        // Parse the JSON if it's in string format
+       //const availability = JSON.parse(availabilityJSON);
+
+        // Get the container where the booking info will be added
+        const bookingInfoContainer = document.querySelector('.note__section-header-info-items');
+        
+        // Clear any previous content
+        bookingInfoContainer.innerHTML = '';
+
+        // Loop through the availability array and create HTML for each item
+        availability.forEach(item => {
+            // Create a div for the booking info
+            const bookingInfo = document.createElement('div');
+            bookingInfo.classList.add('note__section-header-info');
+
+            // Create the date section
+            const dateItem = document.createElement('div');
+            dateItem.classList.add('note__section-header-info-item');
+            dateItem.innerHTML = `
+                <i class='bx bx-calendar'></i>
+                <span id="booking_info_date">Every ${getDayName(item.day)}</span>
+            `;
+
+            // Create the time section
+            const timeItem = document.createElement('div');
+            timeItem.classList.add('note__section-header-info-item');
+            timeItem.innerHTML = `
+                <i class='bx bx-time-five'></i>
+                 <span id="booking_info_time">${formatTime(item.start_time)} - ${formatTime(item.end_time)}</span>
+            `;
+
+            // Append the date and time to the bookingInfo div
+            bookingInfo.appendChild(dateItem);
+            bookingInfo.appendChild(timeItem);
+
+            
+
+            // Append the booking info to the main container
+            bookingInfoContainer.appendChild(bookingInfo);
+    });
+}
+
+// Helper function to get full day names from abbreviations
+function getDayName(abbreviation) {
+    const days = {
+        SUN: "Sunday",
+        MON: "Monday",
+        TUE: "Tuesday",
+        WED: "Wednesday",
+        THU: "Thursday",
+        FRI: "Friday",
+        SAT: "Saturday"
+    };
+    return days[abbreviation] || abbreviation;
+}
+
+// Helper function to format time (e.g., "09:00" -> "9:00 AM")
+function formatTime(time) {
+    const [hour, minute] = time.split(':');
+    let formattedTime = '';
+    let period = 'AM';
+
+    let hourInt = parseInt(hour);
+    if (hourInt >= 12) {
+        period = 'PM';
+        if (hourInt > 12) hourInt -= 12;
+    } else if (hourInt === 0) {
+        hourInt = 12;
+    }
+
+    formattedTime = `${hourInt}:${minute} ${period}`;
+    return formattedTime;
+}
+
+function getSelectedTimes() {
+    const availabilityItems = document.querySelectorAll('.meetings__section-body-left-item-availability-day');
+    const selectedTimes = [];
+
+    availabilityItems.forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        const day = item.querySelector('.meetings__section-body-left-item-availability-day-value').innerText.trim();
+        const startTimeInput = item.querySelector('.start_time_val');
+        const endTimeInput = item.querySelector('.end_time_val');
+
+        if (checkbox.checked) {
+            const startTime = startTimeInput ? startTimeInput.value : null;
+            const endTime = endTimeInput ? endTimeInput.value : null;
+
+            if (startTime) {
+                // If end time is not specified, set it to "23:59"
+                const finalEndTime = endTime || "23:59";
+
+                selectedTimes.push({
+                    day: day,
+                    "start_time": startTime,
+                    "end_time": finalEndTime
+                });
+            } else {
+                // If start time is not available, set both times to "Unavailable"
+                selectedTimes.push({
+                    day: day,
+                    "start_time": "Unavailable",
+                    "end_time": "Unavailable"
+                });
+            }
+        }
+    });
+
+    return selectedTimes;
+}
+
+
+    function scrollToPreview() {
+    const chatBody = document.querySelector('.meetings__section-body-right');
+
+    // Scroll the entire page to the top of the preview container
+    chatBody.scrollIntoView({
+        behavior: 'smooth',  // Enables smooth scrolling
+        block: 'start'       // Align the container to the top of the page
+    });
+}
+
+    // Function to format date to 'Month Day, Year' (e.g., 'Sep 7, 2024')
+    function formatDateToMonthDayYear(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // Function to update the duration text
+    function updateDurationText() {
+        const startDateInput = document.querySelector('.start-date');
+        const endDateInput = document.querySelector('.end-date');
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+       
+        var durationSpan = ''
+
+        if (startDate) {
+            const formattedStart = formatDateToMonthDayYear(startDate);
+             if (endDate) {
+                const formattedEnd = formatDateToMonthDayYear(endDate);
+                durationSpan = `From ${formattedStart} to ${formattedEnd}`;
+            } else {
+                durationSpan  = `From ${formattedStart} to Indefinite`;
+            }
+        } else {
+            durationSpan = "No Date Selected";
+        }
+
+        return durationSpan
+    }
+
+
+</script>
+
+
+<script>
+    // Select the span elements
+    const menuSpans = document.querySelectorAll('.meetings__section-body-left-item-container span');
+
+    // Function to toggle the active class and trigger specific functions
+    menuSpans.forEach(span => {
+        span.addEventListener('click', () => {
+            // Remove the 'active' class from all spans
+            menuSpans.forEach(item => item.classList.remove('active'));
+            
+            // Add 'active' class to the clicked span
+            span.classList.add('active');
+        });
+    });
+
+    function toggleEventType(element)
+        {
+            if (element.value == 'recurring')
+                {
+                    const eventFrequency = document.getElementById('event_frequency');
+                    eventFrequency.classList.remove('disabled');
+            } else {
+                    const eventFrequency = document.getElementById('event_frequency');
+                    eventFrequency.classList.add('disabled');
+                }
+        }
+
+    function toggleActiveSession(selectedElement) {
+         
+          // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+          const elements = document.getElementsByClassName('book-a-session__section-container-body-info-item');
+          
+          // Remove the 'active' class from all elements
+          for (let element of elements) {
+              element.classList.remove('active');
+          }
+          
+          // Add the 'active' class to the clicked element
+          selectedElement.classList.add('active');
+          const session = selectedElement.getAttribute('data-value');
+          const username = selectedElement.getAttribute('data-mentor');
+          const eventType = document.getElementById('event_type');
+          const eventFrequency = document.getElementById('event_frequency');
+          if (session == 'office_hours' || session == 'check_ins')
+            {
+                eventType.value = 'recurring'
+                eventType.classList.add('disabled');
+                eventFrequency.classList.remove('disabled');
+                eventFrequency.value = 4
+            } else {
+                eventType.value = 'one_time'
+                eventType.classList.remove('disabled');
+                eventFrequency.classList.add('disabled');
+                eventFrequency.value = 1
+            }
+            checkFormCompletion();
+      
+      }
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    // Get all day elements
+    const dayElements = document.querySelectorAll(".meetings__section-body-left-item-availability-day");
+
+    dayElements.forEach((dayElement) => {
+        const checkbox = dayElement.querySelector('input[type="checkbox"]');
+        const timeContainer = dayElement.querySelector(".meetings__section-body-left-item-availability-day-times");
+        const copyIcon = dayElement.querySelector(".bx-copy");
+
+        // Toggle between Unavailable and Time inputs
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                // Show time inputs
+                timeContainer.innerHTML = `
+                     <span>
+                                <select class="start_time_val">
+                                <!-- Options will be populated here -->
+                            </select>
+                            </span>
+                                <span class="time_divider"> - </span>
+                            <span>
+                                <select class="end_time_val">
+                                        <!-- Options will be populated here -->
+                                </select>
+                            </span>
+                `;
+                populateTimeSelects();
+                if (copyIcon) copyIcon.style.display = "inline"; // Show copy icon
+            } else {
+                // Show "Unavailable"
+                timeContainer.innerHTML = `<span class="time_unavailable">Unavailable</span>`;
+                if (copyIcon) copyIcon.style.display = "none"; // Hide copy icon
+            }
+        });
+
+        // Copy functionality
+        if (copyIcon) {
+            copyIcon.addEventListener("click", () => {
+                const clonedDay = dayElement.cloneNode(true);
+
+                // Add remove icon only for cloned items
+                const removeIconHTML = `<i class='bx bx-trash'></i>`;
+                const clonedRightSection = clonedDay.querySelector(".meetings__section-body-left-item-availability-day-right");
+                clonedRightSection.innerHTML += removeIconHTML;
+
+                // Insert cloned day below the original
+                dayElement.after(clonedDay);
+
+                // Get cloned checkbox, time inputs, and remove icon
+                const clonedCheckbox = clonedDay.querySelector('input[type="checkbox"]');
+                const clonedCopy = clonedDay.querySelector('.bx-copy');
+                clonedCopy.style.display = "none";
+                const clonedTimeContainer = clonedDay.querySelector(".meetings__section-body-left-item-availability-day-times");
+                const removeIcon = clonedDay.querySelector(".bx-trash");
+
+                // Copy state (checkbox, time values)
+                clonedCheckbox.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    const originalTimeInputs = dayElement.querySelectorAll('select');
+                    const clonedTimeInputs = clonedTimeContainer.querySelectorAll('select');
+                    clonedTimeInputs[0].value = originalTimeInputs[0].value;
+                    clonedTimeInputs[1].value = originalTimeInputs[1].value;
+                }
+
+                // Attach checkbox event listener to cloned checkbox (for unavailable/time toggle)
+                clonedCheckbox.addEventListener("change", () => {
+                    if (clonedCheckbox.checked) {
+                        clonedTimeContainer.innerHTML = `
+                            <span>
+                                <select class="start_time_val">
+                                <!-- Options will be populated here -->
+                            </select>
+                            </span>
+                                <span class="time_divider"> - </span>
+                            <span>
+                                <select class="end_time_val">
+                                        <!-- Options will be populated here -->
+                                </select>
+                            </span>
+                        `;
+                        const clonedCopyIcon = clonedDay.querySelector(".bx-copy");
+                        clonedCopyIcon.style.display = "inline"; // Show copy icon
+                    } else {
+                        clonedTimeContainer.innerHTML = `<span class="time_unavailable">Unavailable</span>`;
+                        const clonedCopyIcon = clonedDay.querySelector(".bx-copy");
+                        clonedCopyIcon.style.display = "none"; // Hide copy icon
+                    }
+                });
+
+                // Remove functionality for cloned items
+                removeIcon.addEventListener("click", () => {
+                    clonedDay.remove();
+                });
+            });
+        }
+    });
+});
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const startDateInput = document.querySelector('.start-date');
+    const endDateInput = document.querySelector('.end-date');
+
+    const durationSpan = document.querySelector('.meetings__section-body-left-item-availability-body-top-duration');
+
+    // Function to format date to 'Month Day, Year' (e.g., 'Sep 7, 2024')
+    function formatDateToMonthDayYear(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // Function to update the duration text
+    function updateDurationText() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+    
+
+        if (startDate) {
+            const formattedStart = formatDateToMonthDayYear(startDate);
+                
+         if (endDate) {
+                const formattedEnd = formatDateToMonthDayYear(endDate);
+                durationSpan.textContent = `${formattedStart} - ${formattedEnd}`;
+            } else {
+                durationSpan.textContent = `${formattedStart} - Indefinite`;
+            }
+        } else {
+            durationSpan.textContent = "Select Dates";
+        }
+    }
+
+    // Event listeners for changes
+    startDateInput.addEventListener("change", updateDurationText);
+    endDateInput.addEventListener("change", updateDurationText);
+
+});
+
+</script>
+
+
+{% endblock main-content %}
+
+{% block title%} Create Session | Compas AI{% endblock %}
+
+{% block meetings %} active{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

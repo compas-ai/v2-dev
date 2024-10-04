@@ -114,7 +114,8 @@
               <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input" placeholder="Search by name, field or company">
             </div>
             
-            <div  id="search-results" class="messages__section-left-bottom-body-inbox large_screen">
+            <div  id="search-results" class="messages__section-left-bottom-body-inbox large_screen"
+           >
               {% if profile.existing_connections %}
                 {% for prof in  profile.existing_connections  %}
                 <div id="{% if prof == user_profile %}active-profile{% endif %}" class="messages__section-left-bottom-body-inbox-item {% if prof == user_profile %} active {% endif %}" onclick="setItemActive(this)"
@@ -157,6 +158,11 @@
                     <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
                       {{prof.last_message_time}}
                     </span>
+                    {% if prof.unread > 0 %}
+                      <span class="messages__section-left-bottom-body-inbox-item-info-unread">
+                          {{prof.unread}}
+                      </span>
+                    {% endif %}
                   </div>
                   {% if prof.is_group == False %}
                   <div class="messages__section-left-bottom-body-inbox-item-menu">
@@ -233,13 +239,16 @@
                   </a>
                   <a href="{% url 'message' prof.username %}"  class="messages__section-left-bottom-body-inbox-item-info">
                     <span class="messages__section-left-bottom-body-inbox-item-info-name">
-                        {{prof.display_name}}
+                        {{prof.display_name}}  
                     </span>
                     <span class="messages__section-left-bottom-body-inbox-item-info-message">
-                      {{prof.last_message}}
+                        {{prof.last_message}}
                     </span>
                     <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
-                      {{prof.last_message_time}}
+                        {{prof.last_message_time}}
+                    </span>
+                    <span class="messages__section-left-bottom-body-inbox-item-info-unread">
+                        {{prof.unread}}
                     </span>
                   </a>
                   {% if prof.is_group == False %}
@@ -326,7 +335,13 @@
 
 
 
-
+   <script>
+      function clearUnread(id)
+        {
+          const element = document.getElementById(`messages__section-left-bottom-body-inbox-item-info-unread-${id}`);
+          element.style.display = 'none';
+        }
+   </script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
@@ -340,6 +355,7 @@
     }
   });
 </script>
+
 <script>
   function setupSearch(inputId, resultsContainerId, notFoundId) {
   const searchInput = document.getElementById(inputId);
@@ -419,6 +435,7 @@ setupSearch('search-input', 'search-results', 'not-found');
 setupSearch('search-input', 'small-search-results', 'not-found');
 
 </script>
+
 <script>
   document.addEventListener('htmx:afterSwap', function(evt) {
       // Update the #small-search-results element with the same content
@@ -426,6 +443,7 @@ setupSearch('search-input', 'small-search-results', 'not-found');
       document.querySelector('#small-search-results').innerHTML = searchResults;
   });
 </script>
+
 <script>
   function setActive(clickedElement) {
       // Remove the 'active' class from all elements with the class 'menu-item'
@@ -454,7 +472,280 @@ setupSearch('search-input', 'small-search-results', 'not-found');
 
 </script>
 
+<script>
+  // <!-- RECEIVING WEB SOCKET -->
+  var chatContainer = document.querySelector('.send_message_btn');
+  var chatBodyConLargeItems =  document.querySelector('.messages__section-right-container-messages-items.large');
+  var chatBodyConDirectItems =  document.querySelector('.messages__section-right-container-messages-items.direct');
+  var chatBodyConSmallItems =  document.querySelector('.messages__section-right-container-messages-items.small');
+  var chatReceiver = chatContainer.getAttribute('data-receiver');
+  var chatIdentifier = chatContainer.getAttribute('data-conversation-id');
+  var chatDisplayName = chatContainer.getAttribute('data-display-name');
+  var typingLargeContainer = document.querySelector('.messages__section-right-container-header-info-status.large');
+  var typingDirectContainer = document.querySelector('.messages__section-right-container-header-info-status.direct');
+  var typingSmallContainer = document.querySelector('.messages__section-right-container-header-info-status.small');
+  var isGroup = chatContainer.getAttribute('data-group');
+ 
+  var doneTypingInterval = 3000; // Time in milliseconds, adjust as needed
 
+  var chatSender;
+  if (isGroup === "True") {
+      // Use 'data-group-sender' if it's a group chat
+      chatSender = chatContainer.getAttribute('data-group-sender');
+  } else {
+      // Use 'data-sender' otherwise
+      chatSender = chatContainer.getAttribute('data-sender');
+  }
+
+  
+  var messageDirectEl = (message, time, sender,  id, images = [], dp) => {
+          var chatEl = document.createElement("div");
+          chatEl.classList.add("messages__section-right-container-messages-item");
+          chatEl.id = `message-${id}`;
+          // Create the images container if there are images
+          var imagesHtml = '';
+          if (images.length > 0) {
+              var imageCount = images.length;
+              imagesHtml = `
+                  <div class="community__section-right-body-container-posts-item-body-media messages ${imageCount === 1 ? 'single-image' : ''}" data-id=${id}>
+              `;
+              
+              images.forEach((image, index) => {
+                  if (index <= 3) {  // Display up to 4 images, similar to your logic
+                      imagesHtml += `
+                          <div class="community__section-right-body-container-posts-item-body-media-item" data-id=${id}>
+                              <img src="${image}" alt="Image" class="image-preview small" data-index=${index}>
+                              ${index === 3 && imageCount > 4 ? `<div class="overlay" data-image-url="${image}" data-id=${id}>
+                                  +${imageCount - 4}
+                              </div>` : ''}
+                          </div>
+                      `;
+                  } else {
+                      imagesHtml += `<img src="${image}" alt="Image" class="image-preview small hide" data-index=${index}>`;
+                  }
+              });
+
+              imagesHtml += `</div>`;
+          }
+
+          var dPImage;
+          var senderHtml;
+
+          if (isGroup == "True")
+          {
+              senderHtml = `<span class="messages__section-right-container-messages-item-name">${sender}</span>`
+          } else {
+              senderHtml = ``
+              
+          }
+          
+
+          if (dp)
+              {
+                  dPImage = dp
+          } else {
+              dPImage = `{% static 'images/ava.png'%}`
+          }
+
+          // Insert the message text and images into the chat element
+          chatEl.innerHTML = `
+               <div class="messages__section-right-container-messages-item-img">
+                  <img  src="${dPImage}" alt="">
+                  <div class="active-indicator-small"></div>
+               </div>
+              <div class="messages__section-right-container-messages-item-container">
+                  ${senderHtml}
+                  ${imagesHtml}
+                  <span class="messages__section-right-container-messages-item-text">${message}</span>
+                  <span class="messages__section-right-container-messages-item-time">${time}</span>
+              </div>
+              <div id="imageSmallModal" class="image-modal">
+                                <span class="close small">&times;</span>
+                                <img class="modal-content" id="modalSmallImage">
+                                <div id="caption"></div>
+                                <div class="modal-btns">
+                                <a class="prev small">&#10094;</a>
+                                <a class="next small">&#10095;</a>
+                                </div>
+                            
+                            </div>
+
+              
+          `;
+          
+          return chatEl;
+      };
+
+  
+
+  const socket = new WebSocket(
+      'ws://'
+      + window.location.host
+      + '/ws/chat/public_room/'
+      + chatIdentifier
+      + '/'
+  );
+      
+  socket.onopen = function (e) {
+      console.log("The connection was setup successfully !");
+      //console.log(chatIdentifier);
+    };
+  socket.onclose = function (e) {
+      console.log("Something unexpected happened !");
+    };
+
+  var text="";
+
+  socket.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      console.log("Waiting for message!");
+      console.log(data.sender);
+      console.log(chatSender);
+    
+      // if(unreadMessages)
+      // {
+      //     unreadMessages.style.display = 'none';
+      // }
+
+      if (chatSender != data.sender)
+          {
+              console.log(data)
+              console.log(data.timestamp);
+              if ( data.mode == "indicator")
+                  {
+                      if (isGroup == "True")
+                          {
+                              
+                              if (typingLargeContainer)
+                                  {
+                                      if (text == "")
+                                        {
+                                          text =  typingLargeContainer.innerText.trim();;
+                                        }
+                                      
+                                      typingLargeContainer.innerText = data.name + " is typing...";
+                                  }
+                              if(typingSmallContainer)
+                                  {
+                                    if (text == "")
+                                        {
+                                          text =  typingSmallContainer.innerText.trim();;
+                                        }
+                                      typingSmallContainer.innerText = data.name + " is typing...";
+                            
+                                  }
+                              
+                              if(typingDirectContainer)
+                                  {
+                                    if (text == "")
+                                        {
+                                          text =  typingDirectContainer.innerText.trim();;
+                                        }
+                                      typingDirectContainer.innerText = data.name + " is typing...";
+                                      
+                                  }
+                                  console.log(text);
+                                  setTimeout(() => {
+                                     doneGroupTyping(text);
+                                      
+                                  }, doneTypingInterval);
+                             
+                          } else {
+                              console.log(typingDirectContainer);
+                              console.log(typingSmallContainer);
+                              console.log(typingLargeContainer);
+                              console.log("founnddd");
+                              if (typingLargeContainer != null)
+                                  {
+                                      typingLargeContainer.innerText = "Typing...";
+                                  }
+                               if(typingSmallContainer != null)
+                                  {
+                                      typingSmallContainer.innerText = "Typing...";
+                                      console.log("founnddd");
+                                  }
+                              
+                               if(typingDirectContainer != null)
+                                  {
+                                      typingDirectContainer.innerText = "Typing...";
+                                  }
+                                  setTimeout(doneTyping, doneTypingInterval);
+                          }
+
+                     
+                     
+
+                     // scrollToBottom();
+                  } else {
+
+                      if( chatBodyConLargeItems)
+                        {
+                          chatBodyConLargeItems.appendChild(messageDirectEl(data.message, data.timestamp, data.name, data.id, data.images, data.dp));
+                          scrollToBottomlarge();
+                        }
+                      if( chatBodyConDirectItems)
+                        {
+                          chatBodyConDirectItems.appendChild(messageDirectEl(data.message, data.timestamp, data.name, data.id, data.images, data.dp));
+                          scrollToBottomDirect();
+                        }
+                      if( chatBodyConSmallItems)
+                        {
+                          chatBodyConSmallItems.appendChild(messageDirectEl(data.message, data.timestamp, data.name, data.id, data.images, data.dp));
+                          scrollToBottomsmall()
+                        }
+                        
+                     
+                      
+                     
+                      //typingContainer.style.display = "none"
+                      //scrollToBottom();
+                     //  clearMessages();
+
+                  }
+          }
+  };
+
+  function doneTyping() {
+      // Replace this with your function to send the message over a web request
+      if (typingLargeContainer != null)
+          {
+              typingLargeContainer.innerText = "Online";
+          }
+      if(typingSmallContainer != null)
+          {
+              typingSmallContainer.innerText = "Online";
+          }
+      
+      if(typingDirectContainer != null)
+          {
+              typingDirectContainer.innerText = "Online";
+          }
+      console.log('User stopped typing.');
+  }
+
+  function doneGroupTyping(text) {
+      // Replace this with your function to send the message over a web request
+      if (typingLargeContainer != null)
+          {
+              typingLargeContainer.innerText = text;
+          }
+      if(typingSmallContainer != null)
+          {
+              typingSmallContainer.innerText = text;
+          }
+      
+      if(typingDirectContainer != null)
+          {
+              typingDirectContainer.innerText = text;
+          }
+      console.log('User stopped typing.');
+  }
+
+
+  // <!-- SENDING WEB SOCKET -->
+
+
+</script>
 
 {% endblock main-content %}
 

@@ -1,13 +1,14 @@
 {% extends 'connect_mentors.html' %}
 {% load static %}
 {% block connect-overlay %}
+
 <div class="book-a-session__section" id="book_overlay_direct">
     <div class="book-a-session__section-container">
         <div class="book-a-session__section-container-header">
             <span class="book-a-session__section-container-header-nav" onclick="removeOverlayAndChangeURL('null', 'back')"
-            >
-                    <i class='bx bx-left-arrow-alt'></i> Back
-            </span>
+                >
+                <i class='bx bx-left-arrow-alt'></i> Back
+        </span>
         </div>
         <div class="book-a-session__section-container-body">
             <span class="book-a-session__section-container-body-title">
@@ -38,76 +39,43 @@
                     </span>
                 </div>
                 <div class="book-a-session__section-container-body-info-body">
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bx-coffee'></i>
+                   
+                    {% if sessions %}
+                        {% for session in sessions %}
+                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value={{session.id}} data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                {% if session.session == 'coffee_chat' %}
+                                    <i class='bx bx-coffee'></i>
+                                {% elif session.session == 'office_hours' %}
+                                    <i class='bx bxs-buildings' ></i>
+                                {% elif session.session == 'speed_networking' %}
+                                    <i class='bx bx-bolt-circle'></i>
+                                {% elif session.session == 'mock_interview' %}
+                                <i class='bx bxs-microphone-alt' ></i>
+                                {% elif session.session == 'check_ins' %}
+                                <i class='bx bx-list-check' ></i>
+                                {% endif %}
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                {{session.get_session_display}}
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                {{ session.about|slice:":35" }}{% if session.about|length > 35 %}...{% endif %}
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                {{session.duration}} Minutes | Google Meet
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="calendar__section-header-noslot" style="display: flex;">
+                        <span>
+                            No Session Available
                         </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Coffee Chat
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            A causual chat with mentor, anything.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            30 Minutes | One Time
-                        </span>
+                        
                     </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="office_hours" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bxs-buildings' ></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Office Hours
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Workshop with mentor and peers.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            2 hours | Repeat
-                        </span>
-                    </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="speed_networking" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bx-bolt-circle'></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Speed Networking
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Spend your time Networking
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            1 hour | One Time
-                        </span>
-                    </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="mock_interview" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bxs-microphone-alt' ></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Mock Interview
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Run practice interviews with mentor.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            2 hours | One Time
-                        </span>
-                    </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="check_ins" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bx-list-check' ></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Check Ins
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Continuous accountability sessions.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            2 hours | Repeat
-                        </span>
-                    </div>
+                    {% endif %}
+                  
                 </div>
                 <div class="calendar__section-header-noslot">
                     <span>
@@ -198,7 +166,7 @@
                     <label for="booking__note">Add your question to this booking (Optional)</label>
                     <textarea name="" id="booking__note" placeholder="Write out your question"></textarea>
                 </div>
-                <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}">
+                <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}" data-id={{session.id}}>
                     <span>
                         Confirm Booking
                     </span>
@@ -210,4 +178,62 @@
         </div>
     </div>
 </div>
+
+<script>
+    const daysTag = document.querySelector(".days"),
+    currentDate = document.querySelector(".current-date"),
+    prevNextIcon = document.querySelectorAll(".icons span");
+
+    // getting new date, current year and month
+    let date = new Date(),
+    currYear = date.getFullYear(),
+    currMonth = date.getMonth();
+
+    // storing full name of all months in array
+    const months = ["January", "February", "March", "April", "May", "June", "July",
+                "August", "September", "October", "November", "December"];
+
+    const renderCalendar = () => {
+        let firstDayofMonth = new Date(currYear, currMonth, 1).getDay(), // getting first day of month
+        lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate(), // getting last date of month
+        lastDayofMonth = new Date(currYear, currMonth, lastDateofMonth).getDay(), // getting last day of month
+        lastDateofLastMonth = new Date(currYear, currMonth, 0).getDate(); // getting last date of previous month
+        let liTag = "";
+
+        for (let i = firstDayofMonth; i > 0; i--) { // creating li of previous month last days
+            liTag += `<li class="inactive">${lastDateofLastMonth - i + 1}</li>`;
+        }
+
+        for (let i = 1; i <= lastDateofMonth; i++) { // creating li of all days of current month
+            // adding active class to li if the current day, month, and year matched
+            let isToday = i === date.getDate() && currMonth === new Date().getMonth() 
+                        && currYear === new Date().getFullYear() ? "active" : "";
+            liTag += `<li class="${isToday}">${i}</li>`;
+        }
+
+        for (let i = lastDayofMonth; i < 6; i++) { // creating li of next month first days
+            liTag += `<li class="inactive">${i - lastDayofMonth + 1}</li>`
+        }
+        currentDate.innerText = `${months[currMonth]} ${currYear}`; // passing current mon and yr as currentDate text
+        daysTag.innerHTML = liTag;
+    }
+    renderCalendar();
+
+    prevNextIcon.forEach(icon => { // getting prev and next icons
+        icon.addEventListener("click", () => { // adding click event on both icons
+            // if clicked icon is previous icon then decrement current month by 1 else increment it by 1
+            currMonth = icon.id === "prev" ? currMonth - 1 : currMonth + 1;
+
+            if(currMonth < 0 || currMonth > 11) { // if current month is less than 0 or greater than 11
+                // creating a new date of current year & month and pass it as date value
+                date = new Date(currYear, currMonth, new Date().getDate());
+                currYear = date.getFullYear(); // updating current year with new date year
+                currMonth = date.getMonth(); // updating current month with new date month
+            } else {
+                date = new Date(); // pass the current date as date value
+            }
+            renderCalendar(); // calling renderCalendar function
+        });
+    });
+</script>
 {% endblock%}

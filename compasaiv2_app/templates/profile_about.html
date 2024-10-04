@@ -242,47 +242,47 @@
                 {% endif %}
             </div>
             <div class="profile__section-body-container-about-container-content">
-                {% if profile.portfolio or profile.linkedin or profile.facebook or profile.twitter or profile.instagram %}
+                {% if user_profile.portfolio or user_profile.linkedin or user_profile.facebook or user_profile.twitter or user_profile.instagram %}
                 <div class="profile__section-body-container-about-container-content-links">
                    
     
-                    {% if profile.portfolio %}
-                    <a class="profile__section-body-container-about-container-content-link child-color" href="{{profile.portfolio}}" target="_blank">
+                    {% if user_profile.portfolio %}
+                    <a class="profile__section-body-container-about-container-content-link child-color" href="https://{{user_profile.portfolio}}" target="_blank">
                         <span class="profile__section-body-container-about-container-content-link-url child-el">
                             <i class='bx bx-globe ' ></i>
-                            {{profile.portfolio}}
+                            {{user_profile.portfolio}}
                         </span>
                     </a>
                     {% endif %}
-                    {% if profile.linkedin %}
-                    <a class="profile__section-body-container-about-container-content-link child-color" href="{{profile.linkedin}}" target="_blank">
+                    {% if user_profile.linkedin %}
+                    <a class="profile__section-body-container-about-container-content-link child-color" href="https://{{user_profile.linkedin}}" target="_blank">
                         <span class="profile__section-body-container-about-container-content-link-url child-el">
                             <i class='bx bxl-linkedin-square ' ></i>
-                            {{profile.linkedin}}
+                            {{user_profile.linkedin}}
                         </span>
                     </a>
                     {% endif %}
-                    {% if profile.facebook %}
-                    <a class="profile__section-body-container-about-container-content-link child-color" href="{{profile.facebook}}" target="_blank">
+                    {% if user_profile.facebook %}
+                    <a class="profile__section-body-container-about-container-content-link child-color" href="https://{{user_profile.facebook}}" target="_blank">
                         <span class="profile__section-body-container-about-container-content-link-url child-el">
                             <i class='bx bxl-facebook-circle ' ></i>
-                            {{profile.facebook}}
+                            {{user_profile.facebook}}
                         </span>
                     </a>
                     {% endif %}
-                    {% if profile.twitter %}
-                    <a class="profile__section-body-container-about-container-content-link child-color" href="{{profile.twitter}}" target="_blank">
+                    {% if user_profile.twitter %}
+                    <a class="profile__section-body-container-about-container-content-link child-color" href="https://{{user_profile.twitter}}" target="_blank">
                         <span class="profile__section-body-container-about-container-content-link-url child-el">
                             <i class='bx bxl-twitter ' ></i>
-                            {{profile.twitter}}
+                            {{user_profile.twitter}}
                         </span>
                     </a>
                     {% endif %}
-                    {% if profile.instagram %}
-                    <a class="profile__section-body-container-about-container-content-link child-color" href="{{profile.instagram}}" target="_blank">
+                    {% if user_profile.instagram %}
+                    <a class="profile__section-body-container-about-container-content-link child-color" href="https://{{user_profile.instagram}}" target="_blank">
                         <span class="profile__section-body-container-about-container-content-link-url child-el">
                             <i class='bx bxl-instagram ' ></i>
-                            {{profile.instagram}}
+                            {{user_profile.instagram}}
                         </span>
                     </a>
                     {% endif %}
@@ -346,10 +346,15 @@
                                 {{exp.company}}
                             </span>
                             <span class="profile__section-body-container-about-container-content-org-item-date">
-                                {{exp.start_date}} - {{exp.end_date}}
+                                {% if exp.start_date or exp.end_date %}
+                                    {{exp.start_date}} -  {% if exp.end_date %}{{exp.end_date}}{% else %}PRESENT{% endif%}
+                                    {% endif %}
                             </span>
                             <div class="profile__section-body-container-about-container-content-org-item-desc">
-                               -  {{exp.description}}
+
+                            {% if exp.description %}
+                                -  {{exp.description}}
+                            {% endif %}
                             </div>
                         </div>
                     </div>
@@ -412,9 +417,12 @@
                             <span class="profile__section-body-container-about-container-content-org-item-org">
                                 {{edu.degree}}
                             </span>
-                            <span class="profile__section-body-container-about-container-content-org-item-date">
-                                {{edu.start_date}} - {{edu.end_date}}
-                            </span>
+
+                             {% if edu.start_date != "" or edu.end_date != "" %}
+                                <span class="profile__section-body-container-about-container-content-org-item-date">
+                                    {{edu.start_date}} - {% if edu.end_date %}{{edu.end_date}}{% else %}PRESENT{% endif%}
+                                </span>
+                            {% endif %}
                             
                         </div>
                     </div>
@@ -452,10 +460,9 @@
             <div class="profile__section-body-container-about-right-available-times-header">
                 <span>
                     {% if is_profile %} 
-                    Set Availability
+                        Set Availability
                     {% else %}
-                    Available slots
-
+                        Available slots
                     {% endif %}
                 </span>
             </div>
@@ -470,76 +477,41 @@
 
                 <span class="profile__section-body-container-about-right-available-times-body-slots">
                     <div class="book-a-session__section-container-body-info-body">
-                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
+                        {% if sessions %}
+                        {% for session in sessions %}
+                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value={{session.id}} data-mentor="{{user_profile.username}}">
                             <span class="book-a-session__section-container-body-info-item-icon">
-                                <i class='bx bx-coffee'></i>
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-title">
-                                Coffee Chat
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                A causual chat with mentor, anything.
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                30 Minutes | One Time
-                            </span>
-                        </div>
-                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="office_hours" data-mentor="{{user_profile.username}}">
-                            <span class="book-a-session__section-container-body-info-item-icon">
-                                <i class='bx bxs-buildings' ></i>
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-title">
-                                Office Hours
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                Workshop with mentor and peers.
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                2 hours | Repeat
-                            </span>
-                        </div>
-                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="speed_networking" data-mentor="{{user_profile.username}}">
-                            <span class="book-a-session__section-container-body-info-item-icon">
-                                <i class='bx bx-bolt-circle'></i>
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-title">
-                                Speed Networking
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                Spend your time Networking
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                1 hour | One Time
-                            </span>
-                        </div>
-                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="mock_interview" data-mentor="{{user_profile.username}}">
-                            <span class="book-a-session__section-container-body-info-item-icon">
+                                {% if session.session == 'coffee_chat' %}
+                                    <i class='bx bx-coffee'></i>
+                                {% elif session.session == 'office_hours' %}
+                                    <i class='bx bxs-buildings' ></i>
+                                {% elif session.session == 'speed_networking' %}
+                                    <i class='bx bx-bolt-circle'></i>
+                                {% elif session.session == 'mock_interview' %}
                                 <i class='bx bxs-microphone-alt' ></i>
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-title">
-                                Mock Interview
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                Run practice interviews with mentor.
-                            </span>
-                            <span class="book-a-session__section-container-body-info-item-subtitle">
-                                2 hours | One Time
-                            </span>
-                        </div>
-                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="check_ins" data-mentor="{{user_profile.username}}">
-                            <span class="book-a-session__section-container-body-info-item-icon">
+                                {% elif session.session == 'check_ins' %}
                                 <i class='bx bx-list-check' ></i>
+                                {% endif %}
                             </span>
                             <span class="book-a-session__section-container-body-info-item-title">
-                                Check Ins
+                                {{session.get_session_display}}
                             </span>
                             <span class="book-a-session__section-container-body-info-item-subtitle">
-                                Continuous accountability sessions.
+                                {{ session.about|slice:":35" }}{% if session.about|length > 35 %}...{% endif %}
                             </span>
                             <span class="book-a-session__section-container-body-info-item-subtitle">
-                                2 hours | Repeat
+                                {{session.duration}} Minutes | Google Meet
                             </span>
                         </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="calendar__section-header-noslot" style="display: flex;">
+                        <span>
+                            No Session Available
+                        </span>
+                        
+                    </div>
+                    {% endif %}
                     </div>
                 </span>
                 <div class="profile__section-body-container-about-right-available-times-body-btn active">

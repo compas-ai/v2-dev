@@ -4,7 +4,8 @@
 {% block base-content %}
     <section class="dashboard__section" id="dashboard__section">
         <div class="dashboard__section-container">
-                {% if active_path != None %}
+            {% if active_path != None or profile.user_type == 'mentor' %}
+                
                     <div class="sidebar__section">
                         <div class="sidebar__section-container">
                             <a href="/" class="sidebar__section-logo">
@@ -19,9 +20,20 @@
                                     <img src="{% static 'images/icons/menu/connect.svg' %}" alt="">
                                     <p>Connect</p>
                                 </a>
+                                {% if profile.user_type != "mentor"%}
                                 <a href="/path" class="sidebar__section-menu-item {% block path%}{% endblock %}">
                                     <img src="{% static 'images/icons/menu/path.svg' %}" alt="">
                                     <p>Path</p>
+                                </a>
+                                {% else %}
+                                <a href="/meetings" class="sidebar__section-menu-item {% block meetings%}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/meetings.svg' %}" alt="">
+                                    <p>Sessions</p>
+                                </a>
+                                {% endif %}
+                                <a href="/bookings/upcoming" class="sidebar__section-menu-item {% block bookings%}{% endblock %}">
+                                    <img src="{% static 'images/icons/menu/bookings.svg' %}" alt="">
+                                    <p>Bookings</p>
                                 </a>
                                 <a href="/messages" class="sidebar__section-menu-item messages {% block messages%}{% endblock %}">
                                     <img src="{% static 'images/icons/menu/messaging.svg' %}" alt="">
@@ -31,15 +43,18 @@
                                     <img src="{% static 'images/icons/menu/community.svg' %}" alt="">
                                     <p>Community</p>
                                 </a>
+                                {% if profile.user_type != "mentor"%}
                                 <a href="/project" class="sidebar__section-menu-item {% block project%}{% endblock %}">
                                     <img src="{% static 'images/icons/menu/project.svg' %}" alt="">
                                     <p>Project</p>
                                 </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                {% endif %}
-                <div class="mainbar__section {% if active_path == None %} recommendation {% endif %}">
+               
+            {% endif %}
+                <div class="mainbar__section {% if active_path == None and profile.user_type != 'mentor'  %} recommendation {% endif %}">
                     <div class="header__section">
                         <div class="header__section-search" >
                             <span class="header__section-search large_screen" {% block remove_search_bar%}{% endblock %}>
@@ -61,7 +76,7 @@
                         </div>
                         <div class="header__section-btns">
 
-                            {% if active_path != None %}
+                            {% if active_path != None or profile.user_type == 'mentor' %}
                             <span class="header__section-btns-item coins">
                                 <img src="{% static 'images/icons/header/streak.svg' %}" alt="">
                                 <p>1</p>
@@ -128,8 +143,6 @@
                     </div>
                 </div>
         </div>
-      
-
     </section>
 
 {% endblock base-content %}

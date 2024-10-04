@@ -32,6 +32,11 @@
                 <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
                     {{prof.last_message_time}}
                 </span>
+                {% if prof.unread > 0 %}
+                      <span class="messages__section-left-bottom-body-inbox-item-info-unread">
+                          {{prof.unread}}
+                      </span>
+                {% endif %}
             </div>
             <div class="messages__section-left-bottom-body-inbox-item-menu">
                 <i class='bx bx-dots-horizontal-rounded'></i>
@@ -95,6 +100,11 @@
                     <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
                         {{prof.last_message_time}}
                     </span>
+                    {% if prof.unread > 0 %}
+                      <span class="messages__section-left-bottom-body-inbox-item-info-unread">
+                          {{prof.unread}}
+                      </span>
+                    {% endif %}
                 </a>
                 <div class="messages__section-left-bottom-body-inbox-item-menu">
                     <i class='bx bx-dots-horizontal-rounded'></i>

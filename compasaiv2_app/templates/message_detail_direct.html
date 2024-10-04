@@ -3,46 +3,46 @@
 
 {% block message_detail%}
 <div class="messages__section-right-container">
-
     {% if is_group == "False" %}
-    <a href="{% url 'profile' user_profile.username %}" class="messages__section-right-container-header">
-      <div class="messages__section-right-container-header-img">
-        {% if user_profile.profile_picture %}
-                  <img  src="{{ user_profile.profile_picture.url }}" alt="">
-                  {% else %}
-                  <img  src="{% static 'images/ava.png'%}" alt="">
-                  {% endif %}
-                  <div class="active-indicator"></div>
-      </div>
-      <div class="messages__section-right-container-header-info">
-        <span class="messages__section-right-container-header-info-name">
-            {{user_profile.display_name}}
-        </span>
-        <span class="messages__section-right-container-header-info-status">
-           Online
-        </span>
-      </div>
-    </a>
+        <a {% if user_profile != aiprofile %}  href="{% url 'profile' user_profile.username %}" {% endif %} class="messages__section-right-container-header">
+            <div class="messages__section-right-container-header-img">
+                    {% if user_profile.profile_picture %}
+                        <img  src="{{ user_profile.profile_picture.url }}" alt="">
+                    {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                    {% endif %}
+                    <div class="active-indicator">
+
+                    </div>
+            </div>
+            <div class="messages__section-right-container-header-info">
+                <span class="messages__section-right-container-header-info-name">
+                    {{user_profile.display_name}}
+                </span>
+                <span class="messages__section-right-container-header-info-status big">
+                    {% if user_profile != aiprofile %}  Online {% else %} Available {% endif %}
+                </span>
+            </div>
+        </a>
     {% else %}
     <div class="messages__section-right-container-header" 
-    {% if profile in group.conversation.participants.all %}
-        {% if group.deleted == False or profile not in group.conversation.removed  %} 
-            onclick="showGroupInfoContainer()" 
-        {% endif %}
-    {% endif %}>
+        {% if profile in group.conversation.participants.all %}
+            {% if group.deleted == False or profile not in group.conversation.removed  %} 
+                onclick="showGroupInfoContainer()" 
+            {% endif %}
+        {% endif %}>
         <div class="messages__section-right-container-header-img">
-          {% if group.image %}
+                {% if group.image %}
                     <img  src="{{ group.image.url }}" alt="">
-                    {% else %}
+                {% else %}
                     <img  src="{% static 'images/ava.png'%}" alt="">
-                    {% endif %}
-           
+                {% endif %}
         </div>
         <div class="messages__section-right-container-header-info group">
           <span class="messages__section-right-container-header-info-name">
               {{group.name}}  
           </span>
-          <span class="messages__section-right-container-header-info-status group">
+          <span class="messages__section-right-container-header-info-status big group">
             
             {% if group.deleted == True or profile in group.conversation.removed.all or profile not in group.conversation.participants.all %}
                 You do not have access to this group.
@@ -88,21 +88,19 @@
                         else {
                             clearInterval(countdownInterval);
                             document.getElementById("session_countdown").innerHTML = "Session has ended!";
-                            document.querySelector('.messages__section-right-container-message-input-container.direct').style.display = 'none';
+                            document.querySelector('.messages__section-right-container-message-input-container.big').style.display = 'none';
                         }
                     }, 1000);
                 </script>
-                
             {% else %}
                 {{group.conversation.participant_names }} 
             {% endif %}
           </span>
         </div>
     </div>
-      
     {% endif %}
 
-    <div class="messages__section-right-container-messages direct" >
+    <div class="messages__section-right-container-messages big" >
         {% if profile not in group.conversation.participants.all %}
             <div class="messages__section-right-container-messages-overlay">
                 <div class="messages__section-right-container-messages-overlay-container">
@@ -113,7 +111,6 @@
                         <span class="messages__section-right-container-messages-overlay-header-content">
                             {{group.description}}
                         </span>
-                       
                         <span class="messages__section-right-container-messages-overlay-header-members">
                             {% if is_office %}
                                 {{ group.time_slots }} 
@@ -143,12 +140,11 @@
                 </div>
             </div>
         {% endif %}
-      <div class="messages__section-right-container-messages-items direct" data-unread-messages={{unread_messages}}>
+      <div class="messages__section-right-container-messages-items big" data-unread-messages={{unread_messages}}>
 
        {% if chat_messages %}
-          {% for chat in chat_messages %}
-
-          {% ifchanged chat.timestamp.date %}
+            {% for chat in chat_messages %}
+                {% ifchanged chat.timestamp.date %}
                     <div class="messages__section-right-container-messages-datestamp">
                         <span>
                             {% if chat.timestamp.date == today %}
@@ -200,21 +196,19 @@
                         </div>
                     {% endif %}
                 {% else %}
-                
-
-                        {% if chat.id == first_message %}
-                            <div class="messages-detail__body-item-unread-messages-container direct" id="unread"
-                            hx-post="{% url 'clear_unread' %}" 
-                            hx-trigger="load delay:10s"
-                            hx-vals='{"username": "{{ user_profile.username }}"  }'
-                            hx-target="#unread"
-                            hx-push-url="false"
-                            hx-swap="innerHTML swap:0.2s"
-                            
-                            >
-                                <p class="messages-detail__body-item-unread-messages direct" id="messages-detail__body-item-unread-messages">{{unread_messages}} unread messages</p>
-                            </div>
-                        {% endif %}
+                    {% if chat.id == first_message %}
+                        <div class="messages-detail__body-item-unread-messages-container big" id="unread"
+                        hx-post="{% url 'clear_unread' username group_username %}"  
+                        hx-trigger="load delay:3s"
+                        hx-vals='{"username": "{{ user_profile.username }}"  }'
+                        hx-target="#unread"
+                        hx-push-url="false"
+                        hx-swap="innerHTML swap:0.2s"
+                        
+                        >
+                            <p class="messages-detail__body-item-unread-messages big" id="messages-detail__body-item-unread-messages">{{unread_messages}} unread messages</p>
+                        </div>
+                    {% endif %}
                         <div class="messages__section-right-container-messages-item  {% if chat.sender == profile %}user_message{% endif %}" id="message-{{ chat.id }}">
                             <div class="messages__section-right-container-messages-item-img">
                                 {% if user_profile.profile_picture %}
@@ -222,52 +216,56 @@
                                 {% else %}
                                 <img  src="{% static 'images/ava.png'%}" alt="">
                                 {% endif %}
-                                    <div class="active-indicator-small"></div>
+                                    <div class="active-indicator-big"></div>
+                                    
                             </div>
                             <div class="messages__section-right-container-messages-item-container">
                                 {% if is_group == "True" %}
                                 <span class="messages__section-right-container-messages-item-name">{{chat.sender.display_name}}</span>
                                 {% endif %}
                                 {% if chat.images.all %}
-                                {% with chat.images.all|length as image_count %}
-                                <div class="community__section-right-body-container-posts-item-body-media messages {% if image_count == 1%} single-image {% endif %}" data-id={{post.id}} data-images={{post.images.all}}>
-                                {% for image in chat.images.all %}
-                                    {% if forloop.counter <= 4 %}
-                                    
-                                        <div class="community__section-right-body-container-posts-item-body-media-item" data-id={{chat.id}}>
-                                            <img src="{{ image.image.url }}" alt="" class="image-preview direct" data-index="{{ forloop.counter0 }}">
-                                            {% if forloop.counter == 4 and chat.images.count > 4 %}
-                                                <div class="overlay direct" data-image-url="{{ image.image.url }}" data-id={{chat.id}}>
-                                                    +{{ chat.images.all.count|add:-4 }}
+                                    {% with chat.images.all|length as image_count %}
+                                        <div class="community__section-right-body-container-posts-item-body-media messages 
+                                            {% if image_count == 1 %} single-image {% endif %}" 
+                                            data-id="{{ post.id }}" 
+                                            data-images="{{ post.images.all }}">
+                                        
+                                            {% for image in chat.images.all %}
+                                                <!-- Always create the div container for each image -->
+                                                <div class="community__section-right-body-container-posts-item-body-media-item" data-id="{{ chat.id }}">
+                                                    
+                                                    <!-- Show the image if it's among the first 4 -->
+                                                    <img src="{{ image.image.url }}" alt="image" 
+                                                        class="image-preview big {% if forloop.counter > 4 %}hide{% endif %}" 
+                                                        data-index="{{ forloop.counter0 }}">
+                                                        
+                                                    <!-- Add the overlay only after the 4th image -->
+                                                    {% if forloop.counter == 4 and chat.images.count > 4 %}
+                                                        <div class="overlay big" data-image-url="{{ image.image.url }}" data-id="{{ chat.id }}">
+                                                            +{{ chat.images.all.count|add:"-4" }}
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
-                                                
-                                            {% endif %}
+                                            {% endfor %}
                                         </div>
-                                    
-                                        {% else%}
-                                        <img src="{{ image.image.url }}" alt="" class="image-preview direct hide"  data-index="{{ forloop.counter0 }}">
-            
-                                    {% endif %}
-                                {% endfor %}
-                                </div>
-                                {% endwith %}
+                                    {% endwith %}
                                 {% endif %}
                             
                                 <span class="messages__section-right-container-messages-item-text">{{chat.text}}</span>
                                 <span class="messages__section-right-container-messages-item-time">{{chat.timestamp.time}}</span>
                             </div>
                             <div id="imageModal" class="image-modal">
-                                <span class="close direct">&times;</span>
+                                <span class="close big">&times;</span>
                                 <img class="modal-content" id="modalImage">
                                 <div id="caption"></div>
                                 <div class="modal-btns">
-                                <a class="prev direct">&#10094;</a>
-                                <a class="next direct">&#10095;</a>
+                                <a class="prev big">&#10094;</a>
+                                <a class="next big">&#10095;</a>
                                 </div>
                             
                             </div>
                             {% if chat.sender == profile %}
-                            <div class="messages__section-right-container-messages-item-text-status direct">
+                            <div class="messages__section-right-container-messages-item-text-status big">
                                     <span>
                                         {% if chat.read == True %}
                                         <i class='bx bx-check-double' ></i>
@@ -277,18 +275,17 @@
                                     </span>
                             </div>
                             {% endif %}
-
                         </div>
-                        {% endif %}
-                    {% endfor %}
-                   
+                {% endif %}
+            {% endfor %}
+
         {% else %}
             {% if is_group == "True" %}
-                <div class="messages__section-right-container-messages-item-no-messages direct">
+                <div class="messages__section-right-container-messages-item-no-messages big">
                     <span class="">Send the first message to {{group.name}}</span>
                 </div>
             {% else %}
-                <div class="messages__section-right-container-messages-item-no-messages direct">
+                <div class="messages__section-right-container-messages-item-no-messages big">
                     <span class="">Send the first message to {{user_profile.display_name}}</span>
                 </div>
             {% endif %}
@@ -344,16 +341,16 @@
             }, 1000);
         </script>
     {% else %}
-        <div class="messages__section-right-container-message-input-container direct">
-            <div id="image-preview-message-container-direct" class="image-preview-message-container direct"></div>
-            <span class="messages__section-right-container-message-input-btn" id="image-upload-input-btn-direct">
-                <label class="image-upload-input-label" for="image-upload-input-direct"> <i class='bx bx-plus'  id="image-upload-icon"></i></label>
-                <input class="image-upload-input" type="file" id="image-upload-input-direct" accept="image/*" multiple >
+        <div class="messages__section-right-container-message-input-container big">
+            <div id="image-preview-message-container-big" class="image-preview-message-container big"></div>
+            <span class="messages__section-right-container-message-input-btn {% if user_profile == aiprofile %} disabled {% endif%}" id="image-upload-input-btn-big">
+                <label class="image-upload-input-label" for="image-upload-input-big"> <i class='bx bx-plus'  id="image-upload-icon"></i></label>
+                <input class="image-upload-input {% if user_profile == aiprofile %} disabled {% endif%}" type="file" id="image-upload-input-big" accept="image/*" multiple >
             </span>
         
-        <div class="messages__section-right-container-message-input direct">
-            <input type="text" placeholder="Type a message" id="message_text_direct">
-            <span class="send_message_btn direct" id="send_message_btn_direct" data-display-name="{{profile.display_name}}" data-group-sender="{{profile.username}}" data-sender="{{username}}" data-group="{{is_group}}"  data-conversation-id="{{conversation.id}}" onclick="newChatDirect(this)">
+        <div class="messages__section-right-container-message-input big">
+            <input type="text" placeholder="Type a message" id="message_text_big">
+            <span class="send_message_btn big" id="send_message_btn_big" data-display-name="{{profile.display_name}}" data-group-sender="{{profile.username}}" data-sender="{{username}}" data-group="{{is_group}}"  data-conversation-id="{{conversation.id}}" onclick="newChatbig(this)">
             <i class='bx bx-up-arrow-alt' ></i>
             </span>
         </div>
@@ -469,171 +466,11 @@
 </script>
 
 <script>
-    // <!-- RECEIVING WEB SOCKET -->
-    var chatContainer = document.querySelector('.send_message_btn.direct');
-    var chatBodyConItems =  document.querySelector('.messages__section-right-container-messages-items.direct');
-    var chatReceiver = chatContainer.getAttribute('data-receiver');
-    var chatIdentifier = chatContainer.getAttribute('data-conversation-id');
-    var chatDisplayName = chatContainer.getAttribute('data-display-name');
-    var typingContainer = document.querySelector('.messages__section-right-container-header-info-status');
-    var isGroup = chatContainer.getAttribute('data-group');
+    var typingBigContainer = document.querySelector('.messages__section-right-container-header-info-status.big');
+    var chatBodyConBigItems =  document.querySelector('.messages__section-right-container-messages-items.big');
    
-    var doneTypingInterval = 3000; // Time in milliseconds, adjust as needed
 
-    var chatSender;
-    if (isGroup === "True") {
-        // Use 'data-group-sender' if it's a group chat
-        chatSender = chatContainer.getAttribute('data-group-sender');
-    } else {
-        // Use 'data-sender' otherwise
-        chatSender = chatContainer.getAttribute('data-sender');
-    }
-
-    
-    var messageDirectEl = (message, time, sender,  id, images = [], dp) => {
-            var chatEl = document.createElement("div");
-            chatEl.classList.add("messages__section-right-container-messages-item");
-            chatEl.id = `message-${id}`;
-            // Create the images container if there are images
-            var imagesHtml = '';
-            if (images.length > 0) {
-                var imageCount = images.length;
-                imagesHtml = `
-                    <div class="community__section-right-body-container-posts-item-body-media messages ${imageCount === 1 ? 'single-image' : ''}" data-id=${id}>
-                `;
-                
-                images.forEach((image, index) => {
-                    if (index <= 3) {  // Display up to 4 images, similar to your logic
-                        imagesHtml += `
-                            <div class="community__section-right-body-container-posts-item-body-media-item" data-id=${id}>
-                                <img src="${image}" alt="Image" class="image-preview direct" data-index=${index}>
-                                ${index === 3 && imageCount > 4 ? `<div class="overlay" data-image-url="${image}" data-id=${id}>
-                                    +${imageCount - 4}
-                                </div>` : ''}
-                            </div>
-                        `;
-                    } else {
-                        imagesHtml += `<img src="${image}" alt="Image" class="image-preview direct hide" data-index=${index}>`;
-                    }
-                });
-
-                imagesHtml += `</div>`;
-            }
-
-            var dPImage;
-            var senderHtml;
-
-            if (isGroup == "True")
-            {
-                senderHtml = `<span class="messages__section-right-container-messages-item-name">${sender}</span>`
-            } else {
-                senderHtml = ``
-                
-            }
-            
-
-            if (dp)
-                {
-                    dPImage = dp
-            } else {
-                dPImage = `{% static 'images/ava.png'%}`
-            }
-
-            // Insert the message text and images into the chat element
-            chatEl.innerHTML = `
-                 <div class="messages__section-right-container-messages-item-img">
-                    <img  src="${dPImage}" alt="">
-                    <div class="active-indicator-small"></div>
-                 </div>
-                <div class="messages__section-right-container-messages-item-container">
-                    ${senderHtml}
-                    ${imagesHtml}
-                    <span class="messages__section-right-container-messages-item-text">${message}</span>
-                    <span class="messages__section-right-container-messages-item-time">${time}</span>
-                </div>
-                
-
-                <div id="imageModal" class="image-modal">
-                                <span class="close direct">&times;</span>
-                                <img class="modal-content" id="modalImage">
-                                <div id="caption"></div>
-                                <div class="modal-btns">
-                                <a class="prev direct">&#10094;</a>
-                                <a class="next direct">&#10095;</a>
-                                </div>
-                            
-                            </div>
-            `;
-            
-            return chatEl;
-        };
-
-    
-
-    const socket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/chat/public_room/'
-        + chatIdentifier
-        + '/'
-    );
-        
-    socket.onopen = function (e) {
-        console.log("The connection was setup successfully !");
-        //console.log(chatIdentifier);
-      };
-    socket.onclose = function (e) {
-        console.log("Something unexpected happened !");
-      };
-
-    socket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-        console.log("Waiting for message!");
-        console.log(data.sender);
-        console.log(chatSender);
-      
-        // if(unreadMessages)
-        // {
-        //     unreadMessages.style.display = 'none';
-        // }
-
-        if (chatSender != data.sender)
-            {
-                console.log(data)
-                console.log(data.timestamp);
-                if ( data.mode == "indicator")
-                    {
-                        if (isGroup == "True")
-                            {
-                                 typingContainer.innerText = data.name + " is typing..."
-                            } else {
-                                 typingContainer.innerText = "Typing..."
-                            }
-
-                        setTimeout(doneTyping, doneTypingInterval);
-                       
-
-                       // scrollToBottom();
-                    } else {
-                        chatBodyConItems.appendChild(messageDirectEl(data.message, data.timestamp, data.name, data.id, data.images, data.dp));
-                        scrollToBottomDirect();
-                        //typingContainer.style.display = "none"
-                        //scrollToBottom();
-                       //  clearMessages();
-
-                    }
-            }
-    };
-
-    function doneTyping() {
-        // Replace this with your function to send the message over a web request
-        typingContainer.innerText = "Online"
-        console.log('User stopped typing.');
-    }
-
-    // <!-- SENDING WEB SOCKET -->
-
-    var textMessage = document.getElementById('message_text_direct');
+    var textMessage = document.getElementById('message_text_big');
     textMessage.addEventListener('input', function () {
        console.log("typinngg");
      
@@ -725,7 +562,7 @@
 </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+
        var currentPostImages = [];
        var currentPostId = null;
        var modal = document.getElementById('imageModal');
@@ -733,13 +570,13 @@
        var captionText = document.getElementById('caption');
        var currentIndex;
    
-       var overlays = document.querySelectorAll('.overlay.direct');
+       var overlays = document.querySelectorAll('.overlay.big');
    
        overlays.forEach(overlay => {
            overlay.addEventListener('click', function() {
                var imageUrl = this.getAttribute('data-image-url');
                var postId = this.getAttribute('data-id');
-               var image = this.closest('.image-preview.direct');
+               var image = this.closest('.image-preview.big');
                console.log(image);
                console.log(postId);
                openModalOverlay(imageUrl, postId);
@@ -749,10 +586,9 @@
    
        function openModal(image, postId) {
            // Find the images within the same post
-           currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.direct`));
+           currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.big`));
          
            currentIndex = currentPostImages.indexOf(image);
-   
    
            // Display the modal with the selected image
            modal.style.display = "flex";
@@ -763,7 +599,7 @@
        }
        function openModalOverlay(image, postId) {
            // Find the images within the same post
-           currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.direct`));
+           currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.big`));
          
            currentIndex = currentPostImages.indexOf(image);
    
@@ -775,19 +611,19 @@
            
        }
    
-       document.querySelectorAll('.image-preview.direct').forEach((image) => {
+       document.querySelectorAll('.image-preview.big').forEach((image) => {
            image.addEventListener('click', function() {
                var postId = this.closest('.community__section-right-body-container-posts-item-body-media-item').getAttribute('data-id');
                openModal(this, postId);
            });
        });
    
-       var span = document.getElementsByClassName("close direct")[0];
+       var span = document.getElementsByClassName("close big")[0];
        span.onclick = function() { 
            modal.style.display = "none";
        }
    
-       var next = document.querySelector('.next.direct');
+       var next = document.querySelector('.next.big');
        next.onclick = function() {
            if (currentPostImages.length > 0) {
                currentIndex = (currentIndex + 1) % currentPostImages.length;
@@ -796,7 +632,7 @@
            }
        }
    
-       var prev = document.querySelector('.prev.direct');
+       var prev = document.querySelector('.prev.big');
        prev.onclick = function() {
            if (currentPostImages.length > 0) {
                currentIndex = (currentIndex - 1 + currentPostImages.length) % currentPostImages.length;
@@ -804,11 +640,6 @@
                captionText.innerHTML = currentPostImages[currentIndex].alt;
            }
        }
-   });
-   
-   
-   document.addEventListener('DOMContentLoaded', function() {
-       
    
        function openImage(imageUrl) {
            // Open the image in a full-screen overlay or a new window
@@ -825,49 +656,52 @@
                imgOverlay.remove();
            });
        }
-   });
+
    
    
 </script>
 
 <script>
+var selectedbigImages = [];
+document.addEventListener("DOMContentLoaded", function() {
     console.log("dhdh");
 
-    var chatBodyDirect = document.querySelector('.messages__section-right-container-messages-items.direct');
+    var chatBodybig = document.querySelector('.messages__section-right-container-messages-items.big');
    
-    var sendMessageBtnDirect = document.querySelector('#send_message_btn_direct');
-    var textMessageDirect = document.querySelector('#message_text_direct');
+    var sendMessageBtnbig = document.querySelector('#send_message_btn_big');
+    var textMessagebig = document.querySelector('#message_text_big');
     
-    var unreadMessagesDirect = document.querySelector('.messages-detail__body-item-unread-messages-container.direct');
+    var unreadMessagesbig = document.querySelector('.messages-detail__body-item-unread-messages-container.big');
   
     console.log("wsbfchasbfa");
-    var chatBodyConDirect = document.querySelector('.messages__section-right-container-messages.direct');
+    var chatBodyConbig = document.querySelector('.messages__section-right-container-messages-items.big');
     
     // Make sure chatBodyCon is not null before getting attribute
-    if (chatBodyConDirect) {
-        var unreadMessagesCountDirect = chatBodyConDirect.getAttribute('data-unread-messages');
+    if (chatBodyConbig) {
+        var unreadMessagesCountbig = chatBodyConbig.getAttribute('data-unread-messages');
       
         // Move the unreadMessagesCount check inside here
-        if (unreadMessagesCountDirect > 0) {
-            scrollToUnreadDirect();
+        if (unreadMessagesCountbig > 0) {
+            scrollToUnreadbig();
         } else {
-            scrollToBottomDirect();
+            scrollToBottombig();
         }
     } else {
         console.error("chatBodyCon is null or undefined");
     }
 
-    textMessageDirect.addEventListener("keydown", function (event) {
+    textMessagebig.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
           event.preventDefault();
-          newChatDirect(sendMessageBtnDirect);
+          newChatbig(sendMessageBtnbig);
       }
   });
 
-  var selectedDirectImages = [];
 
-    var imageUploadInput = document.getElementById('image-upload-input-direct');
-    var imagePreviewContainer = document.getElementById('image-preview-message-container-direct');
+  
+
+    var imageUploadInput = document.getElementById('image-upload-input-big');
+    var imagePreviewContainer = document.getElementById('image-preview-message-container-big');
     
 
     imageUploadInput.addEventListener('change', function() {
@@ -875,25 +709,25 @@
         
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
-            selectedDirectImages.push(file); // Store the file in the array
+            selectedbigImages.push(file); // Store the file in the array
 
             var reader = new FileReader();
             reader.onload = function(e) {
                 var imgPreview = document.createElement('div');
                 imgPreview.classList.add('image-message-preview');
-                imgPreview.classList.add('direct');
+                imgPreview.classList.add('big');
                 imgPreview.innerHTML = `
                     <img src="${e.target.result}" alt="Image Preview">
-                    <i class="bx bx-x remove-image-message-btn direct"> </i>
+                    <i class="bx bx-x remove-image-message-btn big"> </i>
                 `;
                 imagePreviewContainer.appendChild(imgPreview);
                 console.log("doneee");
 
                 // Handle image devarion
-                imgPreview.querySelector('.remove-image-message-btn.direct').addEventListener('click', function() {
-                    var index = selectedDirectImages.indexOf(file);
+                imgPreview.querySelector('.remove-image-message-btn.big').addEventListener('click', function() {
+                    var index = selectedbigImages.indexOf(file);
                     if (index > -1) {
-                        selectedDirectImages.splice(index, 1); // Remove from the array
+                        selectedbigImages.splice(index, 1); // Remove from the array
                     }
                     imgPreview.remove();
                 });
@@ -905,17 +739,24 @@
         imageUploadInput.value = '';
     });
 
-  
 
-  function scrollToUnreadDirect() {
-      var section = document.querySelector('.messages-detail__body-item-unread-messages-container.direct');
-      if (section) {
-          section.scrollIntoView();
-      }
+});
+  function scrollToUnreadbig() {
+       // Select the unread messages container
+       var sectionScroll = document.querySelector('.messages-detail__body-item-unread-messages-container.big');
+        
+        // Select the chat body container
+        var chatBody = document.querySelector('.messages__section-right-container-messages.big');
+        
+        // Ensure both elements exist
+        if (sectionScroll && chatBody) {
+            // Scroll the chat body to the top position of the unread messages container
+            chatBody.scrollTop = sectionScroll.offsetTop - chatBody.offsetTop;
+        }
   }
 
-  function scrollToBottomDirect() {
-      var chatBody = document.querySelector('.messages__section-right-container-messages.direct');
+  function scrollToBottombig() {
+      var chatBody = document.querySelector('.messages__section-right-container-messages.big');
       chatBody.scrollTop = chatBody.scrollHeight;
       console.log(chatBody.scrollHeight);
   }
@@ -927,19 +768,29 @@
       return cookieValue ? cookieValue.pop() : '';
   }
 
-  function newChatDirect(element)  {
+  function appendTypingAnimationbig() {
+            var chatBody = document.querySelector('.messages__section-right-container-messages-items.big');
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            chatBody.appendChild(typingIndicator);
+    }
+
+    function removeTypingAnimationbig() {
+        $('.typing-indicator').remove();
+    }
+  function newChatbig(element)  {
    
     //var sendMessageBtn = document.querySelector('.send_message_btn');
-    var chatBody = document.querySelector('.messages__section-right-container-messages-items.direct');
-    var firstMessage = document.querySelector('.messages__section-right-container-messages-item-no-messages.direct span');
+    var chatBody = document.querySelector('.messages__section-right-container-messages-items.big');
+    var firstMessage = document.querySelector('.messages__section-right-container-messages-item-no-messages.big span');
     var messageSender = element.getAttribute('data-sender');
     var senderURL = element.getAttribute('data-sender-dp');
 
 
     var chatDisplayName = element.getAttribute('data-display-name');
     var isGroup = element.getAttribute('data-group');
-    var textMessage = document.querySelector('#message_text_direct');
-    var typingContainer = document.querySelector('.messages__section-right-container-header-info-status.direct');
+    var textMessage = document.querySelector('#message_text_big');
+    var typingContainer = document.querySelector('.messages__section-right-container-header-info-status.big');
     var csrfToken = getCookie('csrftoken');
 
     var chatSender;
@@ -976,13 +827,12 @@
 
     if (element) {
         var textMessageValue = textMessage.value.trim();
-        console.log(textMessageValue);
-        console.log(selectedDirectImages);
-        if (textMessageValue !== '' || selectedDirectImages.length > 0) {
+        var imagePreviewContainer = document.getElementById('image-preview-message-container-big');
+        if (textMessageValue !== '' || selectedbigImages.length > 0) {
             textMessage.value = "";
-            scrollToBottomDirect();
+            scrollToBottombig();
             var formData = new FormData();
-            var files = selectedDirectImages;
+            var files = selectedbigImages;
             console.log(files);
             formData.append('text', textMessageValue);
             formData.append('username', messageSender);
@@ -1007,7 +857,7 @@
                         if (firstMessage) {
                             firstMessage.style.display = "none";
                             if (!firstMessage.classList.contains("stop")) {
-                                chatBody.appendChild(dateConElDirect());
+                                chatBody.appendChild(dateConElbig());
                                 firstMessage.classList.add("stop");
                             }
                         }
@@ -1019,12 +869,25 @@
                             // Append the images to the chat
                        
                         
-                        chatBody.appendChild(messageDirectEl(textMessageValue, response.time, response.id, response.images));
-                        
-                        
-                        scrollToBottomDirect();
-                        selectedDirectImages = [];
-                        sendMessage(textMessageValue, chatSender, chatDisplayName, response.id, response.images, response.dp);
+                        chatBody.appendChild(messagebigEl(textMessageValue, response.time, response.id, response.images));
+                        scrollToBottombig();
+
+                        if (response.text != "")
+                        {
+                            appendTypingAnimationbig();
+                            scrollToBottombig();
+
+                            setTimeout(() => {
+                                removeTypingAnimationbig();
+                                chatBody.appendChild(messageAIbigEl(response.text, response.time));
+                                scrollToBottombig();
+                            }, 3000);
+                        } else {
+                            sendMessage(textMessageValue, chatSender, chatDisplayName, response.id, response.images, response.dp);
+                        }
+                        scrollToBottombig();
+                        selectedbigImages = [];
+                       
                     } else {
                         console.log("Unexpected response:", response);
                     }
@@ -1032,21 +895,43 @@
                 error: function (xhr, status, error) {
                     setTimeout(() => {
                         console.log("Error:", status, error);
-                        chatBody.appendChild(messageElDirect("Error Sending Your Message", ""));
+                        
+                        chatBody.appendChild(messageElbig("Error Sending Your Message", ""));
                     }, 1000);
                 }
             });
         }
     };
 
-    var dateConElDirect = () => {
+    var dateConElbig = () => {
         var dateEl = document.createElement("div");
         dateEl.classList.add("messages__section-right-container-messages-datestamp");
         dateEl.innerHTML = `<span> Today </span>`;
         return dateEl;
     };
 
-    var messageDirectEl = (message, time, id, images = []) => {
+    var messageAIbigEl = (message, time) => {
+                    var chatEl = document.createElement("div");
+                    chatEl.classList.add("messages__section-right-container-messages-item");
+                   
+                    // Create the images container if there are images
+
+                    // Insert the message text and images into the chat element
+                    chatEl.innerHTML = `
+                         <div class="messages__section-right-container-messages-item-img">
+                            <img  src="{% static 'images/logo/icon.svg' %}" alt="">
+                            <div class="active-indicator-big"></div>
+                        </div>
+                        <div class="messages__section-right-container-messages-item-container">
+                            <span class="messages__section-right-container-messages-item-text">${message}</span>
+                            <span class="messages__section-right-container-messages-item-time">${time}</span>
+                        </div>
+                    `;
+                    
+                    return chatEl;
+    };
+
+    var messagebigEl = (message, time, id, images = []) => {
             var chatEl = document.createElement("div");
             chatEl.classList.add("messages__section-right-container-messages-item", "user_message");
             chatEl.id = `message-${id}`;
@@ -1062,14 +947,14 @@
                     if (index <= 3) {  // Display up to 4 images, similar to your logic
                         imagesHtml += `
                             <div class="community__section-right-body-container-posts-item-body-media-item" data-id=${id}>
-                                <img src="${image}" alt="Image" class="image-preview direct" data-index=${index}>
+                                <img src="${image}" alt="Image" class="image-preview big" data-index=${index}>
                                 ${index === 3 && imageCount > 4 ? `<div class="overlay" data-image-url="${image}" data-id=${id}>
                                     +${imageCount - 4}
                                 </div>` : ''}
                             </div>
                         `;
                     } else {
-                        imagesHtml += `<img src="${image}" alt="Image" class="image-preview direct hide" data-index=${index}>`;
+                        imagesHtml += `<img src="${image}" alt="Image" class="image-preview big hide" data-index=${index}>`;
                     }
                 });
 
@@ -1088,12 +973,12 @@
                 </div>
 
                 <div id="imageModal" class="image-modal">
-                                <span class="close direct">&times;</span>
+                                <span class="close big">&times;</span>
                                 <img class="modal-content" id="modalImage">
                                 <div id="caption"></div>
                                 <div class="modal-btns">
-                                <a class="prev direct">&#10094;</a>
-                                <a class="next direct">&#10095;</a>
+                                <a class="prev big">&#10094;</a>
+                                <a class="next big">&#10095;</a>
                                 </div>
                             
                             </div>
@@ -1105,6 +990,8 @@
 
    
 }
+
+
 </script>
 
 {% endblock %}
@@ -1121,7 +1008,7 @@
         </a>
 
     {% if is_group == "False" %}
-    <a href="{% url 'profile' user_profile.username %}" class="messages__section-right-container-header">
+    <a {% if user_profile != aiprofile %}  href="{% url 'profile' user_profile.username %}" {% endif %} class="messages__section-right-container-header">
       <div class="messages__section-right-container-header-img">
         {% if user_profile.profile_picture %}
                   <img  src="{{ user_profile.profile_picture.url }}" alt="">
@@ -1135,7 +1022,7 @@
             {{user_profile.display_name}}
         </span>
         <span class="messages__section-right-container-header-info-status small">
-           Online
+            {% if user_profile != aiprofile %}  Online {% else %} Available {% endif %}
         </span>
       </div>
     </a>
@@ -1320,8 +1207,8 @@
 
                         {% if chat.id == first_message %}
                             <div class="messages-detail__body-item-unread-messages-container small" id="unread"
-                            hx-post="{% url 'clear_unread' %}" 
-                            hx-trigger="load delay:10s"
+                            hx-post="{% url 'clear_unread' username group_username %}" 
+                            hx-trigger="load delay:3s"
                             hx-vals='{"username": "{{ user_profile.username }}"  }'
                             hx-target="#unread"
                             hx-push-url="false"
@@ -1372,9 +1259,9 @@
                                 <span class="messages__section-right-container-messages-item-text">{{chat.text}}</span>
                                 <span class="messages__section-right-container-messages-item-time">{{chat.timestamp.time}}</span>
                             </div>
-                            <div id="imageModal" class="image-modal">
+                            <div id="imageSmallModal" class="image-modal">
                                 <span class="close small">&times;</span>
-                                <img class="modal-content" id="modalImage">
+                                <img class="modal-content" id="modalSmallImage">
                                 <div id="caption"></div>
                                 <div class="modal-btns">
                                 <a class="prev small">&#10094;</a>
@@ -1462,9 +1349,9 @@
     {% else %}
         <div class="messages__section-right-container-message-input-container small">
             <div id="image-preview-message-container-small" class="image-preview-message-container small"></div>
-            <span class="messages__section-right-container-message-input-btn" id="image-upload-input-btn-small">
+            <span class="messages__section-right-container-message-input-btn {% if user_profile == aiprofile %} disabled {% endif%}" id="image-upload-input-btn-small">
                 <label class="image-upload-input-label" for="image-upload-input-small"> <i class='bx bx-plus'  id="image-upload-icon"></i></label>
-                <input class="image-upload-input" type="file" id="image-upload-input-small" accept="image/*" multiple >
+                <input class="image-upload-input {% if user_profile == aiprofile %} disabled {% endif%}" type="file" id="image-upload-input-small" accept="image/*" multiple >
             </span>
         
         <div class="messages__section-right-container-message-input small">
@@ -1585,167 +1472,7 @@
 </script>
 
 <script>
-    // <!-- RECEIVING WEB SOCKET -->
-    var chatContainer = document.querySelector('.send_message_btn.small');
-    var chatBodyConItems =  document.querySelector('.messages__section-right-container-messages-items.small');
-    var chatReceiver = chatContainer.getAttribute('data-receiver');
-    var chatIdentifier = chatContainer.getAttribute('data-conversation-id');
-    var chatDisplayName = chatContainer.getAttribute('data-display-name');
-    var typingContainer = document.querySelector('.messages__section-right-container-header-info-status.small');
-    var isGroup = chatContainer.getAttribute('data-group');
    
-    var doneTypingInterval = 3000; // Time in milliseconds, adjust as needed
-
-    var chatSender;
-    if (isGroup === "True") {
-        // Use 'data-group-sender' if it's a group chat
-        chatSender = chatContainer.getAttribute('data-group-sender');
-    } else {
-        // Use 'data-sender' otherwise
-        chatSender = chatContainer.getAttribute('data-sender');
-    }
-
-    
-    var messagesmallEl = (message, time, sender,  id, images = [], dp) => {
-            var chatEl = document.createElement("div");
-            chatEl.classList.add("messages__section-right-container-messages-item");
-            chatEl.id = `message-${id}`;
-            // Create the images container if there are images
-            var imagesHtml = '';
-            if (images.length > 0) {
-                var imageCount = images.length;
-                imagesHtml = `
-                    <div class="community__section-right-body-container-posts-item-body-media messages ${imageCount === 1 ? 'single-image' : ''}" data-id=${id}>
-                `;
-                
-                images.forEach((image, index) => {
-                    if (index <= 3) {  // Display up to 4 images, similar to your logic
-                        imagesHtml += `
-                            <div class="community__section-right-body-container-posts-item-body-media-item" data-id=${id}>
-                                <img src="${image}" alt="Image" class="image-preview small" data-index=${index}>
-                                ${index === 3 && imageCount > 4 ? `<div class="overlay" data-image-url="${image}" data-id=${id}>
-                                    +${imageCount - 4}
-                                </div>` : ''}
-                            </div>
-                        `;
-                    } else {
-                        imagesHtml += `<img src="${image}" alt="Image" class="image-preview small hide" data-index=${index}>`;
-                    }
-                });
-
-                imagesHtml += `</div>`;
-            }
-
-            var dPImage;
-            var senderHtml;
-
-            if (isGroup == "True")
-            {
-                senderHtml = `<span class="messages__section-right-container-messages-item-name">${sender}</span>`
-            } else {
-                senderHtml = ``
-                
-            }
-            
-
-            if (dp)
-                {
-                    dPImage = dp
-            } else {
-                dPImage = `{% static 'images/ava.png'%}`
-            }
-
-            // Insert the message text and images into the chat element
-            chatEl.innerHTML = `
-                 <div class="messages__section-right-container-messages-item-img">
-                    <img  src="${dPImage}" alt="">
-                    <div class="active-indicator-small"></div>
-                 </div>
-                <div class="messages__section-right-container-messages-item-container">
-                    ${senderHtml}
-                    ${imagesHtml}
-                    <span class="messages__section-right-container-messages-item-text">${message}</span>
-                    <span class="messages__section-right-container-messages-item-time">${time}</span>
-                </div>
-                
-
-                <div id="imageModal" class="image-modal">
-                                <span class="close small">&times;</span>
-                                <img class="modal-content" id="modalImage">
-                                <div id="caption"></div>
-                                <div class="modal-btns">
-                                <a class="prev small">&#10094;</a>
-                                <a class="next small">&#10095;</a>
-                                </div>
-                            
-                            </div>
-            `;
-            
-            return chatEl;
-        };
-
-    
-
-    // var socket = new WebSocket(
-    //     'ws://'
-    //     + window.location.host
-    //     + '/ws/chat/public_room/'
-    //     + chatIdentifier
-    //     + '/'
-    // );
-        
-    // socket.onopen = function (e) {
-    //     console.log("The connection was setup successfully !");
-    //     //console.log(chatIdentifier);
-    //   };
-    // socket.onclose = function (e) {
-    //     console.log("Something unexpected happened !");
-    //   };
-
-    // socket.onmessage = function (event) {
-    //     const data = JSON.parse(event.data);
-    //     console.log("Waiting for message!");
-    //     console.log(data.sender);
-    //     console.log(chatSender);
-      
-    //     // if(unreadMessages)
-    //     // {
-    //     //     unreadMessages.style.display = 'none';
-    //     // }
-
-    //     if (chatSender != data.sender)
-    //         {
-    //             console.log(data)
-    //             console.log(data.timestamp);
-    //             if ( data.mode == "indicator")
-    //                 {
-    //                     if (isGroup == "True")
-    //                         {
-    //                              typingContainer.innerText = data.name + " is typing..."
-    //                         } else {
-    //                              typingContainer.innerText = "Typing..."
-    //                         }
-
-    //                     setTimeout(doneTyping, doneTypingInterval);
-                       
-
-    //                    // scrollToBottom();
-    //                 } else {
-    //                     chatBodyConItems.appendChild(messagesmallEl(data.message, data.timestamp, data.name, data.id, data.images, data.dp));
-    //                     scrollToBottomsmall();
-    //                     //typingContainer.style.display = "none"
-    //                     //scrollToBottom();
-    //                    //  clearMessages();
-
-    //                 }
-    //         }
-    // };
-
-    function doneTyping() {
-        // Replace this with your function to send the message over a web request
-        typingContainer.innerText = "Online"
-        console.log('User stopped typing.');
-    }
 
     // <!-- SENDING WEB SOCKET -->
 
@@ -1841,11 +1568,11 @@
 </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+ 
        var currentPostImages = [];
        var currentPostId = null;
-       var modal = document.getElementById('imageModal');
-       var modalImg = document.getElementById('modalImage');
+       var modal = document.getElementById('imageSmallModal');
+       var modalImg = document.getElementById('modalSmallImage');
        var captionText = document.getElementById('caption');
        var currentIndex;
    
@@ -1868,7 +1595,6 @@
            currentPostImages = Array.from(document.querySelectorAll(`#message-${postId} .image-preview.small`));
          
            currentIndex = currentPostImages.indexOf(image);
-   
    
            // Display the modal with the selected image
            modal.style.display = "flex";
@@ -1893,6 +1619,7 @@
    
        document.querySelectorAll('.image-preview.small').forEach((image) => {
            image.addEventListener('click', function() {
+                console.log("image clicked");
                var postId = this.closest('.community__section-right-body-container-posts-item-body-media-item').getAttribute('data-id');
                openModal(this, postId);
            });
@@ -1920,10 +1647,10 @@
                captionText.innerHTML = currentPostImages[currentIndex].alt;
            }
        }
-   });
+
    
    
-   document.addEventListener('DOMContentLoaded', function() {
+  
        
    
        function openImage(imageUrl) {
@@ -1941,7 +1668,7 @@
                imgOverlay.remove();
            });
        }
-   });
+ 
    
    
 </script>
@@ -1957,7 +1684,7 @@
     var unreadMessagessmall = document.querySelector('.messages-detail__body-item-unread-messages-container.small');
   
     console.log("wsbfchasbfa");
-    var chatBodyConsmall = document.querySelector('.messages__section-right-container-messages.small');
+    var chatBodyConsmall = document.querySelector('.messages__section-right-container-messages-items.small');
     
     // Make sure chatBodyCon is not null before getting attribute
     if (chatBodyConsmall) {
@@ -2024,10 +1751,17 @@
   
 
   function scrollToUnreadsmall() {
-      var section = document.querySelector('.messages-detail__body-item-unread-messages-container.small');
-      if (section) {
-          section.scrollIntoView();
-      }
+      // Select the unread messages container
+      var sectionScroll = document.querySelector('.messages-detail__body-item-unread-messages-container.small');
+        
+        // Select the chat body container
+        var chatBody = document.querySelector('.messages__section-right-container-messages.small');
+        
+        // Ensure both elements exist
+        if (sectionScroll && chatBody) {
+            // Scroll the chat body to the top position of the unread messages container
+            chatBody.scrollTop = sectionScroll.offsetTop - chatBody.offsetTop;
+        }
   }
 
   function scrollToBottomsmall() {
@@ -2042,6 +1776,20 @@
       var cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
       return cookieValue ? cookieValue.pop() : '';
   }
+
+
+  function appendTypingAnimation() {
+            var chatBody = document.querySelector('.messages__section-right-container-messages-items.small');
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            chatBody.appendChild(typingIndicator);
+    }
+
+    function removeTypingAnimation() {
+        $('.typing-indicator').remove();
+    }
+
+
 
   function newChatsmall(element)  {
    
@@ -2135,11 +1883,24 @@
                        
                         
                         chatBody.appendChild(messagesmallEl(textMessageValue, response.time, response.id, response.images));
-                        
-                        
+                        scrollToBottomsmall();
+
+                        if (response.text != "")
+                        {
+                            appendTypingAnimation();
+                            scrollToBottomsmall();
+
+                            setTimeout(() => {
+                                removeTypingAnimation();
+                                chatBody.appendChild(messageAIsmallEl(response.text, response.time));
+                                scrollToBottomsmall();
+                            }, 2000);
+                        } else {
+                            sendMessage(textMessageValue, chatSender, chatDisplayName, response.id, response.images, response.dp);
+                        }
                         scrollToBottomsmall();
                         selectedsmallImages = [];
-                        sendMessage(textMessageValue, chatSender, chatDisplayName, response.id, response.images, response.dp);
+                       
                     } else {
                         console.log("Unexpected response:", response);
                     }
@@ -2159,6 +1920,24 @@
         dateEl.classList.add("messages__section-right-container-messages-datestamp");
         dateEl.innerHTML = `<span> Today </span>`;
         return dateEl;
+    };
+
+    var messageAIsmallEl = (message, time) => {
+            var chatEl = document.createElement("div");
+            chatEl.classList.add("messages__section-right-container-messages-item");
+
+            chatEl.innerHTML = `
+                    <div class="messages__section-right-container-messages-item-img">
+                    <img  src="{% static 'images/logo/icon.svg' %}" alt="">
+                    <div class="active-indicator-small"></div>
+                </div>
+                <div class="messages__section-right-container-messages-item-container">
+                    <span class="messages__section-right-container-messages-item-text">${message}</span>
+                    <span class="messages__section-right-container-messages-item-time">${time}</span>
+                </div>
+            `;
+            
+            return chatEl;
     };
 
     var messagesmallEl = (message, time, id, images = []) => {

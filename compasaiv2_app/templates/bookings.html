@@ -1,0 +1,1606 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="bookings__section">
+    <div class="bookings__section-header">
+        <div class="bookings__section-header-left">
+            <span class="bookings__section-header-title">
+                Bookings
+            </span>
+            <span class="bookings__section-header-subtitle">
+                See your scheduled events from your calendar events links
+            </span>
+        </div>
+        {% if profile.user_type == 'mentor' %}
+        <a href="/meetings" class="bookings__section-header-right">
+            <span>
+                Schedule Sessions
+            </span>
+        </a>
+        {% else %}
+        <a href="/connect" class="bookings__section-header-right">
+            <span>
+                Browse Mentors
+            </span>
+        </a>
+        {% endif %}
+    </div>
+    <div class="bookings__section-menu">
+        <a href="/bookings/upcoming" class="{% if status == 'upcoming' %}active{% endif %}">
+            Upcoming
+        </a>
+        <a href="/bookings/past" class="{% if status == 'past' %}active{% endif %}">
+            Past
+        </a>
+        <a  href="/bookings/reschedule" class="{% if status == 'reschedule' %}active{% endif %}">
+            Reschedule
+        </a>
+        <a href="/bookings/completed" class="{% if status == 'completed' %}active{% endif %}">
+            Completed
+        </a>
+        <a  href="/bookings/cancelled" class="{% if status == 'cancelled' %}active{% endif %}">
+            Cancelled
+        </a>
+    </div>
+    <div class="bookings__section-view">
+        <span class="active" id="list-view">
+            List View
+        </span>
+        <span id="calendar-view">
+            Calendar View
+        </span>
+    </div>
+    <div class="bookings__section-body">
+        <div class="bookings__section-body-calendar-view " data-value="{{bookings_json}}">
+            <header>
+                <p class="current-date"></p>
+                <div class="icons">
+                    <span id="prev" class="material-symbols-rounded"><i class='bx bx-chevron-left'></i></span>
+                    <span id="next" class="material-symbols-rounded"><i class='bx bx-chevron-right' ></i></span>
+                </div>
+            </header>
+            <div class="calendar">
+                <ul class="weeks">
+                    <li>Sun</li>
+                    <li>Mon</li>
+                    <li>Tue</li>
+                    <li>Wed</li>
+                    <li>Thu</li>
+                    <li>Fri</li>
+                    <li>Sat</li>
+                </ul>
+                <ul class="days">
+                    
+                </ul>
+            </div>
+        </div>
+
+        <div class="bookings__section-body-list-view">
+            
+            {% for booking in bookings %}
+                <!-- <div class="bookings__section-body-month-title">
+                    <span>This Month</span>
+                </div> -->
+                <div class="home_section-mentor-container-item-booking-item next-event" id="booking_{{booking.id}}"
+                            data-session="{{booking.session.session}}"
+                            data-session_id={{booking.session.id}}
+                            data-mentor_username="{{booking.session.mentor.username}}"
+                            data-title="{{booking.session.get_session_display}}"
+                            data-duration={{booking.session.duration}}
+                            data-about="{{booking.session.about}}"
+                            data-amount={{booking.session.amount}}
+                            data-date="{{booking.date}}"
+                            data-start_time="{{booking.start_time}}"
+                            data-end_time="{{booking.end_time}}"
+                            data-times="{{booking.session.times}}"
+                            data-freq={{booking.session.frequency}}
+                            data-type="{{booking.session.type}}"
+                            data-link="{{booking.session.link}}"
+                            data-note="{{booking.note}}"
+                            data-id="{{booking.id}}"
+                            data-status="{{booking.status}}"
+                            data-mentor_feedback="{{booking.mentor_feedback}}"
+                            data-mentor_rating="{{booking.mentor_rating}}"
+                            data-learner_feedback="{{booking.learner_feedback}}"
+                            data-learner_rating="{{booking.learner_rating}}"
+                            data-learner_confirm="{{booking.learner_confirmation}}"
+                            data-mentor_confirm="{{booking.mentor_confirmation}}"
+                            data-user_type="{{profile.user_type}}"
+                     >
+
+                    <div class="home_section-mentor-container-item-booking-item-left">
+                        <div class="home_section-mentor-container-item-booking-item-left-date">
+                            <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                {{ booking.date|date:"M" |upper }}
+                            </span>
+                            <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                {{booking.date.day}}
+                            </span>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item-left-info">
+                            <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                <i class='bx bxs-time-five' ></i>
+                                {{booking.start_time}}-{{booking.end_time}}
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-left-location">
+                                <i class='bx bxs-map' ></i>
+                                Google Meet
+                            </div>
+                        </div>
+                    </div>
+                    <div class="home_section-mentor-container-item-booking-item-right">
+                        <div class="home_section-mentor-container-item-booking-item-right-top">
+                            {% if profile.user_type == 'mentor '%}
+                            <span>
+                                {{booking.session.duration}} mins  {{booking.session.get_session_display}}, {{booking.learner.display_name}}
+                            </span>
+                            {% else %}
+                            <span>
+                                {{booking.session.duration}} mins  {{booking.session.get_session_display}}, {{booking.session.mentor.display_name}}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                            <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                {% if booking.session.mentor.profile_picture %}
+                                    <img  src="{{  booking.session.mentor.profile_picture.url }}" alt="">
+                                {% else %}
+                                    <img  src="{% static 'images/ava.png'%}" alt="">
+                                {% endif %}
+                                {% if booking.learner.profile_picture %}
+                                        <img  src="{{  booking.learner.profile_picture.url }}" alt="">
+                                    {% else %}
+                                        <img  src="{% static 'images/ava.png'%}" alt="">
+                                    {% endif %}
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                <span>
+                                    View
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% empty %}
+            <div class="calendar__section-header-noslot" style="display: flex;">
+                <span>
+                    No {{status}} booking available
+                </span>
+                
+            </div>
+                
+            {% endfor %}
+            
+         
+           
+        
+        </div>
+
+        
+    </div>
+</div>
+
+
+
+<div class="create__group-section booking_details-popup" id="create_group">
+    <div class="book-a-session__section-container-body meeting_details">
+        <div class="meetings__section-body-right-container">
+            <div class="meetings__section-body-right-container-header">
+                <div class="create__group-section-container-header-nav ">
+                    <span onclick="hideEventDetailContainer()">
+                        <i class='bx bx-left-arrow-alt'></i> Back
+                      </span>
+                </div>
+            </div>
+            <div class="meetings__section-body-right-container-body">
+                <div class="book-a-session__section-container-body">
+                    <span class="book-a-session__section-container-body-title">
+                        Booking Details
+                    </span>
+                    <a href="{% url 'profile' profile.username %}" class="book-a-session__section-container-body-profile">
+                      <div class="book-a-session__section-container-body-img">
+                        {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="">
+                        {% else %}
+                        <img  src="{% static 'images/ava.png'%}" alt="">
+                        {% endif %}
+                          <span class="active-indicator"></span>
+                      </div>
+                      <div class="book-a-session__section-container-body-profile-info">
+                          <span class="book-a-session__section-container-body-profile-info-role">
+                              {{profile.display_name}}
+                          </span>
+                          <span class="book-a-session__section-container-body-profile-info-bio">
+                              {{profile.bio}}
+                          </span>
+                      </div>
+                    </a>
+                    <div class="book-a-session__section-container-body-info">
+                        <div class="book-a-session__section-container-body-info-status">
+                            
+                        </div>
+                        <div class="book-a-session__section-container-body-info-body">
+                            <div class="book-a-session__section-container-body-info-item" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
+                                <span class="book-a-session__section-container-body-info-item-icon">
+                                    <i class='bx bx-coffee'></i>
+                                </span>
+                                <span class="book-a-session__section-container-body-info-item-amount">
+                                    $15
+                                </span>
+                                <span class="book-a-session__section-container-body-info-item-title">
+                                    Coffee Chat
+                                </span>
+                                <span class="book-a-session__section-container-body-info-item-subtitle session_about">
+                                   
+                                </span>
+                                <span class="book-a-session__section-container-body-info-item-subtitle session_info">
+                                    30 Minutes | Recurring (2 times)
+                                </span>
+                                <span class="book-a-session__section-container-body-info-item-subtitle session_location">
+                                    <i class='bx bx-video' ></i> Google Meet
+                                </span>
+                               
+                            </div>
+                        </div>
+            
+                      <div class="note__section" id="note">
+                            <div class="note__section-header">
+                                <div class="note__section-header-title">
+                                    <span>
+                                        Schedule
+                                    </span>
+                                </div>
+                                <div class="note__section-header-info">
+                                    <div class="note__section-header-info-item">
+                                        <span id="booking_info_date_preview">
+                                            From Sep 7, 2024 to Oct 9, 2024
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="note__section-header-info-links">
+                                    
+                                    <span id="show_completed">
+                                        Mark as Completed 
+                                    </span>
+                                    <span id="show_reschedule">
+                                        Request Reschedule
+                                    </span>
+                                    <span id="show_reschedule_booking">
+                                         Reschedule Booking
+                                    </span>
+                                    <span id="show_cancel_booking">
+                                        Cancel Booking
+                                    </span>
+                                </div>
+                                <div class="note__section-header-info-reviews">
+                                    <div class="note__section-header-info-reviews-item learner_review">
+                                        <span class="note__section-header-info-reviews-item-title ">
+                                            Learner's Review
+                                        </span>
+                                    
+                                        <span class="note__section-header-info-reviews-item-text learner_review">
+                                            It was a gret sesstion..s.s <span>(<i class='bx bxs-star-half'></i>4.0)</span>
+                                        </span>
+                            
+                               
+                                    </div>
+                                    <div class="note__section-header-info-reviews-item mentor_review">
+                                        <span class="note__section-header-info-reviews-item-title ">
+                                            Mentor's Review
+                                        </span>
+                                    
+                                        <span class="note__section-header-info-reviews-item-text mentor_review">
+                                            It was a gret sesstion..s.s  <span>(<i class='bx bxs-star-half'></i>4.0)</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="note__section-header-info-dropdowns">
+                                    <div class="note__section-header-info-completed note__section-header-info-dropdowns-item" id="mark_completed">
+                                        <span>
+                                            <label for="">How was the session</label>
+                                            <textarea name="" placeholder="Leave Feedback" id="booking_feedback_comment"></textarea>
+                                        </span>
+                                
+                                        <span>
+                                            <label for="">How would you rate the Mentee</label>
+                                            <span class="note__section-header-info-completed-slider">
+                                                <input type="range" min="1" max="5"  class="slider" id="booking_feedback_rating" name="booking_feedback_comment" value="">
+                                                <div class="slider-labels">
+                                                    <span>Very Bad</span>
+                                                    <span>Bad</span>
+                                                    <span>Average</span>
+                                                    <span>Good</span>
+                                                    <span>Very Good</span>
+                                                </div>
+                        
+                                            </span>
+                                        </span>
+                                        <div class="note__section-header-info-completed-btn">
+                                            <span class="booking_btns" id="mark_as_completed_btn">Mark as completed</span>
+                                        </div>
+                                    </div>
+                                    <div class="note__section-header-info-confirm note__section-header-info-dropdowns-item" id="view_reschedule">
+                                        <span class="note__section-header-info-confirm-text">
+                                            Are you sure you want to request a reschedule ?
+                                        </span>
+                                
+                                        <div class="note__section-header-info-confirm-btn">
+                                            <span class="booking_btns" id="request-reschedule_btn">Request Reschedule</span>
+                                        </div>
+                                    </div>
+                                    <div class="note__section-header-info-confirm note__section-header-info-dropdowns-item" id="cancel_booking">
+                                        <span class="note__section-header-info-confirm-text">
+                                            Are you sure you want to cancel this booking?
+                                        </span>
+                                
+                                        <div class="note__section-header-info-confirm-btn">
+                                            <span class="booking_btns" id="cancel_booking_btn">Cancel Booking</span>
+                                        </div>
+                                    </div>
+
+                                  
+                                    
+                                </div>
+
+                                <div class="note__section-header-info-calendar">
+                                    <div id="calendar" class="calendar__section_display">
+                                        <div class="calendar__section-header">
+                                            <span class="calendar__section-header-title">
+                                                Select date and time
+                                            </span>
+                                            <span class="calendar__section-header-subtitle">
+                                                In your local timezone (Africa/Lagos)
+                                            </span>
+                                        </div>
+                                        <div class="calendar__section-body">
+                                            <div class="calendar__section-body-left">
+                                                <header>
+                                                    <p class="current-date_display"></p>
+                                                    <div class="icons_display">
+                                                        <span id="prev_display" class="material-symbols-rounded"><i class='bx bx-chevron-left'></i></span>
+                                                        <span id="next_display" class="material-symbols-rounded"><i class='bx bx-chevron-right' ></i></span>
+                                                    </div>
+                                                    </header>
+                                                    <div class="calendar_display">
+                                                    <ul class="weeks_display">
+                                                        <li>Sun</li>
+                                                        <li>Mon</li>
+                                                        <li>Tue</li>
+                                                        <li>Wed</li>
+                                                        <li>Thu</li>
+                                                        <li>Fri</li>
+                                                        <li>Sat</li>
+                                                    </ul>
+                                                    <ul class="days_display"></ul>
+                                                    </div>
+                                            </div>
+                                            <div class="calendar__section-body-right">
+                                                <div class="calendar__section-body-right-header_display">
+                                
+                                                </div>
+                                                <div class="calendar__section-body-time-items_display">
+                                                    
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="calendar__section-btn_display disabled" onclick="goToNote()">
+                                            <span>
+                                                Continue
+                                            </span>
+                                        </div>
+                                      </div>
+                                
+                                      <div class="note__section" id="note_calendar">
+                                        <div class="note__section-header">
+                                            <div class="note__section-header-title">
+                                                <span>
+                                                    Booking Details
+                                                </span>
+                                            </div>
+                                            <div class="note__section-header-info">
+                                                <div class="note__section-header-info-item">
+                                                    <i class='bx bx-calendar' ></i>
+                                                    <span id="booking_info_date_display">
+                                                        Thur, Aug 02
+                                                    </span>
+                                                </div>
+                                                <div class="note__section-header-info-item">
+                                                    <i class='bx bx-time-five' ></i>
+                                                    <span id="booking_info_time_display">
+                                                        3:00 PM
+                                                    </span>
+                                                </div>
+                                
+                                                <div class="note__section-header-info-item">
+                                                    <span class="booking_info_change" id="booking_info_change" onclick="changeBooking()">
+                                                        Change
+                                                    </span>
+                                                </div>
+                                
+                                            </div>
+                                        </div>
+                                        <div class="note__section-body">
+                                            <label for="booking__note">Add your question to this booking (Optional)</label>
+                                            <textarea name="" id="booking__note" placeholder="Write out your question"></textarea>
+                                        </div>
+                                        <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}" data-id={{session.id}}>
+                                            <span>
+                                                Rescehedule Booking
+                                            </span>
+                                        </div>
+                                      </div>
+                                </div>
+                            
+                            
+                            </div>
+                    
+                            
+                      </div>
+                        
+                   
+                    </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.min.js"></script>
+
+<script>
+    document.getElementById('show_completed').addEventListener('click', function()   {
+        hideAllDropdownItems();
+        document.getElementById('mark_completed').style.display = 'flex';
+        scrollToBottomCon();
+    });
+
+    document.getElementById('show_reschedule').addEventListener('click', function()   {
+        hideAllDropdownItems()
+        document.getElementById('view_reschedule').style.display = 'flex';
+        scrollToBottomCon();
+    });
+
+    document.getElementById('show_cancel_booking').addEventListener('click', function()   {
+        hideAllDropdownItems()
+        document.getElementById('cancel_booking').style.display = 'flex';
+        scrollToBottomCon();
+    });
+
+    document.getElementById('show_reschedule_booking').addEventListener('click', function()   {
+        hideAllDropdownItems();
+        const sessionID = document.getElementById('request-reschedule_btn').getAttribute('data-session_id');
+        const mentorUsername = document.getElementById('request-reschedule_btn').getAttribute('data-mentor_username');
+        console.log(sessionID);
+        console.log(mentorUsername);
+        toggleActiveSession(sessionID, mentorUsername);
+        scrollToBottomCon();
+    });
+    function hideAllDropdownItems() {
+        const dropdownItems = document.querySelectorAll('.note__section-header-info-dropdowns-item');
+        dropdownItems.forEach(item => {
+            item.style.display = 'none';
+        });
+    }
+
+    function scrollToBottomCon() {
+            const chatBody = document.querySelector('.book-a-session__section-container-body');
+            chatBody.scrollTo({
+                top: chatBody.scrollHeight,
+                behavior: 'smooth' // Enables smooth scrolling
+            });
+        }
+
+</script>
+
+<script>
+    document.getElementById('mark_as_completed_btn').addEventListener('click', function()   {
+        const bookingID = document.getElementById('mark_as_completed_btn').getAttribute('data-id');
+        const comment = document.getElementById('booking_feedback_comment');
+        const rating = document.getElementById('booking_feedback_rating');
+        var formData = new FormData();
+            var csrfToken = getCookie('csrftoken');
+            formData.append('id', bookingID);
+            formData.append('comment', comment.value);
+            formData.append('rating', rating.value);
+          
+            $.ajax({
+                url: '/mark_as_completed',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                data: formData,
+                processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+                contentType: false, 
+                success: function (response) {
+                    window.location.href = '/bookings/completed'
+                },
+                error: function (xhr, status, error) {
+                   
+                }
+            });
+    
+    });
+
+    document.getElementById('cancel_booking_btn').addEventListener('click', function()   {
+        const bookingID = document.getElementById('mark_as_completed_btn').getAttribute('data-id');
+
+        var formData = new FormData();
+            var csrfToken = getCookie('csrftoken');
+            formData.append('id', bookingID);
+          
+            $.ajax({
+                url: '/cancel_booking',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                data: formData,
+                processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+                contentType: false, 
+                success: function (response) {
+                    window.location.href = '/bookings/cancelled'
+                },
+                error: function (xhr, status, error) {
+                   
+                }
+            });
+    
+    });
+
+    document.getElementById('request-reschedule_btn').addEventListener('click', function()   {
+        const bookingID = document.getElementById('mark_as_completed_btn').getAttribute('data-id');
+
+        var formData = new FormData();
+            var csrfToken = getCookie('csrftoken');
+            formData.append('id', bookingID);
+          
+            $.ajax({
+                url: '/request_reschedule',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                data: formData,
+                processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+                contentType: false, 
+                success: function (response) {
+                    window.location.href = '/bookings/reschedule'
+                },
+                error: function (xhr, status, error) {
+                   
+                }
+            });
+    
+    });
+
+    function getCookie(name) {
+            var cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+</script>
+
+<script>
+
+        function setDataIdForBookingBtns(id, session_id, username) {
+            // Get all elements with the class 'booking_btns'
+            const bookingButtons = document.querySelectorAll('.booking_btns');
+            
+            // Loop through each element and set a 'data-id' attribute
+            bookingButtons.forEach((btn, index) => {
+                // Set data-id attribute to a unique value, for example, the index of the button
+                btn.setAttribute('data-id', id);
+                btn.setAttribute('data-session_id', session_id);
+                btn.setAttribute('data-mentor_username', username);
+            });
+        }
+
+
+        function displayFunction(element)
+        {
+            
+            console.log(element);
+          
+            const selectedTitle = element.getAttribute('data-title');
+            const session = element.getAttribute('data-session');
+            var selectedIcon;
+            const eventDuration = element.getAttribute('data-duration');
+            const eventType = element.getAttribute('data-type');
+            const eventFrequency = element.getAttribute('data-freq');
+    
+            const eventlocation = element.getAttribute('data-location');
+            // const eventDates = updateDurationText();
+            const eventAmount = element.getAttribute('data-amount');
+            const eventAbout = element.getAttribute('data-about');
+            const eventStartTime = element.getAttribute('data-start_time');
+            const eventEndTime = element.getAttribute('data-end_time');
+            const eventTimes = element.getAttribute('data-times');
+            const eventDate = element.getAttribute('data-date');
+            const eventNote = element.getAttribute('data-note');
+            const meetinglink = element.getAttribute('data-link');
+            const bookingId = element.getAttribute('data-id');
+            const bookingStatus = element.getAttribute('data-status');
+            const bookingLearnerComment = element.getAttribute('data-learner_feedback');
+            const bookingLearnerReview = element.getAttribute('data-learner_rating');
+            const bookingMentorComment = element.getAttribute('data-mentor_feedback');
+            const bookingMentorReview = element.getAttribute('data-mentor_rating');
+            const bookingLearnerConfirm = element.getAttribute('data-learner_confirm');
+            const bookingMentorConfirm = element.getAttribute('data-mentor_confirm');
+            const userType = element.getAttribute('data-user_type');
+            const sessionId = element.getAttribute('data-session_id');
+            const mentorUsername = element.getAttribute('data-mentor_username');
+    
+            if (session == "coffee_chat")
+                {
+                    selectedIcon = ` <i class='bx bx-coffee'></i>`
+            } else if (session == "speed_networking") {
+                    selectedIcon = ` <i class='bx bx-bolt-circle'></i>`
+            } else if (session == "mock_interview") {
+                    selectedIcon = ` <i class='bx bxs-microphone-alt' ></i>`
+            } else if (session == "office_hours") {
+                    selectedIcon = ` <i class='bx bxs-buildings' ></i>`
+            }else if (session == "check_ins") {
+                    selectedIcon = ` <i class='bx bx-list-check' ></i>`
+            }
+    
+            const previewSessionIcon = document.querySelector('.book-a-session__section-container-body-info-item-icon');
+            const previewSessionTitle = document.querySelector('.book-a-session__section-container-body-info-item-title');
+            const previewSessionAmount = document.querySelector('.book-a-session__section-container-body-info-item-amount');
+            const previewSessionAbout = document.querySelector('.book-a-session__section-container-body-info-item-subtitle.session_about');
+            const previewSessionInfo = document.querySelector('.book-a-session__section-container-body-info-item-subtitle.session_info');
+            const previewSessionLocation = document.querySelector('.book-a-session__section-container-body-info-item-subtitle.session_location');
+            const previewSessionDates = document.getElementById('booking_info_date_preview');
+            const previewMeetinLink = document.querySelector(".book-a-session__section-container-body-info-item-subtitle.session_location");
+            previewMeetinLink.innerHTML = `<i class='bx bx-video' > ${meetinglink}`;
+            previewSessionIcon.innerHTML = selectedIcon;
+            console.log(selectedTitle);
+            previewSessionTitle.textContent = selectedTitle;        
+            previewSessionAmount.textContent = '$' + eventAmount;
+            previewSessionAbout.textContent = eventNote;
+            var eventTypeFormat = '';
+            console.log(bookingId);
+            setDataIdForBookingBtns(bookingId, sessionId, mentorUsername);
+   
+            document.querySelector(".note__section-header-info-reviews-item.learner_review").style.display = 'none';
+            document.querySelector(".note__section-header-info-reviews-item.mentor_review").style.display = 'none';
+            document.querySelector('.book-a-session__section-container-body-info-status').style.display = 'none';
+            document.getElementById('show_reschedule').style.display ='none';
+            document.getElementById('show_cancel_booking').style.display = 'none';
+            document.getElementById('show_completed').style.display = 'none';
+            if(bookingStatus == "upcoming")
+                {
+                    if (userType == 'mentor')
+                        {
+                            document.getElementById('show_reschedule').style.display = 'block';
+                    } else {
+                        document.getElementById('show_reschedule_booking').style.display = 'block';
+                    }
+                   
+                    document.getElementById('show_cancel_booking').style.display = 'block';
+            } else if(bookingStatus == "past")
+                {
+                    document.getElementById('show_completed').style.display = 'block';
+                    
+            }else if(bookingStatus == "reschedule")
+                {
+                    
+                    document.getElementById('show_cancel_booking').style.display = 'block';
+                    document.querySelector('.book-a-session__section-container-body-info-status').style.display = 'block';
+                    
+                    document.querySelector('.book-a-session__section-container-body-info-status').classList.add(bookingStatus);
+                    if (userType != 'mentor')
+                        {
+                            document.getElementById('show_reschedule_booking').style.display = 'block';
+                            document.querySelector('.book-a-session__section-container-body-info-status').innerText = 'Reschedule Requested';
+                    } else {
+                       
+                        document.querySelector('.book-a-session__section-container-body-info-status').innerText = 'Awaiting Reschedule';
+                   
+                    }
+            }else if(bookingStatus == "completed")
+                {
+                    document.querySelector('.book-a-session__section-container-body-info-status').style.display = 'block';
+                    document.querySelector('.book-a-session__section-container-body-info-status').innerText = 'Completed';
+                    document.querySelector('.book-a-session__section-container-body-info-status').classList.add(bookingStatus);
+
+                    document.querySelector('.note__section-header-info-reviews').style.display = 'flex';
+
+                    if (bookingMentorConfirm == "False")
+                        {
+                            document.getElementById('show_completed').style.display = 'block';
+                        }
+
+                    if(bookingLearnerComment != "" && bookingLearnerReview != "")
+                        {
+                            document.querySelector(".note__section-header-info-reviews-item.learner_review").style.display = 'flex';
+                            document.querySelector(".note__section-header-info-reviews-item-text.learner_review").innerHTML = ` ${bookingLearnerComment} <span>(<i class='bx bxs-star-half'></i>${bookingLearnerReview})</span>`
+                        }
+
+                    if(bookingMentorComment != "" && bookingMentorReview != "")
+                        {
+                            document.querySelector(".note__section-header-info-reviews-item.mentor_review").style.display = 'flex';
+                            document.querySelector(".note__section-header-info-reviews-item-text.mentor_review").innerHTML = ` ${bookingMentorComment} <span>(<i class='bx bxs-star-half'></i>${bookingMentorReview})</span>`
+                    } else {
+                      // ejchdj
+                    }
+
+            }else if(bookingStatus == "cancelled")
+                {
+                    document.querySelector('.book-a-session__section-container-body-info-status').style.display = 'block';
+                    document.querySelector('.book-a-session__section-container-body-info-status').innerText = 'Cancelled';
+                    document.querySelector('.book-a-session__section-container-body-info-status').classList.add(bookingStatus);
+            }
+    
+            if (eventType == 'one_time')
+                {
+                    eventTypeFormat = 'One Time'
+                } else 
+                {
+                    eventTypeFormat = `Recurring (${eventFrequency})`
+                }
+            previewSessionInfo.textContent = eventDuration + 'minutes | ' + eventTypeFormat;
+            previewSessionDates.textContent = `${eventDate} | From ${eventStartTime} to ${eventEndTime}`
+     
+        }
+        function getDayName(abbreviation) {
+            const days = {
+                SUN: "Sunday",
+                MON: "Monday",
+                TUE: "Tuesday",
+                WED: "Wednesday",
+                THU: "Thursday",
+                FRI: "Friday",
+                SAT: "Saturday"
+            };
+            return days[abbreviation] || abbreviation;
+        }
+        function formatTime(time) {
+            const [hour, minute] = time.split(':');
+            let formattedTime = '';
+            let period = 'AM';
+    
+            let hourInt = parseInt(hour);
+            if (hourInt >= 12) {
+                period = 'PM';
+                if (hourInt > 12) hourInt -= 12;
+            } else if (hourInt === 0) {
+                hourInt = 12;
+            }
+    
+            formattedTime = `${hourInt}:${minute} ${period}`;
+            return formattedTime;
+        }
+    
+        function populateBookingInfo(availability) {
+            // Parse the JSON if it's in string format
+           //const availability = JSON.parse(availabilityJSON);
+    
+            // Get the container where the booking info will be added
+            const bookingInfoContainer = document.querySelector('.note__section-header-info-items');
+            
+            // Clear any previous content
+            bookingInfoContainer.innerHTML = '';
+    
+            // Loop through the availability array and create HTML for each item
+            availability.forEach(item => {
+                // Create a div for the booking info
+                const bookingInfo = document.createElement('div');
+                bookingInfo.classList.add('note__section-header-info');
+    
+                // Create the date section
+                const dateItem = document.createElement('div');
+                dateItem.classList.add('note__section-header-info-item');
+                dateItem.innerHTML = `
+                    <i class='bx bx-calendar'></i>
+                    <span id="booking_info_date">Every ${getDayName(item.day)}</span>
+                `;
+    
+                // Create the time section
+                const timeItem = document.createElement('div');
+                timeItem.classList.add('note__section-header-info-item');
+                timeItem.innerHTML = `
+                    <i class='bx bx-time-five'></i>
+                     <span id="booking_info_time">${formatTime(item.start_time)} - ${formatTime(item.end_time)}</span>
+                `;
+    
+                // Append the date and time to the bookingInfo div
+                bookingInfo.appendChild(dateItem);
+                bookingInfo.appendChild(timeItem);
+    
+                
+    
+                // Append the booking info to the main container
+                bookingInfoContainer.appendChild(bookingInfo);
+        });
+    }
+</script>
+
+<script>
+    
+  function showEventDetailContainer(element)
+    {
+      document.querySelector('.create__group-section').style.display = 'flex';
+      hideAllDropdownItems();
+      displayFunction(element);
+    }
+  function hideEventDetailContainer()
+    {
+      document.querySelector('.create__group-section').style.display = 'none';
+    }
+</script>
+
+<script>
+    // Select the span elements
+    const menuSpans = document.querySelectorAll('.bookings__section-menu span');
+
+    // Function to toggle the active class and trigger specific functions
+    menuSpans.forEach(span => {
+        span.addEventListener('click', () => {
+            // Remove the 'active' class from all spans
+            menuSpans.forEach(item => item.classList.remove('active'));
+            
+            // Add 'active' class to the clicked span
+            span.classList.add('active');
+            
+            
+            
+        });
+    });
+
+</script>
+
+<script>
+    // Select the span elements
+    const listSpans = document.querySelectorAll('.home_section-mentor-container-item-booking-item');
+
+    // Function to toggle the active class and trigger specific functions
+    listSpans.forEach(span => {
+        span.addEventListener('click', () => {
+            // Remove the 'active' class from all spans
+            listSpans.forEach(item => item.classList.remove('active'));
+            
+            // Add 'active' class to the clicked span
+            span.classList.add('active');
+            showEventDetailContainer(span);
+            
+            
+        });
+    });
+
+</script>
+
+<script>
+    // Select the span elements
+    const viewSpans = document.querySelectorAll('.bookings__section-view span');
+
+    // Function to toggle the active class and trigger specific functions
+    viewSpans.forEach(span => {
+        span.addEventListener('click', () => {
+            // Remove the 'active' class from all spans
+            viewSpans.forEach(item => item.classList.remove('active'));
+            
+            // Add 'active' class to the clicked span
+            span.classList.add('active');
+            
+            // Trigger separate functions based on which span was clicked
+            if (span.id === "list-view") {
+                handleListView(); // Call list view function
+            } else if (span.id === "calendar-view") {
+                handleCalendarView(); // Call calendar view function
+            }
+        });
+    });
+
+    // Separate functions for each view
+    function handleListView() {
+        console.log('List View activated');
+        const listView = document.querySelector('.bookings__section-body-list-view');
+        const calendarView = document.querySelector('.bookings__section-body-calendar-view');
+
+        listView.style.display = 'block'
+        calendarView.style.display = 'none'
+
+    }
+
+    function handleCalendarView() {
+        console.log('Calendar View activated');
+        // Add logic to display Calendar View
+        const listView = document.querySelector('.bookings__section-body-list-view');
+        const calendarView = document.querySelector('.bookings__section-body-calendar-view');
+
+        listView.style.display = 'none'
+        calendarView.style.display = 'block'
+        let bookingInfo = {};
+        let bookedInfo = [];
+
+        initializeCalendar(bookedInfo, bookingInfo);
+
+    }
+
+</script>
+
+<script>
+
+
+    function scrollToBottom() {
+        const chatBody = document.querySelector('.bookings__section-body');
+        
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: 'smooth' // Enables smooth scrolling
+        });
+    }
+
+    function clickItem(id)
+            {
+                
+                var booking_id = `booking_${id}`;
+                console.log(booking_id);
+                document.getElementById(booking_id).click()
+            }
+
+
+
+    function initializeCalendar(booking_data, booked_data) {
+       
+
+        const daysTag = document.querySelector(".days"),
+            currentDate = document.querySelector(".current-date"),
+            prevNextIcon = document.querySelectorAll(".icons span"),
+            timeSlotHeader = document.querySelector('.calendar__section-body-right-header'),
+            timeSlotSection = document.querySelector('.calendar__section-body-time-items'); // A section to show the available time slots
+
+        // getting current year and month
+        let date = new Date(),
+            currYear = date.getFullYear(),
+            currMonth = date.getMonth();
+
+        // storing full names of all months in an array
+        const months = ["January", "February", "March", "April", "May", "June", "July", 
+                        "August", "September", "October", "November", "December"];
+
+        // Function to check if a given date is available based on the booking data
+        const isAvailableDate = (day, month, year, booking_data) => {
+            const startDate = new Date(booking_data.start);
+            const period = booking_data.period; // Period in weeks
+            const mode = booking_data.mode; // 'repeat' or 'one-time'
+            const availableDays = booking_data.days; // Array of days like ['Monday', 'Wednesday']
+
+            // Calculate the end date based on period (in weeks)
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + (period * 7)); // Period is in weeks
+
+            const currentDate = new Date(year, month, day);
+
+            // If the mode is 'repeat', check if the current date falls within the period
+            if (currentDate >= startDate && currentDate <= endDate) {
+                const dayName = currentDate.toLocaleString('default', { weekday: 'long' }); // Get the day name
+                // Check if the day name matches any of the available days
+                return availableDays.includes(dayName);
+            }
+
+            return false;
+        };
+
+
+
+        // Render the calendar with active and inactive dates
+        // Render the calendar with active and inactive dates
+        const renderCalendar = () => {
+        let firstDayOfMonth = new Date(currYear, currMonth, 1).getDay(), // getting first day of the month
+            lastDateOfMonth = new Date(currYear, currMonth + 1, 0).getDate(), // getting last date of the month
+            lastDayOfMonth = new Date(currYear, currMonth, lastDateOfMonth).getDay(), // getting last day of the month
+            lastDateOfLastMonth = new Date(currYear, currMonth, 0).getDate(); // getting last date of previous month
+        let liTag = "";
+
+        // Create li elements for the previous month's last days
+        for (let i = firstDayOfMonth; i > 0; i--) {
+            liTag += `<li class="inactive other-month-item">${lastDateOfLastMonth - i + 1}</li>`;
+        }
+
+        const calendarCon = document.querySelector('.bookings__section-body-calendar-view');
+        const sessionData = JSON.parse(calendarCon.getAttribute('data-value')) ;
+
+        //var sessionData = JSON.parse('{{ bookings_json|escapejs }}');
+        console.log(sessionData);
+
+
+       
+        // Create li elements for all days of the current month
+        for (let i = 1; i <= lastDateOfMonth; i++) {
+            const currentDate = new Date(currYear, currMonth, i);
+            const currentDateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+            const isToday = i === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "today" : "";
+
+            let bookedItemsHtml = '';
+            let matchingSessions = sessionData.filter(session => session.date === currentDateStr); // Filter sessions for the current date
+
+            // If there are matching sessions, create the HTML for the booked items
+            if (matchingSessions.length > 0) {
+                let bookedItemsArray = matchingSessions.map(session => `<span class="booked-li_item ${session.type}" onclick=clickItem(${session.id})>${session.title}</span>`);
+                
+                // Logic to show only the first 4 items and a "+ more" label
+                if (bookedItemsArray.length > 4) {
+                    bookedItemsArray = bookedItemsArray.slice(0, 4); // Only keep the first 4
+                    const remainingItemsCount = matchingSessions.length - 4;
+                    bookedItemsArray.push(`<span class="booked-li_item more-items">+${remainingItemsCount} more</span>`); // Add "+x more" label
+                }
+
+                bookedItemsHtml = `
+                    <div class="booked-li_items">
+                        ${bookedItemsArray.join('')}  <!-- Join the items into a single string -->
+                    </div>
+                `;
+            } else {
+                bookedItemsHtml = ''; // No items for this date
+            }
+
+            liTag += `
+                <li class="${isToday} calendar-date-item" data-day="${i}" data-month="${currMonth}" data-year="${currYear}">
+                    <div class='calendar-date-item-value'>${i}</div> 
+                    ${bookedItemsHtml}  <!-- Show the booked items here -->
+                </li>`;
+        }
+
+        // Create li elements for the next month's first days
+        for (let i = lastDayOfMonth; i < 6; i++) {
+            liTag += `<li class="inactive other-month-item">${i - lastDayOfMonth + 1}</li>`;
+        }
+
+        currentDate.innerText = `${months[currMonth]} ${currYear}`; // Display the current month and year
+        daysTag.innerHTML = liTag; // Insert the days into the calendar
+
+        // Attach event listeners to each day
+        const dateItems = document.querySelectorAll('.calendar-date-item');
+        dateItems.forEach(item => {
+            item.addEventListener('click', function () {
+                const day = this.getAttribute('data-day');
+                const month = this.getAttribute('data-month');
+                const year = this.getAttribute('data-year');
+                handleDateClick(item, day, month, year, booking_data);
+            });
+        });
+        };
+
+
+        // Handle the date click and show available times
+        window.handleDateClick = (item, day, month, year, booking_data) => {
+            // Highlight the selected date
+            const allDates = document.querySelectorAll('.calendar-date-item');
+            allDates.forEach(date => date.classList.remove('active'));
+            const selectedDate = document.querySelector(`.calendar-date-item:nth-child(${day})`);
+            console.log(item);
+            // item.classList.add('active');
+
+            // Display available times for the selected date
+           //displayAvailableTimes(day, month, year, booking_data);
+        };
+
+        renderCalendar();
+
+        
+        function toggleActiveDate(selectedElement) {
+                // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+                const elements = document.getElementsByClassName('calendar-date-item');
+                
+                // Remove the 'active' class from all elements
+                for (let element of elements) {
+                    element.classList.remove('active');
+                }
+                
+                // Add the 'active' class to the clicked element
+                selectedElement.classList.add('active');
+
+                
+            }
+
+        // Add click event for previous and next icons
+        prevNextIcon.forEach(icon => {
+            icon.addEventListener("click", () => {
+                currMonth = icon.id === "prev" ? currMonth - 1 : currMonth + 1;
+
+                if (currMonth < 0 || currMonth > 11) {
+                    date = new Date(currYear, currMonth, new Date().getDate());
+                    currYear = date.getFullYear();
+                    currMonth = date.getMonth();
+                } else {
+                    date = new Date();
+                }
+
+                renderCalendar();
+            });
+        });
+}
+
+
+</script>
+
+
+<script>
+    let bookingInfo = {};
+    let bookedInfo = [];
+    let session_id;
+
+    function submitBooking() {
+        const dateTime = getActiveDateAndTime(),
+            confirmBtn = document.querySelector('.note__section-btn'),
+            username = confirmBtn.getAttribute('data-mentor'),
+            id = confirmBtn.getAttribute('data-id'),
+           
+            bookingId = document.getElementById('request-reschedule_btn').getAttribute('data-id'),
+            mentorUsername = document.getElementById('request-reschedule_btn').getAttribute('data-mentor_username'),
+            
+            formData = new FormData(),
+            noteText = document.getElementById('booking__note').value;
+
+        console.log('THIS ONE SHAAA');
+        console.log(bookingId);
+        console.log(mentorUsername);
+        formData.append('date',  dateTime.date);
+        formData.append('time',  dateTime.time);
+        formData.append('booking_id',  bookingId);
+        formData.append('username',  mentorUsername);
+        formData.append('note',  noteText);
+
+        $.ajax({
+            url: '/reschedule_booking', // Replace with the URL to your Django view for saving the profile
+            type: 'POST',
+            data: formData,
+            processData: false, // Important: Prevent jQuery from processing the data
+            contentType: false, // Important: Set the content type to false
+            success: function (response) {
+                // Handle the success response from the server
+                confirmBtn.classList.add('booked');
+                confirmBtn.innerHTML = `<i class='bx bx-check'></i> <span>Reschedule Confirmed!</span>`
+                setTimeout(removeOverlayAndChangeURL(response.message, 'message'), 1000);
+                  
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                // Handle errors if needed
+                console.error('Error:', errorThrown);
+            }
+        });
+
+        document.getElementById('booking__note').value = '';
+
+    }
+
+
+    function resetFilter()
+      {
+          const allDates = document.querySelectorAll('.calendar-date-item');
+          const timeSlotSection = document.querySelector('.calendar__section-body-time-items'); 
+          if (allDates)
+              {
+                  allDates.forEach(date => date.classList.remove('active'));
+              }
+
+          timeSlotSection.innerHTML = "";
+          
+      }
+
+      function formatDate(mode, selectedDate, frequency = 0) {
+            const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            // Parse the selected date into a JavaScript Date object
+            const date = new Date(selectedDate);
+            const dayOfWeek = dayNames[date.getDay()];
+            const month = monthNames[date.getMonth()];
+            const day = date.getDate();
+            const year = date.getFullYear();
+
+            // If mode is 'one_time', return the formatted date (e.g., "Thu, Aug 02")
+            if (mode === 'one_time') {
+                return `${dayOfWeek}, ${month} ${day < 10 ? '0' + day : day}`;
+            }
+
+            // If mode is 'repeat', calculate recurring dates based on frequency
+            if (mode === 'repeat') {
+                let recurringDates = [];
+                let currentDate = new Date(date);
+                for (let i = 0; i < frequency; i++) {
+                    const formattedDate = `${monthNames[currentDate.getMonth()]} ${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}`;
+                    recurringDates.push(formattedDate);
+
+                    // Add 7 days to current date to get the next occurrence
+                    currentDate.setDate(currentDate.getDate() + 7);
+                }
+
+                // Format the recurring message (e.g., "Every Monday (Aug 02 - Aug 23)")
+                const firstDate = recurringDates[0];
+                const lastDate = recurringDates[recurringDates.length - 1];
+                return `Every ${dayOfWeek} (${firstDate} - ${lastDate})`;
+            }
+        }
+
+
+        function getActiveDateAndTime() {
+                // Retrieve the active date element
+                const activeDateElement = document.querySelector('.calendar-date-item_display.active');
+                
+                if (activeDateElement) {
+                    const day = activeDateElement.getAttribute('data-day');
+                    const month = activeDateElement.getAttribute('data-month');
+                    const year = activeDateElement.getAttribute('data-year');
+                    
+                    // Format the date as YYYY-MM-DD
+                    const formattedDate = `${year}-${(parseInt(month) + 1).toString().padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+                    // Retrieve the active time element
+                    const activeTimeElement = document.querySelector('.calendar__section-body-time-item_display.active');
+                    const activeTime = activeTimeElement ? activeTimeElement.innerText : null;  // Get the text (time) of the active element
+
+                    // Return both the formatted date and active time
+                    return {
+                        date: formattedDate,
+                        time: activeTime
+                    };
+                }
+
+                // Return null if no active date is selected
+                return {
+                    date: null,
+                    time: null
+                };
+            }
+
+
+
+    function goToNote()
+      {
+        const noteSection = document.getElementById('note_calendar');
+        const noteDate = document.getElementById('booking_info_date_display');
+        const noteTime = document.getElementById('booking_info_time_display');
+        const info = getActiveDateAndTime();
+        const selectedDateItem = info.date;
+        const selectedTime = info.time;
+        
+        const selectedDate = formatDate('one_time', selectedDateItem, bookingInfo.freq);
+        console.log(selectedDateItem);
+        console.log(selectedTime);
+        console.log(bookingInfo);
+
+        noteDate.textContent = selectedDate;
+        noteTime.textContent = selectedTime;
+
+        noteSection.style.display = 'flex';
+        scrollToBottom();
+      }
+
+      function changeBooking()
+        {
+            const noteSection = document.getElementById('note_calendar');
+            noteSection.style.display = 'none';
+            scrollToBottom();
+        }
+
+  function toggleActiveSession(session, username) {
+
+      const formData = new FormData();
+      formData.append('session',  session);
+      formData.append('username',  username);
+
+      $.ajax({
+          url: '/view_calendar', // Replace with the URL to your Django view for saving the profile
+          type: 'POST',
+          data: formData,
+          processData: false, // Important: Prevent jQuery from processing the data
+          contentType: false, // Important: Set the content type to false
+          success: function (response) {
+              // Handle the success response from the server
+              initializeDisplayCalendar(response.booking_data, response.booked_data);
+              bookingInfo = response.booking_data;
+              bookedInfo = response.booked_data;
+          },
+          error: function (xhr, textStatus, errorThrown) {
+              // Handle errors if needed
+              console.error('Error:', errorThrown);
+              const noSlot = document.querySelector('.calendar__section-header-noslot');
+                noSlot.style.display = 'flex';
+                scrollToBottom();
+          }
+      });
+
+
+  
+  }
+
+  function scrollToBottom() {
+        const chatBody = document.querySelector('.book-a-session__section-container-body');
+        
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: 'smooth' // Enables smooth scrolling
+        });
+    }
+
+function initializeDisplayCalendar(booking_data, booked_data) {
+ 
+console.log(booking_data)
+const calendarSection = document.querySelector('.calendar__section_display'); 
+const continueBtn = document.querySelector('.calendar__section-btn_display');
+calendarSection.style.display = 'block';
+scrollToBottom();
+
+const daysTag = document.querySelector(".days_display"),
+    currentDate = document.querySelector(".current-date_display"),
+    prevNextIcon = document.querySelectorAll(".icons_display span"),
+    timeSlotHeader = document.querySelector('.calendar__section-body-right-header_display'),
+    timeSlotSection = document.querySelector('.calendar__section-body-time-items_display'); // A section to show the available time slots
+
+
+    console.log(daysTag);
+
+// getting current year and month
+let date = new Date(),
+    currYear = date.getFullYear(),
+    currMonth = date.getMonth();
+
+// storing full names of all months in an array
+const months = ["January", "February", "March", "April", "May", "June", "July", 
+                "August", "September", "October", "November", "December"];
+
+// Function to check if a given date is available based on the booking data
+const isAvailableDate = (day, month, year, booking_data) => {
+    const startDate = new Date(booking_data.start);
+
+    const availableDays = booking_data.days; 
+
+    const isValidDate = (date) => {
+        return date instanceof Date && !isNaN(date);
+    };
+
+    const initializeEndDate = (booking_data) => {
+        const endDate = new Date(booking_data.end);
+        if (!isValidDate(endDate)) {
+            const currentDate = new Date();
+            endDate.setFullYear(currentDate.getFullYear() + 1);
+        }
+        return endDate;
+    };
+
+    const endDate = initializeEndDate(booking_data);
+
+    const currentDate = new Date(year, month, day);
+
+    // If the mode is 'repeat', check if the current date falls within the period
+    if (currentDate >= startDate && currentDate <= endDate) {
+        const dayName = currentDate.toLocaleString('default', { weekday: 'long' }); // Get the day name
+        // Check if the day name matches any of the available days
+        return availableDays.includes(dayName);
+    }
+
+    return false;
+};
+
+  // Function to check if a specific time is already booked on a given date
+const isTimeBooked = (dateStr, timeStr, booked_data) => {
+    return booked_data.some(booked => booked.date === dateStr && booked.time === timeStr);
+};
+
+
+const displayAvailableTimes = (day, month, year, booking_data) => {
+    const selectedDate = new Date(year, month, day);
+    console.log(selectedDate);
+
+    // Manually format the date to avoid timezone issues
+    const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    console.log(selectedDateStr);
+
+        // Get the day name for the selected date
+    const dayName = selectedDate.toLocaleString('default', { weekday: 'long' }); // Convert to uppercase to match booking_data keys
+    console.log(dayName); // e.g., "MONDAY"
+    console.log(booking_data.times);
+
+    const availableTimes = booking_data.times[dayName]; 
+    // Clear the previous time slots
+    timeSlotSection.innerHTML = '';
+
+    // Only show times if the date is valid
+    if (isAvailableDate(day, month, year, booking_data)) {
+        timeSlotHeader.innerHTML = `<h4>Available times for ${selectedDate.toDateString()}:</h4>`;
+
+        // Filter out the times that are already booked for the selected date
+        const filteredTimes = availableTimes.filter(time => !isTimeBooked(selectedDateStr, time, booked_data));
+        
+        console.log(availableTimes);
+        console.log(filteredTimes);
+        console.log(booked_data);
+        if (filteredTimes.length > 0) {
+            filteredTimes.forEach(time => {
+                const timeSlot = document.createElement('div');
+                timeSlot.classList.add('calendar__section-body-time-item_display');
+                timeSlot.innerText = time; // Display time
+
+                timeSlot.addEventListener('click', function() {
+                    const elements = document.getElementsByClassName('calendar__section-body-time-item_display');
+                    for (let element of elements) {
+                        element.classList.remove('active');
+                    }
+                    // Add the 'active' class to the clicked element
+                    timeSlot.classList.add('active');
+                    continueBtn.classList.remove('disabled');
+                });
+                timeSlotSection.appendChild(timeSlot);
+            });
+        } else {
+            timeSlotSection.innerHTML = `<p>No available times for this date.</p>`;
+        }
+    } else {
+        timeSlotSection.innerHTML = `<p>No available times for this date.</p>`;
+    }
+
+    scrollToBottom();
+};
+
+  // Render the calendar with active and inactive dates
+ // Render the calendar with active and inactive dates
+const renderCalendar = () => {
+  let firstDayOfMonth = new Date(currYear, currMonth, 1).getDay(), // getting first day of the month
+      lastDateOfMonth = new Date(currYear, currMonth + 1, 0).getDate(), // getting last date of the month
+      lastDayOfMonth = new Date(currYear, currMonth, lastDateOfMonth).getDay(), // getting last day of the month
+      lastDateOfLastMonth = new Date(currYear, currMonth, 0).getDate(); // getting last date of previous month
+  let liTag = "";
+
+  // Create li elements for the previous month's last days
+  for (let i = firstDayOfMonth; i > 0; i--) {
+      liTag += `<li class="inactive other-month-item_display">${lastDateOfLastMonth - i + 1}</li>`;
+  }
+
+  // Create li elements for all days of the current month
+  for (let i = 1; i <= lastDateOfMonth; i++) {
+      const isToday = i === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "today active" : "";
+
+      // Check if the date is available (active)
+      const isActive = isAvailableDate(i, currMonth, currYear, booking_data) ? "" : "inactive";
+
+      liTag += `<li class="${isToday} ${isActive} calendar-date-item_display" data-day="${i}" data-month="${currMonth}" data-year="${currYear}">${i}</li>`;
+  }
+
+  // Create li elements for the next month's first days
+  for (let i = lastDayOfMonth; i < 6; i++) {
+      liTag += `<li class="inactive other-month-item_display">${i - lastDayOfMonth + 1}</li>`;
+  }
+
+  currentDate.innerText = `${months[currMonth]} ${currYear}`; // Display the current month and year
+  daysTag.innerHTML = liTag; // Insert the days into the calendar
+
+  // Attach event listeners to each day
+  const dateItems = document.querySelectorAll('.calendar-date-item_display');
+  dateItems.forEach(item => {
+      item.addEventListener('click', function () {
+          const day = this.getAttribute('data-day');
+          const month = this.getAttribute('data-month');
+          const year = this.getAttribute('data-year');
+          handleDateClick(item, day, month, year, booking_data);
+      });
+  });
+};
+
+
+  // Handle the date click and show available times
+  window.handleDateClick = (item, day, month, year, booking_data) => {
+      // Highlight the selected date
+      const allDates = document.querySelectorAll('.calendar-date-item_display');
+      allDates.forEach(date => date.classList.remove('active'));
+      const selectedDate = document.querySelector(`.calendar-date-item_display:nth-child(${day})`);
+      console.log(item);
+      item.classList.add('active');
+
+      // Display available times for the selected date
+      displayAvailableTimes(day, month, year, booking_data);
+  };
+
+  renderCalendar();
+
+  
+  function toggleActiveDate(selectedElement) {
+          // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+          const elements = document.getElementsByClassName('calendar-date-item_display');
+          
+          // Remove the 'active' class from all elements
+          for (let element of elements) {
+              element.classList.remove('active');
+          }
+          
+          // Add the 'active' class to the clicked element
+          selectedElement.classList.add('active');
+
+         
+      }
+
+  // Add click event for previous and next icons
+  prevNextIcon.forEach(icon => {
+      icon.addEventListener("click", () => {
+          currMonth = icon.id === "prev_display" ? currMonth - 1 : currMonth + 1;
+
+          if (currMonth < 0 || currMonth > 11) {
+              date = new Date(currYear, currMonth, new Date().getDate());
+              currYear = date.getFullYear();
+              currMonth = date.getMonth();
+          } else {
+              date = new Date();
+          }
+
+          renderCalendar();
+      });
+  });
+}
+
+
+</script>
+
+<script>
+function toggleActiveTime(selectedElement) {
+         // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+         const elements = document.getElementsByClassName('calendar__section-body-time-item');
+         
+         // Remove the 'active' class from all elements
+         for (let element of elements) {
+             element.classList.remove('active');
+         }
+         
+         // Add the 'active' class to the clicked element
+         selectedElement.classList.add('active');
+
+         
+     }
+ 
+   function toggleActiveDate(selectedElement) {
+         // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
+         const elements = document.getElementsByClassName('calendar-date-item');
+         
+         // Remove the 'active' class from all elements
+         for (let element of elements) {
+             element.classList.remove('active');
+         }
+         
+         // Add the 'active' class to the clicked element
+         selectedElement.classList.add('active');
+
+        
+     }
+
+     
+</script>
+
+<script>
+    function removeOverlayAndChangeURL(username, type='back') {
+      // Remove the overlay by targeting the overlay element
+      const overlay = document.getElementById('book_overlay');
+      if (overlay) {
+          overlay.innerHTML = ''; // Clear the content
+      }
+  
+      // Change the URL based on the option provided
+      let newURL = window.location.pathname; // Default to current URL if nothing matches
+  
+      if (type == 'back')
+          {
+              newURL = `/connect`;
+             
+      } else {
+              newURL = `/message/${username}`;
+          }
+          
+      // Push the new URL to history without reloading the page
+      window.location.assign(newURL);
+  }
+  
+    </script>
+
+
+
+{% endblock main-content %}
+
+{% block title%} Bookings | Compas AI{% endblock %}
+
+{% block bookings %} active{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

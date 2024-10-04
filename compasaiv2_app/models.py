@@ -15,73 +15,72 @@ from django.contrib.sites.models import Site
 
 def default_booking():
     return [
-  {
-    "type": "coffee_chat",
-    "title": "",
-    "start": "",
-    "end": "",
-    "period": "",
-    "mode": "one_time",
-    "freq": "",
-    "days": [],
-    "duration": "",
-    "gap": "",
-    "time": []
-  },
-  {
-    "type": "office_hours",
-    "title": "Sales Workshop",
-    "start": "",
-    "end": "",
-    "period": "",
-    "mode": "repeat",
-    "freq": "",
-    "days": [],
-    "duration": "",
-    "gap": "",
-    "time": []
-  },
-  {
-    "type": "mock_interview",
-    "title": "",
-    "start": "",
-    "end": "",
-    "period": "",
-    "mode": "one_time",
-    "freq": "",
-    "days": [],
-    "duration": "",
-    "gap": "",
-    "time": []
-  },
-  {
-    "type": "speed_networking",
-    "title": "",
-    "start": "",
-    "end": "",
-    "period": "",
-    "mode": "one_time",
-    "freq": "",
-    "days": [],
-    "duration": "",
-    "gap": "",
-    "time": []
-  },
-  {
-    "type": "check_ins",
-    "title": "",
-    "start": "",
-    "end": "",
-    "period": "",
-    "mode": "repeat",
-    "freq": "",
-    "days": [],
-    "duration": "",
-    "gap": "",
-    "time": []
-  }
-]
-
+        {
+            "type": "coffee_chat",
+            "title": "",
+            "start": "",
+            "end": "",
+            "period": "",
+            "mode": "one_time",
+            "freq": "",
+            "days": [],
+            "duration": "",
+            "gap": "",
+            "time": []
+        },
+        {
+            "type": "office_hours",
+            "title": "Sales Workshop",
+            "start": "",
+            "end": "",
+            "period": "",
+            "mode": "repeat",
+            "freq": "",
+            "days": [],
+            "duration": "",
+            "gap": "",
+            "time": []
+        },
+        {
+            "type": "mock_interview",
+            "title": "",
+            "start": "",
+            "end": "",
+            "period": "",
+            "mode": "one_time",
+            "freq": "",
+            "days": [],
+            "duration": "",
+            "gap": "",
+            "time": []
+        },
+        {
+            "type": "speed_networking",
+            "title": "",
+            "start": "",
+            "end": "",
+            "period": "",
+            "mode": "one_time",
+            "freq": "",
+            "days": [],
+            "duration": "",
+            "gap": "",
+            "time": []
+        },
+        {
+            "type": "check_ins",
+            "title": "",
+            "start": "",
+            "end": "",
+            "period": "",
+            "mode": "repeat",
+            "freq": "",
+            "days": [],
+            "duration": "",
+            "gap": "",
+            "time": []
+        }
+    ]
 
 
 def default_roadmap():
@@ -89,7 +88,6 @@ def default_roadmap():
             {
             "level": "BEGINNER",
             "startdate": "2024-03-25",
-            
             "sections": [
                 {
                     "title": "INTRODUCTION",
@@ -98,7 +96,6 @@ def default_roadmap():
                     "progress": 5,
                     "tasks": [
                         {   
-                            
                             "name": "Intro Course",
                             "sub_id": 1,
                             "status": "done",
@@ -184,11 +181,8 @@ def default_roadmap():
                             "description": "Work on a beginner project",
                             "action": "connect_mentors"
                         },
-                        
-                        
                     ]
                 },
-
             ]
             },
             {
@@ -321,7 +315,9 @@ class Profile(models.Model):
 
     USER_TYPE = (
         ('', ''),
-        ('learner', 'Learner'),
+        ('explorer', 'Explorer'),
+        ('seeker', 'Seeker'),
+        ('advancer', 'Advancer'),
         ('mentor', 'Mentor')
     )
 
@@ -344,17 +340,16 @@ class Profile(models.Model):
     twitter = models.TextField(blank=True)
     facebook = models.TextField(blank=True)
     instagram = models.TextField(blank=True)
-    mentor_skill = models.ForeignKey('Skill', on_delete=models.CASCADE, related_name='mentor_skill', null=True)
+    mentor_skill = models.ForeignKey('Skill', on_delete=models.CASCADE, related_name='mentor_skill', null=True, blank=True)
     mentor_booking_info = models.JSONField(default=default_booking, null=True, blank=True)
     strengths = models.JSONField(default=list, null=True, blank=True)
     skills = models.JSONField(default=list, null=True, blank=True)
     education = models.JSONField(default=list, null=True, blank=True)
-    
     experience = models.JSONField(default=list, null=True, blank=True)
-    referred_profiles = models.ManyToManyField('Profile', related_name='referred_users')
+    referred_profiles = models.ManyToManyField('Profile', related_name='referred_users', blank=True)
     following = models.ManyToManyField('Profile', related_name='following_users', blank=True)
     followers = models.ManyToManyField('Profile', related_name='followers_users', blank=True)
-    
+    resume = models.FileField(upload_to='resumes', blank=True)
     def __str__(self):
         return f"{self.user.username}"
     
@@ -413,12 +408,19 @@ class Profile(models.Model):
                         group = Group.objects.get(conversation= convo)
                     except:
                         group = OfficeHour.objects.get(conversation= convo)
-                        print(group.name)
+                     
                     last_message = convo.messages.order_by('-timestamp').first()
+                    unread_messages = 0
+                    for message in convo.messages.all():
+                        if self not in message.read.all():
+                            if message.sender != self:
+                                unread_messages += 1
+
+                  
                     if last_message:
-                        
                         profiles_data.append({
                             'display_name': group.name,
+                            'unread': unread_messages,
                             'is_group': True,
                             'username': group.username,
                             'profile_picture': group.image if group.image else None,
@@ -432,10 +434,16 @@ class Profile(models.Model):
             else:
                 for participant in convo.participants.exclude(id=self.id):
                     last_message = convo.messages.order_by('-timestamp').first()
+                    unread_messages = 0
+                    for message in convo.messages.all():
+                        if self not in message.read.all():
+                            if message.sender != self:
+                                unread_messages += 1
+                    print(unread_messages)
                     if last_message:
-                        
                         profiles_data.append({
                             'display_name': participant.display_name,
+                            'unread': unread_messages,
                             'is_group': False,
                             'username': participant.username,
                             'profile_picture': participant.profile_picture if participant.profile_picture else None,
@@ -549,13 +557,10 @@ class OfficeHour(models.Model):
         return f'http://{current_site}{url}'
     
 
-
-
-
-
 class RecommenderInfo(models.Model):
 
     STAGE_TYPE = (
+        ('contact', 'Contact'),
         ('description', 'Description'),
         ('status', 'Status'),
         ('hours', 'Hours'),
@@ -568,11 +573,12 @@ class RecommenderInfo(models.Model):
         ('academics', 'Academics'),
         ('exposure', 'Exposure'),
         ('motivation', 'Motivation'),
+        ('resume', 'Resume'),
         ('thankyou', 'ThankYou'),
     )
 
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='user_recommender')
-    stage = models.CharField(max_length=100, choices=STAGE_TYPE, default='learner')
+    stage = models.CharField(max_length=100, choices=STAGE_TYPE, default='contact')
     status = models.BooleanField(default=False)
     skills = models.TextField(blank=True)
     hours = models.IntegerField(default=0)
@@ -623,7 +629,7 @@ class MyProfileSkill(models.Model):
     progress = models.IntegerField(default=0)
     active = models.BooleanField(default=False)
     recommended = models.BooleanField(default=True)
-    roadmap = models.JSONField(default=default_roadmap, null=True, blank=True)
+    roadmap = models.JSONField(default=list, null=True, blank=True)
 
     def __str__(self):
         return f"{self.suggested_skill}"
@@ -737,8 +743,8 @@ class Mentorship(models.Model):
         ('speed_networking', 'speed_networking'),
         ('mock_interview', 'mock_interview'),
         ('check_ins', 'check_ins'),
-        
     )
+
     mentor = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='session_mentor')
     learner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='session_learner')
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='session_conversation')
@@ -747,6 +753,62 @@ class Mentorship(models.Model):
     booking_time = models.DateTimeField(default=datetime.now)
     note = models.TextField()
 
+
+class Booking(models.Model):
+    STATUS_TYPE = (
+        ('', ''),
+        ('upcoming', 'Upcoming'),
+        ('completed', 'Completed'),
+        ('reschedule', 'Reschedule'),
+        ('past', 'Past'),
+        ('cancelled', 'Cancelled'),
+    )
+    session = models.ForeignKey('MentorshipSession', on_delete=models.CASCADE, related_name='booking_session')
+    learner =  models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='boooking_learner')
+    date = models.DateField()
+    start_time = models.TimeField()
+    link = models.TextField()
+    end_time = models.TimeField()
+    note = models.TextField()
+    mentor_feedback = models.TextField(blank=True)
+    mentor_rating = models.CharField(blank=True, max_length=100)
+    learner_feedback = models.TextField(blank=True)
+    learner_rating = models.CharField(blank=True, max_length=100)
+    status = models.CharField(max_length=100, choices=STATUS_TYPE, default='upcoming', blank=True)
+    log = models.JSONField(default=list)
+    learner_confirmation = models.BooleanField(default=False)
+    mentor_confirmation = models.BooleanField(default=False)
+
+
+
+class MentorshipSession(models.Model):
+    SESSION_TYPE = (
+        ('', ''),
+        ('coffee_chat', 'Coffee Chat'),
+        ('office_hours', 'Office Hours'),
+        ('speed_networking', 'Speed Networking'),
+        ('mock_interview', 'Mock Interview'),
+        ('check_ins', 'Check Ins'),
+    )
+    active = models.BooleanField(default=True)
+    mentor = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='mentorship_session_mentor')
+    session = models.CharField(max_length=100, choices=SESSION_TYPE, default='', blank=True)
+    location = models.CharField(max_length=100)
+    duration = models.CharField(max_length=100)
+    type = models.CharField(max_length=100)
+    frequency = models.CharField(max_length=100)
+    amount = models.CharField(max_length=100)
+    about = models.CharField(max_length=100)
+    start_date = models.CharField(max_length=100)
+    end_date = models.CharField(max_length=100)
+    times = models.JSONField(default=dict)
+    link = models.TextField(blank=True)
+
+    @property
+    def url(self):
+        current_site = '127.0.0.1:8001'
+        url = reverse('book_session', kwargs={'username': self.mentor.username})
+        return f'http://{current_site}{url}'
 
 
 def custom_timesince(timestamp):

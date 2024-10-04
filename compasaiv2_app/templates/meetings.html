@@ -1,0 +1,361 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="meetings__section">
+    <div class="meetings__section-header">
+        <div class="meetings__section-header-left">
+            <span class="meetings__section-header-title">
+                Meetings
+            </span>
+            <span class="meetings__section-header-subtitle">
+                See your scheduled meetings from your calendar meeting links
+            </span>
+        </div>
+        <a href="/create_session" class="meetings__section-header-right" >
+            <span>
+                Create session
+            </span>
+        </a>
+    </div>
+    <div class="meetings__section-sub-header">
+        <div class="book-a-session__section-container-body-img">
+            {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" alt="">
+            {% else %}
+            <img  src="{% static 'images/ava.png'%}" alt="">
+            {% endif %}
+              <span class="active-indicator"></span>
+          </div>
+          <div class="book-a-session__section-container-body-profile-info">
+              <span class="book-a-session__section-container-body-profile-info-role">
+                  {{profile.display_name}}
+              </span>
+              <span class="book-a-session__section-container-body-profile-info-bio">
+                  {{profile.bio}}
+              </span>
+          </div>
+       
+    </div>
+    <div class="meetings__section-body">
+        <div class="meetings__section-body-items">
+            {% if sessions %}
+                {% for session in sessions %}
+                    <div class="meetings__section-body-item" >
+                        <!-- <span>
+                            <input type="checkbox" {% if session.active %} checked{% endif %}>
+                        </span> -->
+                        <span class="meetings__section-body-item-title">
+                           {{session.get_session_display}}
+                        </span>
+                        <span class="meetings__section-body-item-info">
+                            {{session.duration}} minutes, {{ session.link|slice:":10" }}{% if session.link|length > 35 %}...{% endif %}
+                        </span>
+                        <span class="meetings__section-body-item-booking-page" 
+                            onclick="showEventDetailContainer(this)" 
+                            data-session="{{session.session}}"
+                            data-title="{{session.get_session_display}}"
+                            data-duration={{session.duration}}
+                            data-about="{{session.about}}"
+                            data-amount={{session.amount}}
+                            data-start_date={{session.start_date}}
+                            data-end_date={{session.end_date}}
+                            data-times="{{session.times}}"
+                            data-freq={{session.frequency}}
+                            data-type="{{session.type}}"
+                            data-link="{{session.link}}"
+                          
+                            >
+                            View booking details
+                        </span>
+                        <span  class="meetings__section-body-item-actions">
+                            <span class="meetings__section-body-item-actions-copy" onclick="copyToClipboard(this)" data-link={{session.url}}>
+                                <i class='bx bx-copy'></i>
+                            </span>
+                            
+                            <span class="meetings__section-body-item-actions-update">
+                                <a href="{% url 'update_session' session.id %}">
+                                    Update
+                                </a>
+                            </span>
+                        </span>
+                    </div>
+                {% endfor %}
+            {% else %}
+
+            <div id="not-found" class="not__foundd" >
+                <span>Create your first  <a href="/create_session">session</a></span>
+            </div>
+            {% endif %}
+         
+        </div>
+    </div>
+</div>
+<div class="create__group-section booking_details" id="create_group">
+        <div class="book-a-session__section-container-body meeting_details">
+            <div class="meetings__section-body-right-container">
+                <div class="meetings__section-body-right-container-header">
+                    <div class="create__group-section-container-header-nav ">
+                        <span onclick="hideEventDetailContainer()">
+                            <i class='bx bx-left-arrow-alt'></i> Back
+                          </span>
+                    </div>
+                </div>
+                <div class="meetings__section-body-right-container-body">
+                    <div class="book-a-session__section-container-body">
+                        <span class="book-a-session__section-container-body-title">
+                            Session Details
+                        </span>
+                        <a href="{% url 'profile' profile.username %}" class="book-a-session__section-container-body-profile">
+                          <div class="book-a-session__section-container-body-img">
+                            {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" alt="">
+                            {% else %}
+                            <img  src="{% static 'images/ava.png'%}" alt="">
+                            {% endif %}
+                              <span class="active-indicator"></span>
+                          </div>
+                          <div class="book-a-session__section-container-body-profile-info">
+                              <span class="book-a-session__section-container-body-profile-info-role">
+                                  {{profile.display_name}}
+                              </span>
+                              <span class="book-a-session__section-container-body-profile-info-bio">
+                                  {{profile.bio}}
+                              </span>
+                          </div>
+                        </a>
+                        <div class="book-a-session__section-container-body-info">
+                            
+                            <div class="book-a-session__section-container-body-info-body">
+                                <div class="book-a-session__section-container-body-info-item" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
+                                    <span class="book-a-session__section-container-body-info-item-icon">
+                                        <i class='bx bx-coffee'></i>
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-amount">
+                                        $15
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-title">
+                                        Coffee Chat
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-subtitle session_about">
+                                       
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-subtitle session_info">
+                                        30 Minutes | Recurring (2 times)
+                                    </span>
+                                    <span class="book-a-session__section-container-body-info-item-subtitle session_location">
+                                        <i class='bx bx-video' ></i> 
+                                    </span>
+                                   
+                                </div>
+                            </div>
+                
+                          <div class="note__section" id="note">
+                                <div class="note__section-header">
+                                    <div class="note__section-header-title">
+                                        <span>
+                                            Availability Details
+                                        </span>
+                                    </div>
+                                    <div class="note__section-header-info">
+                                        <div class="note__section-header-info-item">
+                                            <span id="booking_info_date_preview">
+                                                From Sep 7, 2024 to Oct 9, 2024
+                                            </span>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="note__section-header-info-items">
+                                        
+                                    
+                                    </div>
+                                
+                                </div>
+                        
+                                
+                          </div>
+                            
+                       
+                        </div>
+                </div>
+            </div>
+        </div>
+        </div>
+</div>
+
+
+<script>
+    
+    function showEventDetailContainer(element)
+      {
+        document.querySelector('.create__group-section').style.display = 'flex';
+        displayFunction(element);
+      }
+    function hideEventDetailContainer()
+      {
+        document.querySelector('.create__group-section').style.display = 'none';
+      }
+  </script>
+
+
+<script>
+
+function copyToClipboard(element) {
+    
+      var text = element.getAttribute('data-link');
+
+      navigator.clipboard.writeText(text).then(function() {
+          element.innerHTML = `<i class='bx bx-check-double'></i>`;
+          setTimeout(() => {
+                element.innerHTML = ` <i class='bx bx-copy'></i>`
+                
+            }, 1000);
+        
+      }, function(err) {
+          console.error('Failed to copy: ', err);
+      });
+  }
+
+    function displayFunction(element)
+    {
+        
+        console.log(element);
+      
+        const selectedTitle = element.getAttribute('data-title');
+        const session = element.getAttribute('data-session');
+        var selectedIcon;
+        const eventDuration = element.getAttribute('data-duration');
+        const eventType = element.getAttribute('data-type');
+        const eventFrequency = element.getAttribute('data-freq');
+
+        const eventlocation = element.getAttribute('data-location');
+        // const eventDates = updateDurationText();
+        const eventAmount = element.getAttribute('data-amount');
+        const eventAbout = element.getAttribute('data-about');
+        const eventStartDate = element.getAttribute('data-start_date');
+        const eventEndDate = element.getAttribute('data-end_date');
+        const eventTimes = element.getAttribute('data-times');
+        const meetinglink = element.getAttribute('data-link');
+
+        if (session == "coffee_chat")
+            {
+                selectedIcon = ` <i class='bx bx-coffee'></i>`
+        } else if (session == "speed_networking") {
+                selectedIcon = ` <i class='bx bx-bolt-circle'></i>`
+        } else if (session == "mock_interview") {
+                selectedIcon = ` <i class='bx bxs-microphone-alt' ></i>`
+        } else if (session == "office_hours") {
+                selectedIcon = ` <i class='bx bxs-buildings' ></i>`
+        }else if (session == "check_ins") {
+                selectedIcon = ` <i class='bx bx-list-check' ></i>`
+        }
+
+        const previewSessionIcon = document.querySelector('.book-a-session__section-container-body-info-item-icon');
+        const previewSessionTitle = document.querySelector('.book-a-session__section-container-body-info-item-title');
+        const previewSessionAmount = document.querySelector('.book-a-session__section-container-body-info-item-amount');
+        const previewSessionAbout = document.querySelector('.book-a-session__section-container-body-info-item-subtitle.session_about');
+        const previewSessionInfo = document.querySelector('.book-a-session__section-container-body-info-item-subtitle.session_info');
+        const previewSessionLocation = document.querySelector('.book-a-session__section-container-body-info-item-subtitle.session_location');
+        const previewSessionDates = document.getElementById('booking_info_date_preview');
+        const previewMeetinLink = document.querySelector(".book-a-session__section-container-body-info-item-subtitle.session_location");
+        previewMeetinLink.innerHTML = `<i class='bx bx-video' > ${meetinglink}`;
+        previewSessionIcon.innerHTML = selectedIcon;
+        console.log(selectedTitle);
+        previewSessionTitle.textContent = selectedTitle;        
+        previewSessionAmount.textContent = '$' + eventAmount;
+        previewSessionAbout.textContent = eventAbout;
+        var eventTypeFormat = ''
+
+        if (eventType == 'one_time')
+            {
+                eventTypeFormat = 'One Time'
+            } else 
+            {
+                eventTypeFormat = `Recurring (${eventFrequency})`
+            }
+        previewSessionInfo.textContent = eventDuration + 'minutes | ' + eventTypeFormat;
+
+        previewSessionDates.textContent = `From ${eventStartDate} to ${eventEndDate}`
+
+        populateBookingInfo(JSON.parse(eventTimes));
+        
+    }
+    function getDayName(abbreviation) {
+        const days = {
+            SUN: "Sunday",
+            MON: "Monday",
+            TUE: "Tuesday",
+            WED: "Wednesday",
+            THU: "Thursday",
+            FRI: "Friday",
+            SAT: "Saturday"
+        };
+        return days[abbreviation] || abbreviation;
+    }
+    function formatTime(time) {
+        const [hour, minute] = time.split(':');
+        let formattedTime = '';
+        let period = 'AM';
+
+        let hourInt = parseInt(hour);
+        if (hourInt >= 12) {
+            period = 'PM';
+            if (hourInt > 12) hourInt -= 12;
+        } else if (hourInt === 0) {
+            hourInt = 12;
+        }
+
+        formattedTime = `${hourInt}:${minute} ${period}`;
+        return formattedTime;
+    }
+
+    function populateBookingInfo(availability) {
+        // Parse the JSON if it's in string format
+       //const availability = JSON.parse(availabilityJSON);
+
+        // Get the container where the booking info will be added
+        const bookingInfoContainer = document.querySelector('.note__section-header-info-items');
+        
+        // Clear any previous content
+        bookingInfoContainer.innerHTML = '';
+
+        // Loop through the availability array and create HTML for each item
+        availability.forEach(item => {
+            // Create a div for the booking info
+            const bookingInfo = document.createElement('div');
+            bookingInfo.classList.add('note__section-header-info');
+
+            // Create the date section
+            const dateItem = document.createElement('div');
+            dateItem.classList.add('note__section-header-info-item');
+            dateItem.innerHTML = `
+                <i class='bx bx-calendar'></i>
+                <span id="booking_info_date">Every ${getDayName(item.day)}</span>
+            `;
+
+            // Create the time section
+            const timeItem = document.createElement('div');
+            timeItem.classList.add('note__section-header-info-item');
+            timeItem.innerHTML = `
+                <i class='bx bx-time-five'></i>
+                 <span id="booking_info_time">${formatTime(item.start_time)} - ${formatTime(item.end_time)}</span>
+            `;
+
+            // Append the date and time to the bookingInfo div
+            bookingInfo.appendChild(dateItem);
+            bookingInfo.appendChild(timeItem);
+
+            
+
+            // Append the booking info to the main container
+            bookingInfoContainer.appendChild(bookingInfo);
+    });
+}
+</script>
+{% endblock main-content %}
+
+{% block title%} Meetings | Compas AI{% endblock %}
+
+{% block meetings %} active{% endblock %}
+
+{% block remove_search_bar%}style="display: none;"{% endblock %}

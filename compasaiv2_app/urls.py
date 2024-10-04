@@ -66,7 +66,7 @@ urlpatterns = [
     path('all_messages', views.all_messages, name='all_messages'),
     path('archive_message/<str:username>', views.archive_message, name='archive_message'),
     path('delete_message/<str:username>', views.delete_message, name='delete_message'),
-    path('clear_unread', views.clear_unread, name='clear_unread'),
+    path('clear_unread/<str:username>/<str:group>', views.clear_unread, name='clear_unread'),
     path('new_chat', views.new_chat, name='new_chat'),
     path('new_post', views.new_post, name='new_post'),
     path('like_post', views.like_post, name='like_post'),
@@ -80,10 +80,25 @@ urlpatterns = [
     path('joinproject/<int:id>', views.joinproject, name='joinproject'),
     path('view_calendar', views.view_calendar, name='view_calendar'),
     path('confirm_booking', views.confirm_booking, name='confirm_booking'),
+    path('reschedule_booking', views.reschedule_booking, name='reschedule_booking'),
     path('delete_post', views.delete_post, name='delete_post'),
     path('remove_participant/<str:group>/<str:username>', views.remove_participant, name='remove_participant'),
     path('add_participant/<str:group>/<str:username>', views.add_participant, name='add_participant'),
     path('create_group', views.create_group, name='create_group'),
+    path('generate_profile', views.generate_profile, name='generate_profile'),
+    path('bookings/<str:status>', views.bookings, name='bookings'),
+    path('meetings', views.meetings, name='meetings'),
+    path('create_session', views.create_session, name='create_session'),
+    path('new_session', views.new_session, name='new_session'),
+    path('edit_session', views.edit_session, name='edit_session'),
+    path('update_session/<int:sess_id>', views.update_session, name='update_session'),
+    path('switch_mentor_path/<str:skill>', views.switch_mentor_path, name='switch_mentor_path'),
+    path('cancel_booking', views.cancel_booking, name='cancel_booking'),
+    path('request_reschedule', views.request_reschedule, name='request_reschedule'),
+    path('mark_as_completed', views.mark_as_completed, name='mark_as_completed'),
+
+
+
     
     
 

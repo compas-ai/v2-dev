@@ -26,8 +26,6 @@
                       </span>
                     </div>
                   </a>
-                  
-            
                   <div class="path__body-my-paths-body-item-percentage-progress">
                     <span>{{project.participants.count}} participants</span> 
                   </div>
@@ -37,8 +35,7 @@
                 </div>  
                 {% endfor %}
                 <div class="add__project" >
-                    <span  onclick="addOverlay()"
-                    >
+                    <span  onclick="addOverlay()">
                       <i class='bx bx-plus' ></i>
                     </span>
                 </div>
@@ -79,8 +76,8 @@
                  
               </div>
               <div id="not-found" class="not__found" style="display: none;">
-                <span>No paths found.</span>
-            </div>
+                  <span>No paths found.</span>
+              </div>
             </div>
           </div>
      </div>
@@ -141,60 +138,56 @@
 
 
 <script>
-        let selectedImages = [];
-        document.addEventListener('DOMContentLoaded', function() {
-        const imageUploadInput = document.getElementById('image-upload-input');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
+    let selectedImages = [];
+    document.addEventListener('DOMContentLoaded', function() {
+    const imageUploadInput = document.getElementById('image-upload-input');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+
+    imageUploadInput.addEventListener('change', function() {
+        const files = imageUploadInput.files;
         
-    
-        imageUploadInput.addEventListener('change', function() {
-            const files = imageUploadInput.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                selectedImages.push(file); // Store the file in the array
-    
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgPreview = imagePreviewContainer.querySelector('.image-preview');
-                    if (imgPreview)
-                        {
-                            imgPreview.innerHTML =`
-                                        <img src="${e.target.result}" alt="Image Preview">
-                                        <i class="bx bx-x remove-image-btn"> </i>
-                                    `;
-                     } else {
-                            const imgPreview = document.createElement('div');
-                            imgPreview.classList.add('image-preview');
-                            imgPreview.innerHTML = `
-                                <img src="${e.target.result}" alt="Image Preview">
-                                <i class="bx bx-x remove-image-btn"> </i>
-                            `;
-                            imagePreviewContainer.appendChild(imgPreview);
-                     }
-                    // Handle image deletion
-                    imgPreview.querySelector('.remove-image-btn').addEventListener('click', function() {
-                        const index = selectedImages.indexOf(file);
-                        if (index > -1) {
-                            selectedImages.splice(index, 1); // Remove from the array
-                        }
-                        imgPreview.remove();
-                    });
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            selectedImages.push(file); // Store the file in the array
 
-              
-                };
-                reader.readAsDataURL(file);
-            }
-    
-        });
-  
-      
-  
-  });
-  
- 
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgPreview = imagePreviewContainer.querySelector('.image-preview');
+                if (imgPreview)
+                    {
+                        imgPreview.innerHTML =`
+                                    <img src="${e.target.result}" alt="Image Preview">
+                                    <i class="bx bx-x remove-image-btn"> </i>
+                                `;
+                  } else {
+                        const imgPreview = document.createElement('div');
+                        imgPreview.classList.add('image-preview');
+                        imgPreview.innerHTML = `
+                            <img src="${e.target.result}" alt="Image Preview">
+                            <i class="bx bx-x remove-image-btn"> </i>
+                        `;
+                        imagePreviewContainer.appendChild(imgPreview);
+                  }
+                // Handle image deletion
+                imgPreview.querySelector('.remove-image-btn').addEventListener('click', function() {
+                    const index = selectedImages.indexOf(file);
+                    if (index > -1) {
+                        selectedImages.splice(index, 1); // Remove from the array
+                    }
+                    imgPreview.remove();
+                });
 
-  </script>
+          
+            };
+            reader.readAsDataURL(file);
+        }
+
+    });
+
+  
+
+});
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -303,19 +296,19 @@
 
 </script>
 
-   <script>
-      function addOverlay()
-        {
-          const overLayContainer = document.querySelector('.project__add-overlay');
-          overLayContainer.style.display = 'flex'
-        }
+<script>
+  function addOverlay()
+    {
+      const overLayContainer = document.querySelector('.project__add-overlay');
+      overLayContainer.style.display = 'flex'
+    }
 
-        function removeOverlay()
-        {
-          const overLayContainer = document.querySelector('.project__add-overlay');
-          overLayContainer.style.display = 'none'
-        }
-   </script>
+    function removeOverlay()
+    {
+      const overLayContainer = document.querySelector('.project__add-overlay');
+      overLayContainer.style.display = 'none'
+    }
+</script>
 
 <script>
   function setupSearch(inputId, resultsContainerId, notFoundId) {
@@ -350,7 +343,7 @@
     // Example usage:
     setupSearch('search-input', 'search-results', 'not-found');
 
- </script>
+</script>
 
 {% endblock main-content %}
 

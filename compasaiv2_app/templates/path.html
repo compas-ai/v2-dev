@@ -62,8 +62,10 @@
             </div>
             <div class="path__body-explore-body">
               <div id="search-results" class="path__body-explore-body-items">
-                  {% for skill in skills %}
-                  <a href="{% url 'path_detail' skill.value %}" class="path__body-explore-body-item">
+          
+                {% if profile.user_type == 'mentor' %}
+                  {% for skill in mentor_skills %}
+                  <div  class="path__body-explore-body-item">
                       <div class="path__body-explore-body-item-img path">
                           <img src="{% static 'images/paths/' %}{{ skill.icon }}" alt="Skill Image" 
                                onerror="this.onerror=null; this.src='{% static 'images/paths/default.svg' %}';">
@@ -71,11 +73,34 @@
                       <div class="path__body-explore-body-item-title">
                           <span class="skill-name">{{ skill.name }}</span>
                       </div>
+                      
+                      {% if skill == profile.mentor_skill %}
+                        <div class="path__body-explore-body-item-btn active">
+                            <span class="">Active Path</span>
+                        </div>
+                      {% else %}
+                        <div  class="path__body-explore-body-item-btn">
+                            <a href="{% url 'switch_mentor_path' skill.value %}" class="">Switch to Path</a>
+                        </div>
+                      {% endif %}
+                      </div>
+                  {% endfor %}
+                {% else %}
+                {% for skill in skills %}
+                  <a href="{% url 'path_detail' skill.value %}" class="path__body-explore-body-item">
+                      <div class="path__body-explore-body-item-img path">
+                          <img src="{% static 'images/paths/' %}{{ skill.icon }}" alt="Skill Image" 
+                              onerror="this.onerror=null; this.src='{% static 'images/paths/default.svg' %}';">
+                      </div>
+                      <div class="path__body-explore-body-item-title">
+                          <span class="skill-name">{{ skill.name }}</span>
+                      </div>
                       <div class="path__body-explore-body-item-description">
-                          <span>Master the act of Web Development and get actionable insights on how to grow and scale your career</span>
+                          <span>Master the act of {{skill.name}} and get actionable insights on how to grow and scale your career</span>
                       </div>
                   </a>
-                  {% endfor %}
+                {% endfor %}
+                {% endif %}
               </div>
               <div id="not-found" class="not__found" style="display: none;">
                   <span>No paths found.</span>

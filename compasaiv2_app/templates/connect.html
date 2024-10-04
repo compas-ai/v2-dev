@@ -11,7 +11,11 @@
                 hx-swap="outerHTML"
                 hx-include="[name='activeButton']"
                 hx-on="htmx:beforeRequest:toggleActiveClass(this)">
-              Mentors
+                {% if profile.user_type != 'mentor' %}
+                    Mentors
+                {% else %}
+                    Professionals
+                {% endif %}
           </span> 
 
           <span class="connect__headers-item {% block connect_peers %} {% endblock %}"
@@ -21,7 +25,11 @@
                 hx-swap="innerHTML"
                 hx-include="[name='activeButton']"
                 hx-on="htmx:beforeRequest:toggleActiveClass(this)">
-              Peers
+                {% if profile.user_type != 'mentor' %}
+                Peers
+                {% else %}
+                    Learners
+                {% endif %}
           </span>
      </div>
      <div class="connect__filters">
@@ -36,7 +44,10 @@
  
    {% block connect-overlay %} {% endblock%}
 
-   <script>
+
+
+   
+<script>
     document.addEventListener('htmx:beforeRequest', function(event) {
         toggleActiveClass(event.target);
     });

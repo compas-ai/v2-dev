@@ -3,392 +3,1238 @@
 
 {% block main-content %}
 
-{% if active_path != None %}
-<div class="home_section" id="main__section">
-    <div class="home_section-mentors">
-        <div class="home_section-mentors-header">
-            <span class="home_section-mentors-header-title">
-                Connect with Worldclass Mentors 
-                <span>
-                    <a href="/connect">
-                        See all <i class='bx bx-right-arrow-alt'></i>
-                    </a>
+{% if active_path != None%}
+    <div class="home_section" id="main__section">
+        <div class="home_section-connect">
+            <div class="home_section-connect-header">
+                <span class="home_section-connect-header-title">
+                    Connect with Worldclass Mentors 
+                    <span>
+                        <a href="/connect">
+                            See all <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </span>
                 </span>
-            </span>
-        </div>
-        <div class="home_section-mentors-frames">
-            {% for mentor in mentors %}
-                <a href="{% url 'profile' mentor.username %}" class="home_section-mentors-frames-item">
-                    {% if mentor.profile_picture %}
-                    <img class="home_section-mentors-frames-item-img" src="{{ mentor.profile_picture.url }}" alt="">
-                    {% else %}
-                    <img class="home_section-mentors-frames-item-img" src="{% static 'images/ava.png'%}" alt="">
-                    {% endif %}
-                    <span class="home_section-mentors-frames-item-name">{{mentor.display_name}}</span>
-                </a>
-            {% endfor %}
-           
-        </div>
-    </div>
-    <div class="home_section-chat-roadmap">
-        <div class="home_section-chat-roadmap-item">
-            <span class="home_section-chat-roadmap-item-header">
-                Recent Conversations
-                <i class='bx bx-expand-alt' ></i>
-            </span>
-            <div class="home_section-chat-roadmap-item-messages">
-                <div class="home_section-chat-roadmap-item-messages-item">
-                    <span>Hello! I'm excited to help you explore potential career paths. To get started, I need to understand a bit more about you. Let's begin with some questions about your interests and strengths. 
-
-                        </span>
-                        <span class="home_section-chat-roadmap-item-messages-item-btns">
-                            <img src="{% static 'images/chat/audio.svg'%}" alt="">
-                            <img src="{% static 'images/chat/copy.svg'%}" alt="">
-                            <img src="{% static 'images/chat/like.svg'%}" alt="">
-                        </span>
-                </div>
-                <div class="home_section-chat-roadmap-item-messages-item user_message">
-                    <span>I'm really passionate about technology and how it can be used to solve everyday problems. I love staying updated on the latest tech trends, and I enjoy working on personal coding projects in my spare time.</span>
+            </div>
+            <div class="home_section-connect-frames">
+                {% for mentor in mentors %}
+                    <a href="{% url 'profile' mentor.username %}" class="home_section-connect-frames-item">
+                        {% if mentor.profile_picture %}
+                        <img class="home_section-connect-frames-item-img" src="{{ mentor.profile_picture.url }}" alt="">
+                        {% else %}
+                        <img class="home_section-connect-frames-item-img" src="{% static 'images/ava.png'%}" alt="">
+                        {% endif %}
                         
-                </div>
-
-            </div>
-            <div class="home_section-chat-roadmap-item-message-input">
-                <i class='bx bx-plus'></i>
-                <input type="text" placeholder="Ask a follow up question">
-                <i class='bx bx-up-arrow-alt' ></i>
+                        <span class="home_section-connect-frames-item-name">{{mentor.display_name}}</span>
+                    </a>
+                {% endfor %}
+            
             </div>
         </div>
-        <div class="home_section-chat-roadmap-item">
-            <span class="home_section-chat-roadmap-item-header">
-                Next Steps
-                <a href="/roadmap">View roadmap <i class='bx bx-right-arrow-alt'></i></a>
-            </span>
-            <div class="home_section-chat-roadmap-item-tasks">
-                <span class="home_section-chat-roadmap-item-tasks-update">
-                    <span>Update your profile</span>
+        <div class="home_section-chat-roadmap">
+            <div class="home_section-chat-roadmap-item">
+                <span class="home_section-chat-roadmap-item-header">
+                    Recent Conversations
+                    <a href="/message/compasai">
+                        <i class='bx bx-expand-alt' ></i>
+                    </a>
                     
                 </span>
-                <div class="home_section-chat-roadmap-item-tasks-container">
-                    <div class="home_section-chat-roadmap-item-tasks-item active">
-                        <div class="home_section-chat-roadmap-item-tasks-item-border-tabs">
-                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
-
-                            </span>
-                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
-                                
-                            </span>
-                        </div>
-                        <div class="home_section-chat-roadmap-item-tasks-item-info">
-                            <div class="home_section-chat-roadmap-item-tasks-item-info-progress" >
-                                <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle">
-                                    <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle-overlay"></div>
-                                </div>
+                <div class="home_section-chat-roadmap-item-messages">
+                    <div class="messages__section-right-container-messages-items">
+                        
+                        {% if assistant_messages %}
+                        {% for chat in assistant_messages %}
+                            {% if chat.msg_type == "text" and chat.text != ""%}
+                            {% ifchanged chat.timestamp.date %}
+                            <div class="messages__section-right-container-messages-datestamp">
+                                <span>
+                                    {% if chat.timestamp.date == today %}
+                                        Today
+                                    {% elif chat.timestamp.date == yesterday %}
+                                        Yesterday
+                                    {% else %}
+                                        {{ chat.timestamp.date }}
+                                    {% endif %}
+                                </span>
                             </div>
+                            <div class="typing-indicator"></div>
+                        {% endifchanged %}
+                                <div class="messages__section-right-container-messages-item  {% if chat.sender == profile %}user_message{% endif %}" id="message-{{ chat.id }}">
+                                
+                                    <div class="messages__section-right-container-messages-item-container">
+                                        <span class="messages__section-right-container-messages-item-text">{{chat.text}}</span>
+                                        <!-- <span class="messages__section-right-container-messages-item-time">{{chat.timestamp.time}}</span> -->
+                                    </div>
+                                    
+                                </div>
+                                
+
+                            {% endif %}
+                        {% endfor %}
+                        {% else %}
+                            <div class="messages__section-right-container-messages-item-no-messages">
+                                <span class="">Hi, Compas AI here. What do you need help with?</span>
+                            </div>
+                        {% endif %}
                             
-                            <div class="home_section-chat-roadmap-item-tasks-item-info-title">
-                                <span class="home_section-chat-roadmap-item-tasks-item-info-title-name">
-                                     Take Introduction Course
-                                </span>
-                                <div class="home_section-chat-roadmap-item-tasks-item-info-title-date">
-                                    <i class='bx bx-calendar' ></i>
-                                    <span>
-                                        Sep 1 - Sep 7
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="home_section-chat-roadmap-item-tasks-item-duration">
-                            <span>
-                                2 weeks
-                            </span>
-                        </div>
                     </div>
-                    <div class="home_section-chat-roadmap-item-tasks-item">
-                        <div class="home_section-chat-roadmap-item-tasks-item-border-tabs">
-                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+                    
 
-                            </span>
-                            <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
-                                
-                            </span>
-                        </div>
-                        <div class="home_section-chat-roadmap-item-tasks-item-info">
-                            <div class="home_section-chat-roadmap-item-tasks-item-info-progress" >
-                                <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle">
-                                    <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle-overlay"></div>
-                                </div>
-                            </div>
-                            <div class="home_section-chat-roadmap-item-tasks-item-info-title">
-                                <span class="home_section-chat-roadmap-item-tasks-item-info-title-name">
-                                     Setup your Portfolio
-                                </span>
-                                <div class="home_section-chat-roadmap-item-tasks-item-info-title-date">
-                                    <i class='bx bx-calendar' ></i>
-                                    <span>
-                                        Sep 7 - Sep 14
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="home_section-chat-roadmap-item-tasks-item-duration">
-                            <span>
-                                2 weeks
-                            </span>
-                        </div>
-                    </div>
-                    <span class="home_section-chat-roadmap-item-tasks-container-next-icon"><i class='bx bx-down-arrow-alt' ></i></span>
                 </div>
-                <div class="home_section-chat-roadmap-item-tasks-timeline">
-                    <span class="home_section-chat-roadmap-item-tasks-timeline-title">
-                        OVERALL PROGRESS (36%)
+                <div class="home_section-chat-roadmap-item-message-input">
+                    <!-- <span>
+                        <i class='bx bx-plus'></i>
+                    </span> -->
+                    
+                    <input type="text" placeholder="Ask a question" id="message_text_large" name="message_text_large">
+                    
+                    
+                    <span  id="send_chat">
+                        <i class='bx bx-up-arrow-alt' ></i>
                     </span>
-                    <div class="home_section-chat-roadmap-item-tasks-timeline-container">
-                        <div class="home_section-chat-roadmap-item-tasks-timeline-container-bar">
-                            <div class="home_section-chat-roadmap-item-tasks-timeline-container-progress-bar">
-                                <div class="home_section-chat-roadmap-item-tasks-timeline-container-progress-bar-current"></div>
-                            </div>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            
-                            
-                        </div>
-                       
-                        <div class="home_section-chat-roadmap-item-tasks-timeline-container-labels">
-                            <span>
-                                W1
-                            </span>
-                            <span>
-                                W10
-                            </span>
-                            <span>
-                                W20
-                            </span>
-                            <span>
-                                W30
-                            </span>
-                            <span>
-                                W40
-                            </span>
-                            <span>
-                                W50
-                            </span>
-                            
+                    
+                </div>
+            </div>
+            <div class="home_section-chat-roadmap-item">
+                <span class="home_section-chat-roadmap-item-header">
+                    Next Steps
+                    <a href="/roadmap">View roadmap <i class='bx bx-right-arrow-alt'></i></a>
+                </span>
+                <div class="home_section-chat-roadmap-item-tasks">
+                    <!-- <span class="home_section-chat-roadmap-item-tasks-update">
+                        <span>Update your profile</span>
+                        
+                    </span> -->
+                    <div class="home_section-chat-roadmap-item-tasks-container">
+                        {% for task in roadmap %}
+                        <a  href="/roadmap" class="home_section-chat-roadmap-item-tasks-item {% if forloop.first %}active{% endif %}">
+                            <div class="home_section-chat-roadmap-item-tasks-item-border-tabs">
+                                <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
 
+                                </span>
+                                <span class="home_section-chat-roadmap-item-tasks-item-border-tab">
+                                    
+                                </span>
+                            </div>
+                            <div class="home_section-chat-roadmap-item-tasks-item-info">
+                                <div class="home_section-chat-roadmap-item-tasks-item-info-progress" >
+                                    <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle">
+                                        
+                                        {% if forloop.first %} {{task.progress}} {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="home_section-chat-roadmap-item-tasks-item-info-title">
+                                    <span class="home_section-chat-roadmap-item-tasks-item-info-title-name">
+                                        {{task.name}}
+                                    </span>
+                                    <div class="home_section-chat-roadmap-item-tasks-item-info-title-date">
+                                        <i class='bx bx-calendar' ></i>
+                                        <span>
+                                            {{ task.description|slice:":35" }}{% if task.description|length > 50 %}...{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-chat-roadmap-item-tasks-item-duration">
+                                <span>
+                                    {{task.section}}
+                                </span>
+                            </div> 
+                        </a>
+                        {% endfor %}
+                
+                        <span class="home_section-chat-roadmap-item-tasks-container-next-icon"><i class='bx bx-down-arrow-alt' ></i></span>
+                    </div>
+                    <div class="home_section-chat-roadmap-item-tasks-timeline">
+                        <span class="home_section-chat-roadmap-item-tasks-timeline-title">
+                            OVERALL PROGRESS ({{roadmap_info.percentage}}%) 
+                        </span>
+                        <div class="home_section-chat-roadmap-item-tasks-timeline-container">
+                            <div class="home_section-chat-roadmap-item-tasks-timeline-container-bar">
+                                <div class="home_section-chat-roadmap-item-tasks-timeline-container-progress-bar" style="width: {{roadmap_info.percentage}}%">
+                                    <div class="home_section-chat-roadmap-item-tasks-timeline-container-progress-bar-current"></div>
+                                </div>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                
+                                
+                            </div>
+                        
+                            <div class="home_section-chat-roadmap-item-tasks-timeline-container-labels">
+                                {% for label in roadmap_info.labels %}
+                                    <span>
+                                        {{label}}
+                                    </span>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="home_section-courses">
-        <span class="home_section-courses-header">
-            Explore Courses 
-            <span >See all <i class='bx bx-right-arrow-alt'></i></span>
-        </span>
-        <div class="home_section-courses-body">
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                
-                
-                <span class="home_section-courses-body-item-title">
-                    Design Thinking for Businesses
-                </span>
-              
-                
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        4.3 <i class='bx bxs-star' ></i>  (145 reviews)
+        <div class="home_section-courses">
+            <span class="home_section-courses-header">
+                Explore Courses 
+                <span >See all <i class='bx bx-right-arrow-alt'></i></span>
+            </span>
+            <div class="home_section-courses-body">
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    
+                    
+                    <span class="home_section-courses-body-item-title">
+                        Design Thinking for Businesses
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Beginner | 36 lectures | 15.4 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Product Design & Business
-                </span>
-               
                 
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                    
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            4.3 <i class='bx bxs-star' ></i>  (145 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Beginner | 36 lectures | 15.4 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/3.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Design Thinking for Businesses
-                </span>
+                    <span class="home_section-courses-body-item-details">
+                        Beginner | 36 lectures | 15.4 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Product Design & Business
+                    </span>
                 
-               
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        3.8 <i class='bx bxs-star' ></i>  (45 reviews)
+                    
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Intermediate | 41 lectures | 22 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Principles of Iconography
-                </span>
+                    <span class="home_section-courses-body-item-details">
+                        Beginner | 36 lectures | 15.4 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/3.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Design Thinking for Businesses
+                    </span>
+                    
                 
-               
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        4.0 <i class='bx bxs-star' ></i>  (78 reviews)
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            3.8 <i class='bx bxs-star' ></i>  (45 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Advanced | 12 lectures | 7 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Product Design & Business
-                </span>
-               
+                    <span class="home_section-courses-body-item-details">
+                        Intermediate | 41 lectures | 22 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Principles of Iconography
+                    </span>
+                    
                 
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            4.0 <i class='bx bxs-star' ></i>  (78 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Beginner | 36 lectures | 15.4 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/3.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Design Thinking for Businesses
-                </span>
+                    <span class="home_section-courses-body-item-details">
+                        Advanced | 12 lectures | 7 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Product Design & Business
+                    </span>
                 
-               
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        3.8 <i class='bx bxs-star' ></i>  (45 reviews)
+                    
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Intermediate | 41 lectures | 22 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Principles of Iconography
-                </span>
+                    <span class="home_section-courses-body-item-details">
+                        Beginner | 36 lectures | 15.4 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/3.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Design Thinking for Businesses
+                    </span>
+                    
                 
-               
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        4.0 <i class='bx bxs-star' ></i>  (78 reviews)
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            3.8 <i class='bx bxs-star' ></i>  (45 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Advanced | 12 lectures | 7 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
-            <a href="/course_detail" class="home_section-courses-body-item">
-                <div class="home_section-courses-body-item-img">
-                    <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
-                    <div class="home_section-courses-body-item-img-cover"></div>
-                </div>
-                <span class="home_section-courses-body-item-title">
-                    Product Design & Business
-                </span>
-               
+                    <span class="home_section-courses-body-item-details">
+                        Intermediate | 41 lectures | 22 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/1.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Principles of Iconography
+                    </span>
+                    
                 
-                <span class="home_section-courses-body-item-reviews">
-                     
-                    <span>
-                        4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            4.0 <i class='bx bxs-star' ></i>  (78 reviews)
+                        </span>
                     </span>
-                </span>
-                <span class="home_section-courses-body-item-details">
-                    Beginner | 36 lectures | 15.4 hours 
-                </span>
-                <span class="home_section-courses-body-item-author">
-                    <img src="{% static 'images/course/tutor.jpg'%}" alt="">
-                    Learnpally
-                </span>
-            </a>
+                    <span class="home_section-courses-body-item-details">
+                        Advanced | 12 lectures | 7 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
+                <a href="/course_detail" class="home_section-courses-body-item">
+                    <div class="home_section-courses-body-item-img">
+                        <img src="{% static 'images/course/2.jpg'%}" alt="" class="">
+                        <div class="home_section-courses-body-item-img-cover"></div>
+                    </div>
+                    <span class="home_section-courses-body-item-title">
+                        Product Design & Business
+                    </span>
+                
+                    
+                    <span class="home_section-courses-body-item-reviews">
+                        
+                        <span>
+                            4.7 <i class='bx bxs-star' ></i>  (97 reviews)
+                        </span>
+                    </span>
+                    <span class="home_section-courses-body-item-details">
+                        Beginner | 36 lectures | 15.4 hours 
+                    </span>
+                    <span class="home_section-courses-body-item-author">
+                        <img src="{% static 'images/course/tutor.jpg'%}" alt="">
+                        Learnpally
+                    </span>
+                </a>
 
+            </div>
         </div>
     </div>
-</div>
+
+    <script>
+    
+        function scrollToBottom() {
+            var chatBody = document.querySelector('.home_section-chat-roadmap-item-messages');
+            chatBody.scrollTop = chatBody.scrollHeight;
+            console.log(chatBody.scrollHeight);
+        }
+
+        function appendTypingAnimation() {
+                var chatBody = document.querySelector('.messages__section-right-container-messages-items');
+                console.log("appendingnnnnnn")
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                chatBody.appendChild(typingIndicator);
+        }
+
+        function removeTypingAnimation() {
+            $('.typing-indicator').remove();
+        }
+
+
+    function getCookie(name) {
+        var cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return cookieValue ? cookieValue.pop() : '';
+    }
+
+    var sendBtn = document.getElementById('send_chat');
+    
+    sendBtn.addEventListener("click", function() {
+
+
+            //var sendMessageBtn = document.querySelector('.send_message_btn');
+            var chatBody = document.querySelector('.messages__section-right-container-messages-items');
+            var firstMessage = document.querySelector('.messages__section-right-container-messages-item-no-messages span');
+
+            var textMessage = document.querySelector('#message_text_large');
+
+            var csrfToken = getCookie('csrftoken');
+
+                var textMessageValue = textMessage.value.trim();
+                console.log(textMessageValue);
+
+
+                if (textMessageValue !== '' ) {
+                    
+                    textMessage.value = "";
+                    
+                    var formData = new FormData();
+                    formData.append('text', textMessageValue);
+                    formData.append('is_assisant', true);
+                    formData.append('username', 'compasai');
+                    chatBody.appendChild(messagelargeEl(textMessageValue));
+                    appendTypingAnimation();
+                    scrollToBottom();
+                    $.ajax({
+                        url: '/new_chat',
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: formData,
+                        processData: false,  // Important: Prevent jQuery from automatically transforming the data into a query string
+                        contentType: false, 
+                        success: function (response) {
+                            if (response.message === 'success') {
+                                
+                                if (firstMessage) {
+                                    firstMessage.style.display = "none";
+                                    if (!firstMessage.classList.contains("stop")) {
+                                        chatBody.appendChild(dateConEllarge());
+                                        firstMessage.classList.add("stop");
+                                    }
+                                }
+
+                                    // Append the images to the chat
+                            
+                                removeTypingAnimation();
+                                
+                                
+                                chatBody.appendChild(messageAIlargeEl(response.text));
+                                
+                                scrollToBottom();
+                            
+                            } else {
+                                console.log("Unexpected response:", response);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            setTimeout(() => {
+                                console.log("Error:", status, error);
+                                chatBody.appendChild(messageEllarge("Error Sending Your Message", ""));
+                            }, 1000);
+                        }
+                    });
+                }
+                
+
+                var dateConEllarge = () => {
+                    var dateEl = document.createElement("div");
+                    dateEl.classList.add("messages__section-right-container-messages-datestamp");
+                    dateEl.innerHTML = `<span> Today </span>`;
+                    return dateEl;
+                };
+
+                function messagelargeEl(message) {
+                        var chatEl = document.createElement("div");
+                        chatEl.classList.add("messages__section-right-container-messages-item", "user_message");
+                        
+                        // Insert the message text into the chat element
+                        chatEl.innerHTML = `
+                            <div class="messages__section-right-container-messages-item-container">
+                                <span class="messages__section-right-container-messages-item-text">${message}</span>
+                            </div>
+                        `;
+                        
+                        return chatEl;
+                    }
+
+                    var messageAIlargeEl = (message) => {
+                        var chatEl = document.createElement("div");
+                        chatEl.classList.add("messages__section-right-container-messages-item");
+                    
+                        // Create the images container if there are images
+
+                        // Insert the message text and images into the chat element
+                        chatEl.innerHTML = `
+                            <div class="messages__section-right-container-messages-item-container">
+                    
+                                <span class="messages__section-right-container-messages-item-text">${message}</span>
+                            
+                            </div>
+                            
+
+                            
+                        `;
+                        
+                        return chatEl;
+                    };
+
+                });
+
+            scrollToBottom();
+    </script>
+
+{% elif profile.user_type == 'mentor'  %}
+    <div class="home_section" id="main__section">
+        <div class="home_section-mentor-container">
+            <div class="home_section-mentor-container-left">
+                <div class="home_section-mentor-container-item tasks-stats">
+                    <div class="home_section-mentor-container-item-title">
+                        <span>
+                            Welcome Rachel
+                        </span>
+                    </div>
+                    <div class="home_section-mentor-container-item-body">
+                        <div class="home_section-mentor-container-item-body-subtitle">
+                             <span class="home_section-chat-roadmap-item-tasks-update">
+                                <span>
+                                    You can now add your achievements to your Linkedin profile.
+                                </span>
+                            </span>
+                        </div>
+                        <div class="home_section-mentor-container-item-body-items">
+                            <div class="home_section-mentor-container-item-body-item">
+                                <div class="home_section-mentor-container-item-body-item-icon">
+                                    <span>
+                                        +10
+                                    </span>
+                                    
+                                    <div class="home_section-mentor-container-item-body-item-icon-box hexagon">
+                                        <i class="bx bxs-star"></i>
+                                    </div>
+                                </div>
+                                <div class="home_section-mentor-container-item-body-item-info">
+                                    <span class="home_section-mentor-container-item-body-item-info-task">
+                                        2 Mentorship sessions
+                                    </span>
+                                    <div class="path__body-my-paths-body-item-progress-bar">
+                                        <div class="path__body-my-paths-body-item-progress-inner-bar" style="width: {{skill.progress}}">
+                  
+                                        </div>
+                                    </div>
+
+                                    <span class="home_section-mentor-container-item-body-item-info-description">
+                                        Complete your first mentorship session
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-body-item-count">
+                                    <span>1/2</span>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-body-item">
+                                <div class="home_section-mentor-container-item-body-item-icon">
+                                    <span>
+                                        +10
+                                    </span>
+                                    
+                                    <div class="home_section-mentor-container-item-body-item-icon-box hexagon">
+                                        <i class="bx bxs-star"></i>
+                                    </div>
+                                </div>
+                                <div class="home_section-mentor-container-item-body-item-info">
+                                    <span class="home_section-mentor-container-item-body-item-info-task">
+                                        10 community posts
+                                    </span>
+                                    <div class="path__body-my-paths-body-item-progress-bar">
+                                        <div class="path__body-my-paths-body-item-progress-inner-bar" style="width: 50">
+                  
+                                        </div>
+                                    </div>
+
+                                    <span class="home_section-mentor-container-item-body-item-info-description">
+                                        Complete your community posts
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-body-item-count">
+                                    <span>5/10</span>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-body-item">
+                                <div class="home_section-mentor-container-item-body-item-icon">
+                                    <span>
+                                        +10
+                                    </span>
+                                    
+                                    <div class="home_section-mentor-container-item-body-item-icon-box hexagon">
+                                        <i class="bx bxs-star"></i>
+                                    </div>
+                                </div>
+                                <div class="home_section-mentor-container-item-body-item-info">
+                                    <span class="home_section-mentor-container-item-body-item-info-task">
+                                        2 Mentorship sessions
+                                    </span>
+                                    <div class="path__body-my-paths-body-item-progress-bar">
+                                        <div class="path__body-my-paths-body-item-progress-inner-bar" style="width: {{skill.progress}}">
+                  
+                                        </div>
+                                    </div>
+
+                                    <span class="home_section-mentor-container-item-body-item-info-description">
+                                        Complete your first mentorship session
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-body-item-count">
+                                    <span>1/2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="home_section-mentor-container-item community">
+                    <div class="home_section-mentor-container-item-header">
+                        <span>
+                            Community Feed
+                        </span>
+                    </div>
+                    <div class="home_section-mentor-container-item-body">
+                        <div class="home_section-mentor-container-item-body-post">
+                            <div class="community__section-right-body-container-posts-item" id="post-{{ post.id }}" data-profile="{% if profile == post.profile %}true{% else %}false{% endif %}">
+                                <div class="community__section-right-body-container-posts-item-header">
+                                    <div class="community__section-right-body-container-posts-item-header-info">
+                                    
+                                      <div class="community__section-right-body-container-posts-item-header-info-img">
+                                        {% if post.profile.profile_picture %}
+                                        <img  src="{{ post.profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                        <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                          <div class="active-indicator"></div>
+                                      </div>
+                                      <div class="community__section-right-body-container-posts-item-header-info-profile">
+                                        <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                            {{post.profile.display_name}}
+                                        </span>
+                                        <span class="community__section-right-body-container-posts-item-header-info-profile-title">
+                                            {{post.profile.bio}}
+                                        </span>
+                                        <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                          {{post.get_time}}
+                                      </span>
+                                        
+                                      </div>
+                                    </div>
+                                   
+                                </div>
+                                <div class="community__section-right-body-container-posts-item-body">
+                                    <div class="community__section-right-body-container-posts-item-body-text">
+                                        <span class="community__section-right-body-container-posts-item-body-text-value">
+                                          {{post.post_text}}</span>
+                                        </span>
+                                    </div>
+                                    {% if post.images.all %}
+                                    {% with post.images.all|length as image_count %}
+                                    <div class="community__section-right-body-container-posts-item-body-media {% if image_count == 1%} single-image {% endif %}" data-id={{post.id}} data-images={{post.images.all}}>
+                                      {% for image in post.images.all %}
+                                          {% if forloop.counter <= 4 %}
+                                         
+                                              <div class="community__section-right-body-container-posts-item-body-media-item">
+                                                  <img src="{{ image.image.url }}" alt="" class="image-preview" data-index="{{ forloop.counter0 }}">
+                                                  {% if forloop.counter == 4 and post.images.count > 4 %}
+                                                      <div class="overlay" data-image-url="{{ image.image.url }}" data-id={{post.id}}>
+                                                        +{{ post.images.all.count|add:-4 }}
+                                                      </div>
+                                                    
+                                                  {% endif %}
+                                              </div>
+                                          
+                                              {% else%}
+                                              <img src="{{ image.image.url }}" alt="" class="image-preview hide"  data-index="{{ forloop.counter0 }}">
+                  
+                                          {% endif %}
+                                      {% endfor %}
+                                    </div>
+                                    {% endwith %}
+                                    
+                                        {% endif %}
+                                    </div>
+                                
+        
+                                <div id="imageModal" class="image-modal">
+                                    <span class="close">&times;</span>
+                                    <img class="modal-content" id="modalImage">
+                                    <div id="caption"></div>
+                                    <div class="modal-btns">
+                                        <a class="prev">&#10094;</a>
+                                        <a class="next">&#10095;</a>
+                                    </div>
+                                    
+                                </div>
+                              
+                              <div class="community__section-right-body-container-posts-item-stats">
+                                    <div class="community__section-right-body-container-posts-item-stats-item" id="like_post_{{post.id}}"
+                                    hx-post="{% url 'like_post' %}" 
+                                    hx-trigger="click"
+                                    hx-vals='{"id": "{{ post.id }}"  }'
+                                    hx-target="#like_post_{{post.id}}"
+                                    hx-push-url="false"
+                                    hx-swap="innerHTML">
+                                      <span>
+                                        {% if profile in post.likes.all %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                          <path d="M22 8.69C22 9.88 21.81 10.98 21.48 12H2.52C2.19 10.98 2 9.88 2 8.69C2 5.6 4.49 3.1 7.56 3.1C9.37 3.1 10.99 3.98 12 5.33C13.01 3.98 14.63 3.1 16.44 3.1C19.51 3.1 22 5.6 22 8.69Z" fill="#17191D"/>
+                                          <path opacity="0.4" d="M21.48 12C19.9 17 15.03 19.99 12.62 20.81C12.28 20.93 11.72 20.93 11.38 20.81C8.97002 19.99 4.10002 17 2.52002 12H21.48Z" fill="#17191D"/>
+                                          </svg>
+                                        {% else %}
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12.62 20.8116C12.28 20.9316 11.72 20.9316 11.38 20.8116C8.48 19.8216 2 15.6916 2 8.69156C2 5.60156 4.49 3.10156 7.56 3.10156C9.38 3.10156 10.99 3.98156 12 5.34156C13.01 3.98156 14.63 3.10156 16.44 3.10156C19.51 3.10156 22 5.60156 22 8.69156C22 15.6916 15.52 19.8216 12.62 20.8116Z" stroke="#9E9E54" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                          </svg>
+                                        {% endif %}
+                                      </span>
+                                      <span>
+                                        {{post.likes.count}}
+                                      </span>
+                                    </div>
+                                    <div class="community__section-right-body-container-posts-item-stats-item" id="comment_post">
+                                      <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                          <path d="M8.5 10.5H15.5" stroke="#9E9E54" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                          <path d="M7 18.4297H11L15.45 21.3897C16.11 21.8297 17 21.3597 17 20.5597V18.4297C20 18.4297 22 16.4297 22 13.4297V7.42969C22 4.42969 20 2.42969 17 2.42969H7C4 2.42969 2 4.42969 2 7.42969V13.4297C2 16.4297 4 18.4297 7 18.4297Z" stroke="#9E9E54" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                      </span>
+                                      <span class="comment_count">
+                                        {{post.comments.count}}
+                                      </span>
+                                    </div>
+                                  
+                                </div>
+                        </div>
+                     
+                           
+                       
+                        
+                    </div>
+                    <div class="community__section-right-body-container-posts-item-comment-details" id="comment_detail_{{post.id}}">
+                        {% if post.comments.all %}
+                        {% for comment in post.comments.all reversed %}
+                            <div class="community__section-right-body-container-posts-item-comment-details-item">
+                            <div class="community__section-right-body-container-posts-item-header">
+                                <div class="community__section-right-body-container-posts-item-header-info">
+                                
+                                <div class="community__section-right-body-container-posts-item-header-info-img">
+                                    {% if comment.comment_author.profile_picture %}
+                                    <img  src="{{ comment.comment_author.profile_picture.url }}" alt="">
+                                    {% else %}
+                                    <img  src="{% static 'images/ava.png'%}" alt="">
+                                    {% endif %}
+                                    <div class="active-indicator"></div>
+                                </div>
+                                <div class="community__section-right-body-container-posts-item-header-info-profile">
+                                    <span class="community__section-right-body-container-posts-item-header-info-profile-name">
+                                        {{comment.comment_author.display_name}}
+                                    </span>
+                                
+                                    <span class="community__section-right-body-container-posts-item-header-info-profile-subtitle">
+                                    {{comment.get_time}}
+                                </span>
+                                    
+                                </div>
+                                </div>
+                                
+                            </div>
+                            <div class="community__section-right-body-container-posts-item-body-text">
+                                <span class="community__section-right-body-container-posts-item-body-text-value">
+                                {{comment.comment_text}}</span>
+                                </span>
+                            </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <span class="no__comment">No comments yet.</span>
+                        {%endif%}
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+            <div class="home_section-mentor-container-right">
+                <div class="home_section-mentor-container-item no-border">
+                    <div class="profile__section-body-container-about-overview-items">
+                        <span class="profile__section-body-container-about-overview-item">
+                            <span class="profile__section-body-container-about-overview-item-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path opacity="0.4" d="M8.00065 14.6663C11.6825 14.6663 14.6673 11.6816 14.6673 7.99967C14.6673 4.31778 11.6825 1.33301 8.00065 1.33301C4.31875 1.33301 1.33398 4.31778 1.33398 7.99967C1.33398 11.6816 4.31875 14.6663 8.00065 14.6663Z" fill="white"/>
+                                    <path d="M10.4731 10.6202C10.3864 10.6202 10.2998 10.6002 10.2198 10.5468L8.1531 9.3135C7.63977 9.00684 7.25977 8.3335 7.25977 7.74017V5.00684C7.25977 4.7335 7.48643 4.50684 7.75977 4.50684C8.0331 4.50684 8.25977 4.7335 8.25977 5.00684V7.74017C8.25977 7.98017 8.45977 8.3335 8.66643 8.4535L10.7331 9.68684C10.9731 9.82684 11.0464 10.1335 10.9064 10.3735C10.8064 10.5335 10.6398 10.6202 10.4731 10.6202Z" fill="white"/>
+                                  </svg>
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-title">
+                                Mentoring minutes
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-value">
+                                0
+                            </span>
+                        </span>
+                        <span class="profile__section-body-container-about-overview-item">
+                            <span class="profile__section-body-container-about-overview-item-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path opacity="0.4" d="M10.794 1.33301H5.20732C2.78065 1.33301 1.33398 2.77967 1.33398 5.20634V10.7863C1.33398 13.2197 2.78065 14.6663 5.20732 14.6663H10.7873C13.214 14.6663 14.6607 13.2197 14.6607 10.793V5.20634C14.6673 2.77967 13.2207 1.33301 10.794 1.33301Z" fill="white"/>
+                                    <path d="M7.05297 10.3867C6.91964 10.3867 6.79297 10.3334 6.69964 10.2401L4.81297 8.3534C4.61964 8.16007 4.61964 7.84007 4.81297 7.64673C5.0063 7.4534 5.3263 7.4534 5.51964 7.64673L7.05297 9.18007L10.4796 5.7534C10.673 5.56007 10.993 5.56007 11.1863 5.7534C11.3796 5.94673 11.3796 6.26673 11.1863 6.46006L7.4063 10.2401C7.31297 10.3334 7.1863 10.3867 7.05297 10.3867Z" fill="white"/>
+                                  </svg>
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-title">
+                                Sessions completed
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-value">
+                                0
+                            </span>
+                        </span>
+                        <span class="profile__section-body-container-about-overview-item">
+                            <span class="profile__section-body-container-about-overview-item-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M11.1662 2.37301V1.33301C11.1662 1.05967 10.9395 0.833008 10.6662 0.833008C10.3928 0.833008 10.1662 1.05967 10.1662 1.33301V2.33301H5.83283V1.33301C5.83283 1.05967 5.60616 0.833008 5.33283 0.833008C5.0595 0.833008 4.83283 1.05967 4.83283 1.33301V2.37301C3.03283 2.53967 2.1595 3.61301 2.02617 5.20634C2.01284 5.39967 2.17284 5.55967 2.3595 5.55967H13.6395C13.8328 5.55967 13.9928 5.39301 13.9728 5.20634C13.8395 3.61301 12.9662 2.53967 11.1662 2.37301Z" fill="white"/>
+                                    <path opacity="0.4" d="M13.3333 6.55957C13.7 6.55957 14 6.85957 14 7.22624V11.3329C14 13.3329 13 14.6662 10.6667 14.6662H5.33333C3 14.6662 2 13.3329 2 11.3329V7.22624C2 6.85957 2.3 6.55957 2.66667 6.55957H13.3333Z" fill="white"/>
+                                    <path d="M5.66667 9.99993C5.58 9.99993 5.49333 9.97994 5.41333 9.94661C5.33333 9.91327 5.26001 9.86659 5.19334 9.80659C5.13334 9.73993 5.08666 9.6666 5.05332 9.5866C5.01999 9.5066 5 9.41993 5 9.33326C5 9.2466 5.01999 9.15993 5.05332 9.07993C5.08666 8.99993 5.13334 8.9266 5.19334 8.85994C5.26001 8.79994 5.33333 8.75326 5.41333 8.71992C5.57333 8.65326 5.76 8.65326 5.92 8.71992C6 8.75326 6.07333 8.79994 6.13999 8.85994C6.19999 8.9266 6.24668 8.99993 6.28001 9.07993C6.31334 9.15993 6.33333 9.2466 6.33333 9.33326C6.33333 9.41993 6.31334 9.5066 6.28001 9.5866C6.24668 9.6666 6.19999 9.73993 6.13999 9.80659C6.07333 9.86659 6 9.91327 5.92 9.94661C5.84 9.97994 5.75333 9.99993 5.66667 9.99993Z" fill="white"/>
+                                    <path d="M8.00065 10C7.91398 10 7.82731 9.98006 7.74731 9.94672C7.66731 9.91339 7.59399 9.86671 7.52732 9.80671C7.40732 9.68004 7.33398 9.50672 7.33398 9.33338C7.33398 9.16005 7.40732 8.98672 7.52732 8.86005C7.59399 8.80005 7.66731 8.75337 7.74731 8.72004C7.90731 8.64671 8.09399 8.64671 8.25399 8.72004C8.33399 8.75337 8.40731 8.80005 8.47398 8.86005C8.59398 8.98672 8.66732 9.16005 8.66732 9.33338C8.66732 9.50672 8.59398 9.68004 8.47398 9.80671C8.40731 9.86671 8.33399 9.91339 8.25399 9.94672C8.17399 9.98006 8.08732 10 8.00065 10Z" fill="white"/>
+                                    <path d="M5.66667 12.3329C5.58 12.3329 5.49333 12.3129 5.41333 12.2796C5.33333 12.2463 5.26001 12.1996 5.19334 12.1396C5.07334 12.0129 5 11.8396 5 11.6663C5 11.4929 5.07334 11.3196 5.19334 11.1929C5.26001 11.1329 5.33333 11.0863 5.41333 11.0529C5.57333 10.9863 5.76 10.9863 5.92 11.0529C6 11.0863 6.07333 11.1329 6.13999 11.1929C6.25999 11.3196 6.33333 11.4929 6.33333 11.6663C6.33333 11.8396 6.25999 12.0129 6.13999 12.1396C6.07333 12.1996 6 12.2463 5.92 12.2796C5.84 12.3129 5.75333 12.3329 5.66667 12.3329Z" fill="white"/>
+                                  </svg>
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-title">
+                                Attendance Rate
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-value">
+                                0
+                            </span>
+                        </span>
+                        <span class="profile__section-body-container-about-overview-item">
+                            <span class="profile__section-body-container-about-overview-item-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path opacity="0.4" d="M3.8269 10.6663C3.90023 10.3397 3.7669 9.87301 3.53357 9.63967L1.91356 8.01967C1.4069 7.51301 1.2069 6.97301 1.35356 6.50634C1.5069 6.03967 1.98023 5.71967 2.6869 5.59967L4.7669 5.25301C5.0669 5.19967 5.43356 4.93301 5.57356 4.65967L6.72023 2.35967C7.05356 1.69967 7.5069 1.33301 8.00023 1.33301C8.49356 1.33301 8.9469 1.69967 9.28023 2.35967L10.4269 4.65967C10.5136 4.83301 10.6936 4.99967 10.8869 5.11301L3.7069 12.293C3.61356 12.3863 3.45356 12.2997 3.48023 12.1663L3.8269 10.6663Z" fill="white"/>
+                                    <path d="M12.4672 9.64026C12.2272 9.88026 12.0939 10.3403 12.1739 10.6669L12.6339 12.6736C12.8272 13.5069 12.7072 14.1336 12.2939 14.4336C12.1272 14.5536 11.9272 14.6136 11.6939 14.6136C11.3539 14.6136 10.9539 14.4869 10.5139 14.2269L8.56052 13.0669C8.25385 12.8869 7.74719 12.8869 7.44052 13.0669L5.48719 14.2269C4.74719 14.6603 4.11385 14.7336 3.70719 14.4336C3.55385 14.3203 3.44052 14.1669 3.36719 13.9669L11.4739 5.86026C11.7805 5.55359 12.2139 5.41359 12.6339 5.48692L13.3072 5.60026C14.0139 5.72026 14.4872 6.04026 14.6405 6.50692C14.7872 6.97359 14.5872 7.51359 14.0805 8.02026L12.4672 9.64026Z" fill="white"/>
+                                  </svg>
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-title">
+                                Learning Reviews
+                            </span>
+                            <span class="profile__section-body-container-about-overview-item-value">
+                                0
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <a href="/path" class="home_section-mentor-container-item cta">
+                    <i class='bx bxs-bulb' ></i>
+                    <span>
+                        Current Path: {{profile.mentor_skill}}. Switch?
+                    </span>
+                    <i class='bx bx-right-arrow-alt'></i>
+                </a>
+                <div class="home_section-mentor-container-item bookings">
+                    <div class="home_section-mentor-container-item-header">
+                        <span>
+                            Upcoming bookings
+                        </span>
+                    </div>
+                    <div class="home_section-mentor-container-item-body">
+                        <div class="home_section-mentor-container-item-booking-item active">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="home_section-mentor-container-item-booking-item">
+                            <div class="home_section-mentor-container-item-booking-item-left">
+                                <div class="home_section-mentor-container-item-booking-item-left-date">
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-weekday">
+                                        Wed
+                                    </span>
+                                    <span class="home_section-mentor-container-item-booking-item-left-date-day">
+                                        28
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-left-info">
+                                    <div class="home_section-mentor-container-item-booking-item-left-info-time">
+                                        <i class='bx bxs-time-five' ></i>
+                                        09:00-09:30
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-left-location">
+                                        <i class='bx bxs-map' ></i>
+                                        Google Meet
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home_section-mentor-container-item-booking-item-right">
+                                <div class="home_section-mentor-container-item-booking-item-right-top">
+                                    <span>
+                                        30 min speed networking, Rachel <> Jacob
+                                    </span>
+                                </div>
+                                <div class="home_section-mentor-container-item-booking-item-right-bottom">
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-profiles">
+                                        {% if profile.profile_picture %}
+                                            <img  src="{{ profile.profile_picture.url }}" alt="">
+                                        {% else %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                        {% endif %}
+                                            <img  src="{% static 'images/ava.png'%}" alt="">
+                                    </div>
+                                    <div class="home_section-mentor-container-item-booking-item-right-bottom-action">
+                                        <select name="" id="">
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
 {% else %}
 <div class="profile-paths__section">
     {% if is_profile %} 
@@ -543,7 +1389,11 @@
     {% endif %}
     <div class="path__body-explore">
         <div class="path__body-explore-header">
-          <span>Explore Other Paths</span>
+        {% if profile.user_type  == 'advancer' %}
+            <span>Enroll in your career path</span>
+        {% else %}
+            <span>Explore Other Paths</span>
+        {% endif %}
           <span class="path__body-explore-header-search">
             <img src="{% static 'images/icons/header/search.svg' %}" alt=""><input type="text" id="search-input" placeholder="Search for paths">
           </span>
@@ -560,7 +1410,7 @@
                       <span class="skill-name">{{ skill.name }}</span>
                   </div>
                   <div class="path__body-explore-body-item-description">
-                      <span>Master the act of Web Development and get actionable insights on how to grow and scale your career</span>
+                      <span>Master the act of {{skill.name}} and get actionable insights on how to grow and scale your career</span>
                   </div>
               </a>
               {% endfor %}
@@ -572,8 +1422,44 @@
       </div>
   <div class="" id="overlay"></div>
 </div>
+<script>
+    function setupSearch(inputId, resultsContainerId, notFoundId) {
+          const searchInput = document.getElementById(inputId);
+          const resultsContainer = document.getElementById(resultsContainerId);
+          const notFoundElement = document.getElementById(notFoundId);
+
+          searchInput.addEventListener('keyup', function() {
+              const query = searchInput.value.trim().toLowerCase();
+              const skillItems = resultsContainer.getElementsByClassName('path__body-explore-body-item');
+              let found = false;
+
+              for (let i = 0; i < skillItems.length; i++) {
+                  const skillName = skillItems[i].querySelector('.skill-name').textContent.toLowerCase();
+
+                  if (skillName.includes(query)) {
+                      skillItems[i].style.display = 'block';
+                      found = true;
+                  } else {
+                      skillItems[i].style.display = 'none';
+                  }
+              }
+
+              if (found) {
+                  notFoundElement.style.display = 'none';
+              } else {
+                  notFoundElement.style.display = 'flex';
+              }
+          });
+      }
+
+      // Example usage:
+      setupSearch('search-input', 'search-results', 'not-found');
+
+</script>
 {% block profile-content-overlay %} {% endblock %}
 {% endif %}
+
+
 {% endblock main-content %}
 
 {% block title%} Dashboard | Compas AI{% endblock %}

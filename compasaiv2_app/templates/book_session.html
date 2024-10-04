@@ -38,76 +38,45 @@
                     </span>
                 </div>
                 <div class="book-a-session__section-container-body-info-body">
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="coffee_chat" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bx-coffee'></i>
+
+                    {% if sessions %}
+                        {% for session in sessions %}
+                        <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value={{session.id}} data-mentor="{{user_profile.username}}">
+                            <span class="book-a-session__section-container-body-info-item-icon">
+                                {% if session.session == 'coffee_chat' %}
+                                    <i class='bx bx-coffee'></i>
+                                {% elif session.session == 'office_hours' %}
+                                    <i class='bx bxs-buildings' ></i>
+                                {% elif session.session == 'speed_networking' %}
+                                    <i class='bx bx-bolt-circle'></i>
+                                {% elif session.session == 'mock_interview' %}
+                                <i class='bx bxs-microphone-alt' ></i>
+                                {% elif session.session == 'check_ins' %}
+                                <i class='bx bx-list-check' ></i>
+                                {% endif %}
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-title">
+                                {{session.get_session_display}}
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                {{ session.about|slice:":35" }}{% if session.about|length > 35 %}...{% endif %}
+                            </span>
+                            <span class="book-a-session__section-container-body-info-item-subtitle">
+                                {{session.duration}} Minutes | Google Meet
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="calendar__section-header-noslot" style="display: flex;">
+                        <span>
+                            No Session Available
                         </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Coffee Chat
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            A causual chat with mentor, anything.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            30 Minutes | One Time
-                        </span>
+                        
                     </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="office_hours" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bxs-buildings' ></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Office Hours
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Workshop with mentor and peers.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            2 hours | Repeat
-                        </span>
-                    </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="speed_networking" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bx-bolt-circle'></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Speed Networking
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Spend your time Networking
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            1 hour | One Time
-                        </span>
-                    </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="mock_interview" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bxs-microphone-alt' ></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Mock Interview
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Run practice interviews with mentor.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            2 hours | One Time
-                        </span>
-                    </div>
-                    <div class="book-a-session__section-container-body-info-item" onclick="toggleActiveSession(this)" data-value="check_ins" data-mentor="{{user_profile.username}}">
-                        <span class="book-a-session__section-container-body-info-item-icon">
-                            <i class='bx bx-list-check' ></i>
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-title">
-                            Check Ins
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            Continuous accountability sessions.
-                        </span>
-                        <span class="book-a-session__section-container-body-info-item-subtitle">
-                            2 hours | Repeat
-                        </span>
-                    </div>
+                    {% endif %}
+
+
+                  
                 </div>
                 <div class="calendar__section-header-noslot">
                     <span>
@@ -124,7 +93,6 @@
                     <span class="calendar__section-header-subtitle">
                         In your local timezone (Africa/Lagos)
                     </span>
-                    
                 </div>
                 <div class="calendar__section-body">
                     <div class="calendar__section-body-left">
@@ -198,7 +166,7 @@
                     <label for="booking__note">Add your question to this booking (Optional)</label>
                     <textarea name="" id="booking__note" placeholder="Write out your question"></textarea>
                 </div>
-                <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}">
+                <div class="note__section-btn" id="note__section-btn" onclick="submitBooking()" data-mentor="{{user_profile.username}}" data-id={{session.id}}>
                     <span>
                         Confirm Booking
                     </span>
@@ -268,7 +236,6 @@
         });
     });
 </script>
-
 
 
 

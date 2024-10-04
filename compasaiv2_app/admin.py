@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Profile, RecommenderInfo, Skill, MyProfileSkill, Message, Conversation, Mentorship, Group, Project, Community, Post, PostImage, Comment, Submission, Review, OfficeHour
+from .models import Profile, RecommenderInfo, Skill, MyProfileSkill, Message, Conversation, Mentorship, Group, Project, Community, Post, PostImage, Comment, Submission, Review, OfficeHour, MentorshipSession
 
 admin.site.register(Profile)
 admin.site.register(RecommenderInfo)
@@ -19,3 +19,4 @@ admin.site.register(Comment)
 admin.site.register(Submission)
 admin.site.register(Review)
 admin.site.register(OfficeHour)
+admin.site.register(MentorshipSession)

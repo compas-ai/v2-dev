@@ -76,15 +76,20 @@
 <script>
         let bookingInfo = {};
         let bookedInfo = [];
+        let session_id;
 
         function submitBooking() {
             const dateTime = getActiveDateAndTime(),
                 confirmBtn = document.querySelector('.note__section-btn'),
-                username = confirmBtn.getAttribute('data-mentor');
+                username = confirmBtn.getAttribute('data-mentor'),
+                id = confirmBtn.getAttribute('data-id'),
+                
                 formData = new FormData(),
                 noteText = document.getElementById('booking__note').value;
 
+            console.log(session_id);
             formData.append('date',  dateTime.date);
+            formData.append('id',  session_id);
             formData.append('time',  dateTime.time);
             formData.append('type',  bookingInfo.type);
             formData.append('mode',  bookingInfo.mode);
@@ -204,7 +209,7 @@
             const selectedDateItem = info.date;
             const selectedTime = info.time;
             
-            const selectedDate = formatDate(bookingInfo.mode, selectedDateItem, bookingInfo.freq);
+            const selectedDate = formatDate('one_time', selectedDateItem, bookingInfo.freq);
             console.log(selectedDateItem);
             console.log(selectedTime);
             console.log(bookingInfo);
@@ -236,6 +241,7 @@
           // Add the 'active' class to the clicked element
           selectedElement.classList.add('active');
           const session = selectedElement.getAttribute('data-value');
+          session_id = selectedElement.getAttribute('data-value');
           const username = selectedElement.getAttribute('data-mentor');
           const formData = new FormData();
           formData.append('session',  session);
@@ -276,6 +282,8 @@
         }
   
   function initializeCalendar(booking_data, booked_data) {
+
+    console.log(booking_data)
     const calendarSection = document.querySelector('.calendar__section'); 
     const continueBtn = document.querySelector('.calendar__section-btn');
     calendarSection.style.display = 'block';
@@ -299,13 +307,23 @@
     // Function to check if a given date is available based on the booking data
     const isAvailableDate = (day, month, year, booking_data) => {
         const startDate = new Date(booking_data.start);
-        const period = booking_data.period; // Period in weeks
-        const mode = booking_data.mode; // 'repeat' or 'one-time'
-        const availableDays = booking_data.days; // Array of days like ['Monday', 'Wednesday']
 
-        // Calculate the end date based on period (in weeks)
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + (period * 7)); // Period is in weeks
+        const availableDays = booking_data.days; 
+
+        const isValidDate = (date) => {
+            return date instanceof Date && !isNaN(date);
+        };
+
+        const initializeEndDate = (booking_data) => {
+            const endDate = new Date(booking_data.end);
+            if (!isValidDate(endDate)) {
+                const currentDate = new Date();
+                endDate.setFullYear(currentDate.getFullYear() + 1);
+            }
+            return endDate;
+        };
+
+        const endDate = initializeEndDate(booking_data);
 
         const currentDate = new Date(year, month, day);
 
@@ -333,8 +351,12 @@
         const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
         console.log(selectedDateStr);
 
-        const availableTimes = booking_data.time; // Assuming booking_data contains available times
+            // Get the day name for the selected date
+        const dayName = selectedDate.toLocaleString('default', { weekday: 'long' }); // Convert to uppercase to match booking_data keys
+        console.log(dayName); // e.g., "MONDAY"
+        console.log(booking_data.times);
 
+        const availableTimes = booking_data.times[dayName]; 
         // Clear the previous time slots
         timeSlotSection.innerHTML = '';
 

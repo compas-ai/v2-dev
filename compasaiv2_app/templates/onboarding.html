@@ -46,7 +46,7 @@
 
                     <span class="onboarding__section-container-body-questions-item-input">
                         <label for="email">Email</label>
-                        <input type="text" placeholder="name@example.com" id="email" name="email" value="{{profile.email}}">
+                        <input class="disabled" type="text" placeholder="name@example.com" id="email" name="email" value="{{profile.email}}">
                     </span>
 
                     <span class="onboarding__section-container-body-questions-item-input">
@@ -84,12 +84,18 @@
                         {{stage.tip}}
                     </span>
                     {% endif %}
-                    <div class="onboarding__section-container-body-questions-item-input">
-                        <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'learner' %} active {% endif %}" onclick="toggleActive(this)" data-value="learner">
-                            A learner
+                    <div class="onboarding__section-container-body-questions-item-input description">
+                        <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'explorer' %} active {% endif %}" onclick="toggleActive(this)" data-value="explorer">
+                          <span>🧭  Explorer</span><br> Hasn't started their tech career yet.
+                        </span>
+                        <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'seeker' %} active {% endif %}" onclick="toggleActive(this)" data-value="seeker">
+                           <span> 🔍 Seeker</span> <br> Started, but unsure if it's the right fit.
+                        </span>
+                        <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'advancer' %} active {% endif %}" onclick="toggleActive(this)" data-value="advancer">
+                           <span> 🚀  Advancer</span> <br> Confident and wants to improve skills.
                         </span>
                         <span class="onboarding__section-container-body-questions-item-input-select {% if profile.user_type == 'mentor' %} active {% endif %}" onclick="toggleActive(this)" data-value="mentor">
-                            A mentor
+                           <span>🏅  Mentor</span>  <br> Experienced and wants to help others.
                         </span>
                     </div>
                     
@@ -101,8 +107,13 @@
                         hx-include="#value"
                         hx-target="#onboarding-container"
                         hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)"
                         >
                         Next
+                    </span>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
                     </span>
                 </div>         
                 {% elif stage.stage == "STATUS" %}
@@ -133,31 +144,31 @@
                                     {% for skill in skills_list %}
                                     <div class="skill-item">
                                         <span>{{skill.skill}}</span>
-                                        <select name="" id="" value="{{ skill.level }}">
+                                        <select name="" id="" value="{{ skill.level }}" onchange="updateSkillLevel('{{ skill.skill }}', this.value)">
                                             {% for lev in levels %}
                                                 <option value="{{ lev }}" {% if lev == skill.level %}selected{% endif %}>{{ lev }}</option>
                                             {% endfor %}
                                         </select>
                                         
-                                        <button class="remove-skill">
-                                            X
-                                        </button>
+                                        <button class="remove-skill" onclick="removeSkill('{{ skill.skill }}')">X</button>
+
                                     </div>
                                     {% endfor %}
                                 {% endif %}
                             </div>
                         
+                 
 
                          
                     <input type="hidden" name="value" id="value" value="[]">
                     <span class="onboarding__section-container-body-questions-item-nav"
-                    hx-post="{% url 'onboarding' %}"
-                    hx-trigger="click"
-                    hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
-                    hx-include="#value"
-                    hx-target="#onboarding-container"
-                    hx-swap="outerHTML swap:0.2s"
-                    onclick="toggleLoader(this)">
+                        hx-post="{% url 'onboarding' %}"
+                        hx-trigger="click"
+                        hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                        hx-include="#value"
+                        hx-target="#onboarding-container"
+                        hx-swap="outerHTML swap:0.2s"
+                        onclick="toggleLoader(this)">
                         Next
                     </span>
                     <span class="onboarding__section-container-body-questions-next-loader">
@@ -518,7 +529,46 @@
                     >
                     </span>
                 </div> 
-                {% elif stage.stage == "THANKYOU" %}
+                {% elif stage.stage == "RESUME"%}
+                <div  id="onboarding-container-item"class="onboarding__section-container-body-questions-item ">
+                   
+                    {% if generate_error %}
+                        <span class="onboarding__section-container-body-questions-item-comment">
+                            There was a problem with the document you attached. Please check document and confirm it is a LinkedIn generated document. 
+                        </span>
+                    {% endif %}
+                    <span class="onboarding__section-container-body-questions-item-question">
+                        {{stage.question}}
+                    </span>
+                    {% if stage.tip %}
+                    <span class="onboarding__section-container-body-questions-item-tip">
+                        {{stage.tip}}
+                    </span>
+                    {% endif %}
+                    <form id="onboarding-form" method="post" enctype="multipart/form-data"
+                            hx-post="{% url 'onboarding' %}"
+                           
+                            hx-vals='{"action": "NEXT", "stage": "{{stage.stage}}"}'
+                            hx-target="#resume"
+                            hx-include="#onboarding-form"
+                            hx-swap="outerHTML"
+                            hx-encoding="multipart/form-data">
+                        {% csrf_token %}
+                        <span class="onboarding__section-container-body-questions-item-input">
+                            <input type="file" name="resume" id="resume" accept="application/pdf">
+                            <input type="hidden" name="action" value="NEXT" id="action-input">
+                            <input type="hidden" name="stage" value="{{ stage.stage }}" id="stage-input">
+                        </span>
+                        <button type="submit" class="onboarding__section-container-body-questions-item-nav" id="submit-btn">
+                            Next
+                        </button>
+                    </form>
+                    <span class="onboarding__section-container-body-questions-next-loader">
+                        <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                    >
+                    </span>
+                </div> 
+                {% elif stage.stage == "THANKYOU" and profile.user_type != 'mentor' %}
                 <div class="onboarding__section-container-body-questions-end"  hx-post="/recommendation" 
                     hx-trigger="load"
                     hx-target="#body"
@@ -536,31 +586,79 @@
                         >
                         </span>
                 </div>
+                {% elif stage.stage == "THANKYOU" and profile.user_type == 'mentor' %}
+                <div class="onboarding__section-container-body-questions-end"  hx-post="/generate_profile" 
+                    hx-trigger="load"
+                    hx-target="#body"
+                    hx-swap = "outerHTML"
+                    hx-push-url="true"
+                    >
+                        <span class="onboarding__section-container-body-questions-end-title">
+                            Thank you for providing your information!
+                        </span>
+                        <span class="onboarding__section-container-body-questions-end-subtitle">
+                            Please hold as i help generate your profile. 
+                        </span>
+                        <span class="onboarding__section-container-body-questions-end-loader">
+                            <img src="{% static 'images/logo/loader-2.svg'%}" class="spin-animation" alt=""
+                        >
+                        </span>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>    
 
+
+<!-- <script>
+    document.getElementById('submit-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+    
+        toggleLoader(this);
+        const form = document.getElementById('onboarding-form');
+        const formData = new FormData(form);  // Create FormData object to hold form data, including the file
+    
+       
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // You can manually append more data to FormData object
+        formData.append('action', document.getElementById('action-input').value);
+        formData.append('stage', document.getElementById('stage-input').value);
+    
+        $.ajax({
+                url: '/onboarding',  // Replace with your backend endpoint
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Ensure you have the CSRF token included
+                },
+                data: formData,
+                processData: false,  // Prevent jQuery from converting the formData to a query string
+                contentType: false
+            });
+
+    });
+    </script> -->
+
 <script>
     function nextAction() {
         // Retrieve values from input fields
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
+        var name = document.getElementById('name').value;
+        var email = document.getElementById('email').value;
+        var phone = document.getElementById('phone').value;
 
         // Create a dictionary (JavaScript object) with the values
-        const data = {
+        var data = {
             name: name,
             email: email,
             phone: phone
         };
         // Convert the dictionary to a JSON string
-        const jsonData = JSON.stringify(data);
+        var jsonData = JSON.stringify(data);
 
         // Save the JSON string into the hidden input's value
         document.getElementById('value').value = jsonData;
-        const navElement = document.querySelector('.onboarding__section-container-body-questions-item-nav');
+        var navElement = document.querySelector('.onboarding__section-container-body-questions-item-nav');
         toggleLoader(navElement);
     }
 </script>
@@ -570,7 +668,7 @@
         // Hide the nav element
         navElement.style.display = 'none';
         // Show the loader element
-        const loaderElement = document.querySelector('.onboarding__section-container-body-questions-next-loader');
+        var loaderElement = document.querySelector('.onboarding__section-container-body-questions-next-loader');
         loaderElement.style.display = 'block';
     }
 </script>
@@ -581,7 +679,7 @@
         navElement.style.display = 'none';
 
         // Show the loader element
-        const loaderElement = document.querySelector('.onboarding__section-container-body-questions-back-loader');
+        var loaderElement = document.querySelector('.onboarding__section-container-body-questions-back-loader');
         loaderElement.style.display = 'block';
     }
 </script>
@@ -609,18 +707,74 @@
 <script>
     
     var skillsDatabase = JSON.parse('{{ skills_json|escapejs }}');
-    var addedSkills = [];
+    
+    
+    var addedSkills = JSON.parse('{{ selected_skills|escapejs }}');
+    console.log(addedSkills);
+
+    if (JSON.stringify(addedSkills) !== '["None"]' && addedSkills.length !== 0) {
+        // Call updateHiddenInput() only if the condition is true
+        updateHiddenInput();
+    }
+
+
+    function updateHiddenInput()
+        {
+            var inputValueStart = document.getElementById('value');
+            inputValueStart.value  = JSON.stringify(addedSkills);
+        }
+
+   
+
+        // Function to update addedSkills by reading skill items from the DOM
+        function initializeSkillsFromDOM() {
+            var skillItems = document.querySelectorAll('.skill-item');
+            skillItems.forEach(skillItem => {
+                var skillName = skillItem.querySelector('span').textContent;
+                var skillLevel = skillItem.querySelector('select').value;
+
+                // Add skill to the addedSkills array if it doesn't already exist
+                addedSkills.push({ skill: skillName, level: skillLevel });
+                console.log(addedSkills);
+                // Add change listener to the skill level dropdown
+                skillItem.querySelector('select').addEventListener('change', function() {
+                    updateSkillLevel(skillName, this.value);
+                });
+            });
+
+            toggleAddButton(); // Adjust the button state based on initial skills
+        }
+
+    // Update the level of an existing skill in the addedSkills array
+        function updateSkillLevel(skillName, newLevel) {
+            addedSkills = addedSkills.map(skill => {
+                if (skill.skill === skillName) {
+                    return { ...skill, level: newLevel };
+                }
+                return skill;
+            });
+            // Update the hidden input field with the updated skills
+            updateHiddenInput();
+        }
+
+    // Call this function when the page loads to initialize the addedSkills array
+    window.onload = function() {
+        initializeSkillsFromDOM();
+       
+    };
+
+
 
     document.getElementById('skillSearch').addEventListener('input', function() {
-        const searchValue = this.value.toLowerCase();
-        const suggestions = skillsDatabase.filter(skill => skill.toLowerCase().includes(searchValue) && !addedSkills.includes(skill));
+        var searchValue = this.value.toLowerCase();
+        var suggestions = skillsDatabase.filter(skill => skill.toLowerCase().includes(searchValue) && !addedSkills.includes(skill));
         displaySuggestions(suggestions);
         toggleAddButton();
     });
 
     document.getElementById('addSkillButton').addEventListener('click', function() {
-        const skillInput = document.getElementById('skillSearch');
-        const skillName = skillInput.value.trim();
+        var skillInput = document.getElementById('skillSearch');
+        var skillName = skillInput.value.trim();
 
         if (skillsDatabase.includes(skillName) && !addedSkills.includes(skillName)) {
             if (addedSkills.length < 3) {
@@ -633,10 +787,10 @@
     });
 
     function displaySuggestions(suggestions) {
-        const suggestionsList = document.getElementById('skillSuggestions');
+        var suggestionsList = document.getElementById('skillSuggestions');
         suggestionsList.innerHTML = '';
         suggestions.forEach(skill => {
-            const suggestionItem = document.createElement('li');
+            var suggestionItem = document.createElement('li');
             suggestionItem.textContent = skill;
             suggestionItem.addEventListener('click', function() {
                 document.getElementById('skillSearch').value = skill;
@@ -661,24 +815,24 @@
         }
 
         addedSkills.push(skillName);
-        const skillContainer = document.getElementById('addedSkillsContainer');
+        var skillContainer = document.getElementById('addedSkillsContainer');
         
-        const skillDiv = document.createElement('div');
+        var skillDiv = document.createElement('div');
         skillDiv.classList.add('skill-item');
 
-        const skillSpan = document.createElement('span');
+        var skillSpan = document.createElement('span');
         skillSpan.textContent = skillName;
 
-        const levelSelect = document.createElement('select');
-        const levels = ['Beginner', 'Novice', 'Intermediate', 'Advanced', 'Expert'];
+        var levelSelect = document.createElement('select');
+        var levels = ['Beginner', 'Novice', 'Intermediate', 'Advanced', 'Expert'];
         levels.forEach(level => {
-            const option = document.createElement('option');
+            var option = document.createElement('option');
             option.value = level;
             option.textContent = level;
             levelSelect.appendChild(option);
         });
 
-        const removeButton = document.createElement('button');
+        var removeButton = document.createElement('button');
         removeButton.textContent = 'X';
         removeButton.classList.add('remove-skill');
         removeButton.addEventListener('click', function() {
@@ -695,8 +849,8 @@
 
     function removeSkill(skillName) {
         addedSkills = addedSkills.filter(skill => skill !== skillName);
-        const skillContainer = document.getElementById('addedSkillsContainer');
-        const skillDivs = skillContainer.getElementsByClassName('skill-item');
+        var skillContainer = document.getElementById('addedSkillsContainer');
+        var skillDivs = skillContainer.getElementsByClassName('skill-item');
 
         for (let i = 0; i < skillDivs.length; i++) {
             if (skillDivs[i].getElementsByTagName('span')[0].textContent === skillName) {
@@ -708,13 +862,13 @@
         if (addedSkills.length === 0) {
             document.getElementById('noSkillsMessage').style.display = 'block';
         }
-
+        updateHiddenInput();
         toggleAddButton();
     }
 
     function toggleAddButton() {
-        const addSkillButton = document.getElementById('addSkillButton');
-        const skillInput = document.getElementById('skillSearch');
+        var addSkillButton = document.getElementById('addSkillButton');
+        var skillInput = document.getElementById('skillSearch');
         if (addedSkills.length >= 3) {
             addSkillButton.disabled = true;
             skillInput.disabled = true;
@@ -723,16 +877,16 @@
             skillInput.disabled = false;
         }
 
-        const inputValue = document.getElementById('value');
+        var inputValue = document.getElementById('value');
         inputValue.value  = JSON.stringify(getSelectedSkills());
     }
 
     function getSelectedSkills() {
-        const skillItems = document.getElementsByClassName('skill-item');
-        const selectedSkills = [];
+        var skillItems = document.getElementsByClassName('skill-item');
+        var selectedSkills = [];
         for (let item of skillItems) {
-            const skillName = item.getElementsByTagName('span')[0].textContent;
-            const skillLevel = item.getElementsByTagName('select')[0].value;
+            var skillName = item.getElementsByTagName('span')[0].textContent;
+            var skillLevel = item.getElementsByTagName('select')[0].value;
             if (skillName && skillLevel) { // Ensuring non-empty values
                 selectedSkills.push({ skill: skillName, level: skillLevel });
             }
@@ -749,7 +903,7 @@
 <script>
     function toggleActive(selectedElement) {
             // Get all elements with the class 'onboarding__section-container-body-questions-item-input-select'
-            const elements = document.getElementsByClassName('onboarding__section-container-body-questions-item-input-select');
+            var elements = document.getElementsByClassName('onboarding__section-container-body-questions-item-input-select');
             
             // Remove the 'active' class from all elements
             for (let element of elements) {
@@ -764,7 +918,7 @@
 
     function toggleActiveMultiple(selectedElement) {
                 // Get all elements with the 'active' class
-            const activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
+            var activeElements = document.querySelectorAll('.onboarding__section-container-body-questions-item-input-select.active');
 
         // Check if the clicked element is already active
         if (selectedElement.classList.contains('active')) {
@@ -775,7 +929,7 @@
             if (activeElements.length < 5) {
                 selectedElement.classList.add('active');
             } else {
-                const warningCon = document.querySelector('.onboarding__section-container-body-questions-item-warning');
+                var warningCon = document.querySelector('.onboarding__section-container-body-questions-item-warning');
                 warningCon.style.display = 'block';
                 
             }
@@ -789,9 +943,9 @@
         var activeElement = document.querySelector('.onboarding__section-container-body-questions-item-input-select.active');
         
         // Return the data-value attribute or an empty string if none is active
-        const activeEl = activeElement.getAttribute('data-value');
+        var activeEl = activeElement.getAttribute('data-value');
         console.log(activeEl);
-        const inputValue = document.getElementById('value');
+        var inputValue = document.getElementById('value');
         inputValue.value  = activeEl ;
     }
 
@@ -804,7 +958,7 @@
         
         // Update the hidden input value with the JSON string of selected roles
 
-        const inputValue = document.getElementById('value');
+        var inputValue = document.getElementById('value');
         inputValue.value  = JSON.stringify(roles) ;
     }
 

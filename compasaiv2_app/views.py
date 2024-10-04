@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
-import json, time, os, re
+import json, time, os, re, math
+import PyPDF2
+from PyPDF2 import PdfReader
 from urllib.parse import urlencode
 from django.conf import settings
 from django.shortcuts import redirect
@@ -12,7 +14,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
-from .models import Profile, RecommenderInfo, Skill, MyProfileSkill, OfficeHour,  Conversation, Message, Community, Post, PostImage, Comment, Group, Project, Submission, Review, Mentorship
+from .models import Profile, RecommenderInfo, Skill, MyProfileSkill, OfficeHour,  Conversation, Message, Community, Post, PostImage, Comment, Group, Project, Submission, Review, Mentorship, MentorshipSession, Booking
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import auth
@@ -35,7 +37,7 @@ import ast
 import environ
 from openai import OpenAI, AzureOpenAI
 from django.dispatch import receiver
-
+from .ai_models import *
 from datetime import datetime, timedelta
 # Initialise environment variables
 env = environ.Env()
@@ -61,8 +63,6 @@ def get_conversation(profile1, profile2):
     
     # Return None if no conversation with exactly these two participants is found
     return None
-
-
 
 @csrf_exempt
 def follow(request, username):
@@ -109,6 +109,69 @@ def follow(request, username):
         print(e)
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+def get_pending_tasks(roadmap):
+    pending_tasks = []
+
+    # Loop through each level in the roadmap
+    for level in roadmap:
+        # Loop through each section in the level
+        for section in level['sections']:
+            # Loop through each task in the section
+            for task in section['tasks']:
+                # Check if the task status is 'pending'
+                if task['status'] == 'pending':
+                    task['section'] = section['title']
+                    task['progress'] = int(section['progress'])
+                    pending_tasks.append(task)
+                    # Break once we've collected two pending tasks
+                    if len(pending_tasks) == 2:
+                        return pending_tasks
+    
+    return pending_tasks 
+
+def get_level_summary(level):
+    total_tasks = 0
+    completed_tasks = 0
+    total_weeks = 0
+    completed_weeks = 0
+
+    for section in level['sections']:
+        total_weeks += int(section['duration'])
+        if section['progress'] == 100:
+            completed_weeks += int(section['duration'])
+        elif section['progress'] > 5:
+            completed_weeks += int(section['duration'])*int(section['progress'])/100
+        for task in section['tasks']:
+            total_tasks += 1
+            if task['status'] == 'completed': 
+                completed_tasks += 1
+              
+
+    # Calculate the percentage of completed tasks
+    if total_tasks > 0:
+        completion_percentage = (completed_weeks / total_weeks) * 100
+    else:
+        completion_percentage = 0
+
+    labels = []
+    
+    # Calculate the dynamic step to space out labels evenly
+    step = math.ceil(total_weeks / (5))
+    
+    # Generate the labels
+    for i in range(1, total_weeks + 1, step):
+        labels.append(f"W{i}")
+    
+    # Ensure the last label is W(total_weeks)
+    if labels[-1] != f"W{total_weeks}":
+        labels.append(f"W{total_weeks}")
+
+    return {
+        "percentage": round(completion_percentage, 2),  # Round to 2 decimal places
+        "weeks": total_weeks,
+        "labels": labels
+    }
+
 @csrf_exempt
 def index(request):
     if request.user.is_authenticated == False:
@@ -120,8 +183,9 @@ def index(request):
             return redirect('onboarding')
 
     profile = Profile.objects.get(user=request.user)
-    print("asjcbjsb")
-    if profile.is_onboarded == False and profile.user_type != 'mentor':
+
+
+    if profile.is_onboarded == False:
        return redirect('onboarding')
     
     is_profile = True
@@ -134,12 +198,38 @@ def index(request):
     
 
     active_path = None
+    roadmap = []
+    roadmap_info = []
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+
+        if active_path.roadmap != []:
+            roadmap = get_pending_tasks(active_path.roadmap)
+            roadmap_info = get_level_summary(active_path.roadmap[0])
 
     my_skills = MyProfileSkill.objects.filter(user_profile=profile).order_by('-active','ranking')
     skills = Skill.objects.exclude(id__in=Subquery(my_skills.values('suggested_skill')))
 
+    ai_username = "compasai"
+    aiprofile = Profile.objects.get(username=ai_username)
+
+    convos = Conversation.objects.filter(participants=profile, is_group=False).filter(participants=aiprofile).distinct()
+
+    # If a conversation exists, use the first one, otherwise create a new one
+    if convos.exists():
+        assistant_convo = convos.first()  # Use the first conversation
+    else:
+        # Create a new conversation and add both participants
+        assistant_convo = Conversation.objects.create()
+        assistant_convo.participants.add(profile, aiprofile)
+
+    assistant_messages = assistant_convo.messages.all()
+    print(assistant_messages)
+
+    today = datetime.now().date()
+    yesterday = today - timedelta(days=1)
+    post = Post.objects.first()
+    
     context = {
         "profile": profile,
         "recommended_paths": recommended_paths,
@@ -148,7 +238,13 @@ def index(request):
         "is_profile": is_profile,
         "user_profile": user_profile,
         "active_path": active_path,
-        'skills': skills
+        'skills': skills,
+        'roadmap': roadmap,
+        'roadmap_info': roadmap_info,
+        'assistant_messages': assistant_messages,
+        'today': today,
+        'yesterday': yesterday,
+        'post': post
     }
     return render(request, 'home.html', context)
 
@@ -157,16 +253,19 @@ def profile(request, username):
     if request.user.is_authenticated == False:
             return redirect('signup')
     profile = Profile.objects.get(user=request.user)
-   
+    
     strengths = []
     if profile.strengths:
         strengths = json.loads(profile.strengths)
+    user_profile = Profile.objects.get(username=username)
    
-    education = profile.education
-    experience = profile.experience
+    education = user_profile.education
+    experience = user_profile.experience
+
+    sessions = MentorshipSession.objects.filter(mentor=user_profile)
 
     is_profile = False
-    user_profile = Profile.objects.get(username=username)
+    
 
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
 
@@ -180,10 +279,8 @@ def profile(request, username):
         "profile": profile,
         "strengths": strengths,
         "user_profile": user_profile,
-     
-
         "mentors": mentors,
-      
+        "sessions": sessions,
         "experiences": experience,
         "education": education,
         "is_profile": is_profile,
@@ -579,6 +676,33 @@ def enrol_path(request, username, skill):
     if request.user.is_authenticated == False:
             return redirect('signup')
     time.sleep(2)
+     # Example input data (courses, mentors, peers, etc. passed from the queryset)
+    courses = [
+        {"id": 1, "name": "Intro to Graphics Design", "duration": "2 weeks"},
+        {"id": 2, "name": "Beginner Course on Photoshop", "duration": "6 weeks"},
+        {"id": 3, "name": "Advanced Motion Graphics", "duration": "8 weeks"}
+    ]
+
+    mentors = [
+        {"id": 1, "name": "John Doe", "specialty": "Graphics Design"},
+        {"id": 2, "name": "Jane Smith", "specialty": "Motion Graphics"}
+    ]
+
+    peers = [
+        {"id": 1, "name": "Alice"},
+        {"id": 2, "name": "Bob"}
+    ]
+
+    project = [
+        {"id": 1, "name": "Create a branding logo"},
+        {"id": 2, "name": "Develop a motion graphics portfolio"}
+    ]
+
+    groups = [
+        {"id": 1, "name": "Design Enthusiasts"},
+        {"id": 2, "name": "Photoshop Masters"}
+    ]
+    roadmap_type = "BEGINNER"
     profile = Profile.objects.get(username=username)
     skilitem = Skill.objects.get(value=skill)
     if MyProfileSkill.objects.filter(user_profile=profile, active=True):
@@ -589,12 +713,40 @@ def enrol_path(request, username, skill):
     if MyProfileSkill.objects.filter(user_profile=profile, suggested_skill=skilitem):
         active_skill = MyProfileSkill.objects.get(user_profile=profile, suggested_skill=skilitem)
         active_skill.active = True
+       
+        
+        # Generate roadmap
+        existing_roadmap = active_skill.roadmap
+        current_type = ""
+        if existing_roadmap != []:
+            current_type = existing_roadmap[0].get('level', '')
+            print(current_type)
+
+        if current_type != roadmap_type:
+            roadmap = generate_roadmap(roadmap_type, "From Scratch", active_skill.suggested_skill.name, courses, mentors, peers, project, groups, client)
+            print(roadmap)
+            existing_roadmap = active_skill.roadmap
+            new_roadmap = json.loads(roadmap)
+            # new_roadmap.get('sections', [])[0].get('progress', 0) = 5
+            existing_roadmap.append(new_roadmap)
+            active_skill.roadmap = existing_roadmap
+        
+
+       
         community = Community.objects.get(name=active_skill.suggested_skill)
         community.member.add(profile)
         active_skill.save()
     else:
         reason = "You selected this skill"
         new_skill = MyProfileSkill.objects.create(user_profile=profile, suggested_skill=skilitem, reason=reason, active=True, ranking=10, recommended=False)
+        roadmap = generate_roadmap(roadmap_type, "From Scratch", new_skill.suggested_skill.name, courses, mentors, peers, project, groups, client)
+        print(roadmap)
+        existing_roadmap = new_skill.roadmap
+        new_roadmap = json.loads(roadmap)
+        # new_roadmap.get('sections', [])[0].get('progress', 0) = 5
+        existing_roadmap.append(new_roadmap)
+        new_skill.roadmap = existing_roadmap
+        new_skill.save()
     return redirect('path_detail', skill)
 
 
@@ -609,11 +761,9 @@ def profile_edit_bio(request, username):
     user_profile = Profile.objects.get(username=username)
     profile_type = "BIO"
 
-
     active_path = None
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
-
 
     if user_profile == profile:
         is_profile = True
@@ -655,7 +805,6 @@ def profile_edit_skills(request, username):
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
-    
     context = {
         "profile": profile,
         "user_profile": user_profile,
@@ -981,49 +1130,90 @@ def check_email_exists(request):
         empty = True
     return JsonResponse({'exists': exists, 'empty': empty})
 
+@csrf_exempt
+def generate_profile(request):
+    if request.user.is_authenticated == False:
+        return redirect('signup')
+    profile = Profile.objects.get(user=request.user)
+    stage = {}
+    try:
+
+        resume_info = extract_text_from_pdf(profile.resume.path)
+        mentor_data = json.loads(get_mentor_info(resume_info, client))
+        profile.about = mentor_data['about']
+        profile.linkedin = mentor_data['linkedin']
+        profile.skills = mentor_data['skills']
+        profile.education = mentor_data['education']
+        profile.experience = mentor_data['experience']
+        mentor_skill = Skill.objects.get(name=mentor_data['path'])
+        community = Community.objects.get(name=mentor_skill)
+        community.member.add(profile)
+        profile.mentor_skill = mentor_skill
+        profile.is_onboarded = True
+        profile.save()
+
+        return redirect('index')
+    except Exception as e:
+        print(e)
+        stage = get_stage_dict("RESUME")
+
+    context = {
+        "stage": stage,  
+        "profile": profile,
+        "generate_error": True
+    }
+   
+    return render(request, 'onboarding.html', context)
 
 
 @csrf_exempt
 def onboarding(request):
-    #fields = ["Graphics Design","Web Design","Motion Graphics","Animation","Video Editing","Content Writing","Content Creation","Product Design","Product Management","Scrum Management","Product Marketing","Business Analysis","Business Intelligence","Business Analytics","Business Development","Financial Analysis","Legal and Compliance","Customer Relationship Management (CRM)","Digital Marketing","Content Marketing","Public Relations (PR)","Community Management","Game Development","Mobile App Development","Database Management","Frontend Development","Backend Development","Fullstack Development","Blockchain Development","Trading Algorithm Development","Quality Assurance","Cloud & DevOps","Cybersecurity","Data Analysis","Data Analytics","Data Science","Data Engineering","Artificial Intelligence","Project Management","IT Administration","Customer Support","Virtual Assistant"]
+    career_fields = ["Graphics Design","Web Design","Motion Graphics","Animation","Video Editing","Content Writing","Content Creation","Product Design","Product Management","Scrum Management","Product Marketing","Business Analysis","Business Intelligence","Business Analytics","Business Development","Financial Analysis","Legal and Compliance","Customer Relationship Management (CRM)","Digital Marketing","Content Marketing","Public Relations (PR)","Community Management","Game Development","Mobile App Development","Database Management","Frontend Development","Backend Development","Fullstack Development","Blockchain Development","Trading Algorithm Development","Quality Assurance","Cloud & DevOps","Cybersecurity","Data Analysis","Data Analytics","Data Science","Data Engineering","Artificial Intelligence","Project Management","IT Administration","Customer Support","Virtual Assistant"]
     fields =  ["C", "C++", "C#", "Java", "Ruby", "Perl", "Objective-C", "TypeScript", "Scala", "Rust", "Haskell", "Elixir", "Erlang", "Lua", "Julia", "Fortran", "COBOL", "Lisp", "Scheme", "Racket", "F#", "Dart", "VHDL", "Verilog", "Assembly", "Bash", "PowerShell", "Tcl", "Groovy", "OCaml", "Ada", "MATLAB", "Vala", "Crystal", "Nim","Adobe Photoshop", "Adobe Illustrator", "CorelDRAW", "Affinity Designer", "Inkscape", "GIMP", "Sketch", "Figma", "Canva", "Adobe InDesign", "Adobe XD", "Webflow", "Wix", "WordPress", "Bootstrap", "Tailwind CSS", "Elementor", "Squarespace", "Adobe After Effects", "Blender", "Cinema 4D", "Nuke", "Autodesk Maya", "Houdini", "Mocha Pro", "DaVinci Resolve", "HitFilm Pro", "Red Giant Suite", "Toon Boom Harmony", "Adobe Animate", "TVPaint", "Moho", "Dragonframe", "Pencil2D", "Krita", "Adobe Premiere Pro", "Final Cut Pro", "Sony Vegas", "Avid Media Composer", "iMovie", "HitFilm Express", "Filmora", "Lightworks", "Shotcut", "Grammarly", "Hemingway Editor", "Google Docs", "Microsoft Word", "Scrivener", "ProWritingAid", "Quillbot", "Evernote", "Notion", "Contentful", "Adobe Spark", "Lumen5", "Animoto", "Crello", "Piktochart", "Desygner", "Stencil", "Snappa", "Kapwing", "InVision", "Axure RP", "Marvel App", "Proto.io", "Framer", "Balsamiq", "Zeplin", "Jira", "Trello", "Asana", "ClickUp", "Monday.com", "Wrike", "Aha!", "ProductPlan", "Smartsheet", "Scrumwise", "Zoho Sprints", "Targetprocess", "VersionOne", "Assembla", "Kanbanize", "VivifyScrum", "HubSpot", "Marketo", "Pardot", "Mailchimp", "SEMrush", "Hootsuite", "Buffer", "Google Analytics", "BuzzSumo", "Ahrefs", "Microsoft Excel", "Google Sheets", "Tableau", "Microsoft Power BI", "QlikView", "SAP BusinessObjects", "SAS Business Intelligence", "IBM Cognos", "Oracle BI", "TIBCO Spotfire", "Domo", "Looker", "Sisense", "Zoho Analytics", "Google Data Studio", "Alteryx", "R", "Python", "SPSS", "Qlik Sense", "Salesforce", "Zoho CRM", "LinkedIn Sales Navigator", "Outreach", "Pipedrive", "ActiveCampaign", "Salesloft", "Drift", "Gong.io", "QuickBooks", "Xero", "Bloomberg Terminal", "Sage Intacct", "SAP FICO", "Oracle Financials", "LexisNexis", "Westlaw", "iManage", "NetDocuments", "Clio", "Relativity", "MyCase", "Everlaw", "Onit", "ContractSafe", "Microsoft Dynamics 365", "Nimble", "Freshsales", "SugarCRM", "Insightly", "Keap", "Sprout Social", "Moz", "PRWeb", "Agility PR", "Prowly", "BuzzStream", "CoverageBook", "Newswire", "Prezly", "Mention", "Discord", "Slack", "Facebook Groups", "Discourse", "Vanilla Forums", "Tribe", "Mighty Networks", "Unity", "Unreal Engine", "Godot", "CryEngine", "GameMaker Studio", "Construct 3", "RPG Maker", "Cocos2d", "Lumberyard", "Stencyl", "Android Studio", "Xcode", "React Native", "Flutter", "Ionic", "Swift", "Kotlin", "Firebase", "PhoneGap", "Apache Cordova", "MySQL", "PostgreSQL", "MongoDB", "SQLite", "Oracle DB", "Microsoft SQL Server", "Redis", "Amazon RDS", "Cassandra", "HTML", "CSS", "JavaScript", "React.js", "Vue.js", "Angular", "Sass", "Webpack", "Node.js", "Django", "Flask", "Ruby on Rails", "Spring Boot", "Express.js", "Laravel", "ASP.NET", "PHP", "Go", "Next.js", "Ethereum", "Solidity", "Truffle", "Hyperledger", "Corda", "Quorum", "Remix IDE", "Ganache", "OpenZeppelin", "Hardhat", "MQL4", "Pine Script", "MetaTrader", "TradingView", "NinjaTrader", "QuantConnect", "cTrader", "Amibroker", "MultiCharts", "AlgoTrader", "Selenium", "Postman", "TestRail", "BrowserStack", "QTest", "Cucumber", "Appium", "Zephyr", "SoapUI", "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Terraform", "Jenkins", "Ansible", "Puppet", "Nagios", "Wireshark", "Kali Linux", "Splunk", "Nmap", "Metasploit", "Snort", "Tenable", "Burp Suite", "OpenVAS", "Nessus", "Stata", "TensorFlow", "Keras", "PyTorch", "SciKit-Learn", "Pandas", "NumPy", "Matplotlib", "Apache Spark", "Kafka", "Hadoop", "AWS Glue", "Airflow", "Flink", "Snowflake", "DBT", "Google BigQuery", "OpenAI GPT", "Google AI Platform", "Amazon SageMaker", "H2O.ai", "IBM Watson", "Basecamp", "Microsoft Project", "SolarWinds", "Zabbix", "Zendesk", "Freshdesk", "Intercom", "Help Scout", "LiveAgent", "Zoho Desk", "HubSpot Service Hub", "Kayako", "Salesforce Service Cloud", "HappyFox", "Zoom", "Google Calendar", "Microsoft Teams", "Calendly", "Zapier"]
-
     resources = ["Mobile Phone","Laptop","Desktop","Tablet","Ipad"]
     soft_skills = ["Communication","Teamwork","Problem-Solving","Adaptability","Critical Thinking","Creativity","Time Management","Attention to Detail","Leadership","Collaboration","Emotional Intelligence","Conflict Resolution","Decision Making","Organizational Skills","Interpersonal Skills","Negotiation","Project Management","Analytical Thinking","Innovation","Stress Management","Presentation Skills"]
-    try:
-        profile = Profile.objects.get(user=request.user)
-    except:
-        profile = None
     stage = "CONTACT"
     new_comment = ""
-    
-    info = {}
     stage_dict= get_stage_dict(stage)
-   
+    info = {}
+    selected_skills = []
+    
     if request.user.is_authenticated == True:
         try:
             profile = Profile.objects.get(user=request.user)
-            info = RecommenderInfo.objects.get(profile=profile)
-            stage_dict = get_adjacent_stage(str(info.stage).upper(), "NEXT")
+            info, _created = RecommenderInfo.objects.get_or_create(profile=profile)
+            #stage_dict = get_adjacent_stage(str(info.stage).upper(), "NEXT", profile.user_type)
             stage = info.stage
-            if profile.is_onboarded or profile.user_type == 'mentor':
+            stage_dict= get_stage_dict(info.stage)
+            
+            if profile.is_onboarded:
                 return redirect('index')
         except:
             pass
     else:
         return render(request, 'login.html')
     
-    stage = stage_dict['stage']
+    #stage = stage_dict['stage']
+    
     if request.method == 'POST':
         
         action = request.POST.get('action', '')
         stage = request.POST.get('stage', '')
         value = request.POST.get('value', '')
-        stage_dict = get_adjacent_stage(stage, action)
+        uploaded_file = request.FILES.get('resume')
+        print(uploaded_file)
+        print(value)
+        print(stage)
+        
+        stage_dict = get_adjacent_stage(stage, action, profile.user_type)
+        # print(stage)
+        # print(action)
+        # print(profile.user_type)
+        # print(stage_dict)
 
         question_dict = get_stage_dict(stage)
 
-        if (action == "NEXT") and stage != "NAME" and stage != "EMAIL":
+        if (action == "NEXT") and stage != "RESUME" and stage != "EMAIL":
             question = question_dict['question']
             user_message = value
             next_message_raw = stage_dict['question']
@@ -1068,7 +1258,7 @@ def onboarding(request):
                 )
             #print(completion)
             new_comment = completion.choices[0].message.content
-        print(new_comment)
+    
         if stage == "CONTACT":
             profile_data = json.loads(value)
             
@@ -1077,48 +1267,29 @@ def onboarding(request):
             email = profile_data.get('email', '')
             phone = profile_data.get('phone', '')
 
-            password = "12345"
-            username, host= email.split('@') 
-            username = re.sub(r'[^\w]', '_', username)
-            if User.objects.filter(Q(username=username) | Q(email=email)).exists():
-                if Profile.objects.filter(email=email).exists() == False:
-                        profile = Profile.objects.create(user=user, username=username, phone_number=phone, email=email, display_name=name )
-                        return JsonResponse({'error': 'User already exists. Please proceed to login'}, status=400)
-                else:
-                    profile = Profile.objects.get(user=request.user)
-                    profile.display_name = name
-                    profile.phone_number = phone
-                    profile.save()
-                    user_auth = auth.authenticate(username=email, password=password)
-                    auth.login(request, user_auth, backend='django.contrib.auth.backends.ModelBackend')
-            else:
-                if Profile.objects.filter(username=username).exists() == True:
-                    code = generate_code()
-                    print(code)
-                    username = username + "-" + code
-                user = User.objects.create_user(username=email, password=password, email=email)
-                profile = Profile.objects.create(user=user, username=username, phone_number=phone, email=email, display_name=name )
-                user_auth = auth.authenticate(username=email, password=password)
-                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                send_activation_email(request, user, email)
-                stage = "NAME"
+            profile.display_name = name
+            profile.phone_number = phone
+            profile.save()
+
+            info, _created = RecommenderInfo.objects.get_or_create(profile=profile)
+            info.stage = stage.lower()
+            info.save()
 
         elif stage == "DESCRIPTION":
-            try:
-                info = RecommenderInfo.objects.get(profile=profile)
-            except:
-                if value == "learner":
-                    print("ahsbchasbchasbashh")
-                    info = RecommenderInfo.objects.create(profile=profile, stage = stage.lower())
+            info, _created = RecommenderInfo.objects.get_or_create(profile=profile)
+            if value == "advancer":
+                profile.is_onboarded = True
+                profile.user_type = str(value)
+                profile.save()
+                return redirect('index')
+            info.stage = stage.lower()
             profile.user_type = str(value)
+
             profile.save()
-            print(profile.user_type)
-            
+            info.save()
+
         elif stage == "STATUS":
-            try:
-                info = RecommenderInfo.objects.get(profile=profile)
-            except:
-                info = RecommenderInfo.objects.create(profile=profile, stage = stage.lower())
+            info, _created = RecommenderInfo.objects.get_or_create(profile=profile)
             if value:
                 info.stage = stage.lower()
                 info.status = True
@@ -1143,7 +1314,7 @@ def onboarding(request):
         elif stage == "COMPUTERS":
             info = RecommenderInfo.objects.get(profile=profile)
             if value:
-                print(value)
+           
                 info.stage = stage.lower()
                 value_to_name = {
                     0: 'Beginner',
@@ -1157,9 +1328,6 @@ def onboarding(request):
                 info.computers_level = int(value)
                 
                 info.save()
-
-            print(info.computers)
-                
 
         elif stage == "STRENGTHS":
             info = RecommenderInfo.objects.get(profile=profile)
@@ -1210,20 +1378,56 @@ def onboarding(request):
                 info.motivation = value
                 info.save()  
 
+        elif stage == "RESUME":
+            info = RecommenderInfo.objects.get(profile=profile)
+            
+            if uploaded_file:
+                print(uploaded_file)
+                profile.resume = uploaded_file
+                profile.save()
+                info.stage = "thankyou"
+                info.save()  
+
+            else:
+                info.stage = "DESCRIPTION"
+                info.save()  
+
+            print("e don do oooooo")
+
         elif stage == "THANKYOU":
             pass
+
+        stage_dict = get_adjacent_stage(str(stage).upper(), "NEXT", profile.user_type)
+        if action == "PREVIOUS":
+            stage_dict = get_adjacent_stage(str(stage).upper(), "PREVIOUS", profile.user_type)
+            info, _created = RecommenderInfo.objects.get_or_create(profile=profile)
+            info.stage = stage_dict['stage'].lower()
+            info.save()
+        else:
+            stage_dict = get_adjacent_stage(str(stage).upper(), "NEXT", profile.user_type)
+            info, _created = RecommenderInfo.objects.get_or_create(profile=profile)
+            info.stage = stage_dict['stage'].lower()
+            info.save()
    
     try:
         skills_list = ast.literal_eval(info.skills)
         if isinstance(skills_list, list):
             skills_list = skills_list
+
     except:
         skills_list = []
+
+    if stage == "STATUS":
+        selected_skills = json.dumps(skills_list)
     levels = ['Beginner', 'Novice', 'Intermediate', 'Advanced', 'Expert']
+
     stage_percent = str(int(get_stage_percent(stage_dict['stage']))) + "%"
 
     if new_comment != "":    
         stage_dict['comment'] =new_comment
+
+   
+  
     context = {
         "stage": stage_dict,
         'skills_json': json.dumps(fields),
@@ -1234,9 +1438,11 @@ def onboarding(request):
         "profile": profile,
         "info": info ,
         "levels": levels,
-        'skills_list': skills_list
+        'skills_list': skills_list,
+        'selected_skills': selected_skills,
+        'career_fields': json.dumps(career_fields)
     }
-    print(skills_list)
+
     return render(request, 'onboarding.html', context)
 
 
@@ -1258,159 +1464,15 @@ def recommendation(request):
                     try:
                         profile = Profile.objects.get(user=request.user)
                         info = RecommenderInfo.objects.get(profile=profile)
-                                
-                        summary_message = [{
-                            "role": "system", 
-                            "content": f'''
-                                Context
-                                --------
-                                You are an expert AI psychometrist who summarizes user profile information about their personality, strengths, academic background, resources and motivation. This summary needs to elavate & highlight key information that would be helpful choosing a career in tech.
-                                
-                                Task
-                                --------
-                                1. Using the listed rules below, summarise the user's psychometric traits.
-                                2. Use the below parameters as information for the summary
-                                3. Only Highlight key information that can steer the path of user's career, good or bad. 
-                                4. Personalise the summary by using user's name that will be provided in the parameter
-
-                                
-                                Parameters
-                                ---------
-                                - User's name is {profile.display_name}
-                                - Question: What are your existing tech skills.  Answer: {info.skills}
-                                - Question: How many hours a week? Weekly availability to learn and practice. Answer: {info.hours}
-                                - Question: Which resources can you have access to? Answer: {info.resources}
-                                - Question: How proficient are you with computers? Answer: {info.computers}
-                                - Question: What are your top strengths? Answer: {info.strengths}
-                                - Question: What are your top weaknesses? Answer: {info.weakness}
-                                - Question: Do you prefer working in a team or alone? Answer: {info.team}
-                                - Question: Tell me about how you spend your free time. Answer: {info.interests}
-                                - Question: Tell me about your academic background. Answer: {info.academics}
-                                - Question: Do you have any prior exposure to technology? {info.exposure}
-                                - Question: ⁠What is your motivation to acquire a tech skill? {info.motivation}
-
-
-                                Rules
-                                --------
-                                * Address user by name.
-                                * The summary must contain key information that can help user's career decision. 
-                                * The entire comment should be 50 words or less
-                                * The entire comment should be a single paragraph only.
-                                * The entire comment should be WORDS or NUMBERS only, no special characters.
-                                * The output should just be the summary no titles, headers , dictionaries, lists. Just the summary.
-                                * Do not give any advice, just summarise. 
-                                
-
-                            '''
-                        }]
-
-                        summary_completion = client.chat.completions.create(
-                                model='gpt-35-turbo',
-                                messages=summary_message,
-                                temperature=0.7,
-                                max_tokens=800,
-                                top_p=0.95,
-                                frequency_penalty=0,
-                                presence_penalty=0,
-                                stop=None
-                            )
-                        summary = summary_completion.choices[0].message.content
+                        
+                        summary = generate_summary(client, profile, info)
+ 
                         print(summary)
                         profile.about = summary
                         profile.save()
 
                         print("etjetg")
-
-                        recommendation_message = [{
-                            "role": "system", 
-                            "content": f'''
-                                Context
-                                --------
-                                You are an expert AI psychometrist recommender who recommends tech skills that fit the user's psychometric summary. The summary contains user profile information about their personality, strengths, academic background, resources, and motivation. This summary will be used to choose possible careers in tech for the user.
-                                
-                                Task
-                                --------
-                                1. Using the listed rules below, recommend the top 3 tech skills that fit the user's information listed in the below parameters
-                                2. Choose the top 3 recommended skills from the provided Skills List only; do not change any words.
-                                3. Provide a reason each recommended skill fits the user.
-                                4. Personalise the reason by using user's name.
-
-                                Parameters
-                                ---------
-                                - User's name is {profile.display_name}
-                                - Question: What are your existing tech skills.  Answer: {info.skills}
-                                - Question: How many hours a week? Weekly availability to learn and practice. Answer: {info.hours}
-                                - Question: Which resources can you have access to? Answer: {info.resources}
-                                - Question: How proficient are you with computers? Answer: {info.computers}
-                                - Question: What are your top strengths? Answer: {info.strengths}
-                                - Question: What are your top weaknesses? Answer: {info.weakness}
-                                - Question: Do you prefer working in a team or alone? Answer: {info.team}
-                                - Question: Tell me about how you spend your free time. Answer: {info.interests}
-                                - Question: Tell me about your academic background. Answer: {info.academics}
-                                - Question: Do you have any prior exposure to technology? {info.exposure}
-                                - Question: ⁠What is your motivation to acquire a tech skill? {info.motivation}
-
-                                Skills List
-                                ---------
-                                Below is the list of skills to choose from. ONLY CHOOSE FROM THIS LIST AND RETURN THE EXACT WORD. 
-                                {fields}
-
-                                Decision Factors
-                                --------------
-                                The factors below are ranked according to importance in the recommendation decision process. The top-ranked factors should be considered first using the corresponding percentage of importance.
-                                - Existing Skills  - 25%
-                                - Academic Background - 20%
-                                - Available Time and Resources -15%
-                                - Computer Exposure and Proficiency - 10%
-                                - Interests and Motivation - 15%
-                                - Strengths & Weaknesses - 10%
-                                - Working in a Team - 5%
-
-                                Rules
-                                --------
-                                * Select only 3 of the most fitting tech skills for the user's psychometric traits.
-                                * Use the top-ranking factors to make a decision about the recommendations.
-                                * Choose the top 3 recommendations from the Skills List above ONLY.
-                                * Return output in the JSON format specified below.
-                                * Reason for each skill should be 20 words or less
-                                * Personalise the reason by using user's name.
-
-                                Output Format
-                                --------
-                                Your response should be in the following JSON format:
-
-                                [
-                                    {{
-                                        "ID": <ID>,
-                                        "skill": "<skill>",
-                                        "reason": "<reason>"
-                                    }},
-                                    {{
-                                        "ID": <ID>,
-                                        "skill": "<skill>",
-                                        "reason": "<reason>"
-                                    }},
-                                    {{
-                                        "ID": <ID>,
-                                        "skill": "<skill>",
-                                        "reason": "<reason>"
-                                    }}
-                                ]
-                            '''
-                        }]
-
-
-                        recommendation_completion = client.chat.completions.create(
-                                model='gpt-35-turbo',
-                                messages=recommendation_message,
-                                temperature=0.7,
-                                max_tokens=800,
-                                top_p=0.95,
-                                frequency_penalty=0,
-                                presence_penalty=0,
-                                stop=None
-                            )
-                        recommendation = recommendation_completion.choices[0].message.content
+                        recommendation = generate_recommendation(client, profile, info, fields)
                         data = json.loads(recommendation)
 
                         if MyProfileSkill.objects.filter(user_profile=profile).exists():
@@ -1470,7 +1532,8 @@ def connect(request):
         return redirect('signup')
     profile = Profile.objects.get(user=request.user)
     mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
-    peers = Profile.objects.filter(user_type='learner').exclude(id=profile.id)
+    peers = Profile.objects.exclude(user_type='mentor').exclude(id=profile.id)
+    
 
     active_path = None
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
@@ -1482,7 +1545,10 @@ def connect(request):
         "peers": peers,
         "active_path": active_path
     }
-    return render(request, 'connect_mentors.html', context)
+    if profile.user_type != 'mentor':
+        return render(request, 'connect_mentors.html', context)
+    else:
+        return render(request, 'connect_peers.html', context)
 
 @csrf_exempt
 def connect_peers(request):
@@ -1495,8 +1561,6 @@ def connect_peers(request):
     active_path = None
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
-
-    
 
     context = {
         "profile": profile,
@@ -1531,6 +1595,44 @@ def connect_all(request):
     if request.user.is_authenticated == False:
         return redirect('signup')
     return render(request, 'connect_all.html')
+
+
+@csrf_exempt
+def create_session(request):
+    if request.user.is_authenticated == False:
+        return redirect('signup')
+    profile = Profile.objects.get(user=request.user)
+
+    context = {
+        "profile": profile,
+     }
+    return render(request, 'create_session.html', context)
+
+@csrf_exempt
+def update_session(request, sess_id):
+    if request.user.is_authenticated == False:
+        return redirect('signup')
+    profile = Profile.objects.get(user=request.user)
+    session = MentorshipSession.objects.get(id=sess_id)
+    #print(session.times)
+    time_slots = json.loads(session.times)
+
+    time_options = ['00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', 
+        '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', 
+        '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', 
+        '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30']
+
+   
+    context = {
+        "profile": profile,
+        "session": session,
+        'time_options': time_options,
+        'time_slots': time_slots,
+        
+     }
+    return render(request, 'update_session.html', context)
+
+
 
 
 def get_time_slots():
@@ -1615,6 +1717,7 @@ def get_booked_sessions_for_mentor(mentor):
 def confirm_booking(request):
     if request.method == 'POST':
         session = request.POST.get('type', '')
+        id = request.POST.get('id', '')
         mode = request.POST.get('mode', '')
         freq = request.POST.get('freq', '')
         date_str = request.POST.get('date', '')
@@ -1622,6 +1725,8 @@ def confirm_booking(request):
         time = request.POST.get('time', '')
         note = request.POST.get('note', '')
         mentor_username = request.POST.get('username', '')
+
+        mentorship_session = MentorshipSession.objects.get(id=id)
 
         print(mentor_username, session, mode, freq, date, time, note)
             
@@ -1634,40 +1739,196 @@ def confirm_booking(request):
             convo.participants.add(profile)
             convo.participants.add(mentor)
             
-            text = f"Hi {mentor.display_name}, I just booked a {session} session with you for {date.strftime('%A, %B %d, %Y')} at {time}. Looking forward to our chat! Talk to you soon!"
+            text = f"Hi {mentor.display_name}, I just booked a {mentorship_session.get_session_display()} session with you for {date.strftime('%A, %B %d, %Y')} at {time}. Looking forward to our chat! Talk to you soon!"
             msg = Message.objects.create(conversation=convo, sender=profile, text=text)
             convo.messages.add(msg)
             conver = convo
         else:
-            text = f"Hi {mentor.display_name}, I just booked a {session} session with you for {date.strftime('%A, %B %d, %Y')} at {time}. Looking forward to our chat! Talk to you soon!"
+            text = f"Hi {mentor.display_name}, I just booked a {mentorship_session.get_session_display()} session with you for {date.strftime('%A, %B %d, %Y')} at {time}. Looking forward to our chat! Talk to you soon!"
             msg = Message.objects.create(conversation=conver, sender=profile, text=text)
             conver.messages.add(msg)
 
         date_list = get_booked_sessions(mode, freq, date, time)
-        print(date_list)
+        print(id)
+        
+        print(time)
+        start_time = datetime.strptime(time, '%H:%M')
+        end_time = start_time + timedelta(minutes=int(mentorship_session.duration))
 
-        mentorship = Mentorship.objects.create(conversation=conver, mentor=mentor, learner=profile, session=session, note=note, date_time=date_list)
+        booking = Booking.objects.create(
+            session=mentorship_session,
+            learner=profile,
+            date=date,
+            start_time=start_time,
+            end_time=end_time,
+            link='',
+            note=note
+        )
+
+        #mentorship = Mentorship.objects.create(conversation=conver, mentor=mentor, learner=profile, session=session, note=note, date_time=date_list)
 
         return JsonResponse({'message': mentor.username})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+
+
+@csrf_exempt
+def reschedule_booking(request):
+    if request.method == 'POST':
+ 
+        id = request.POST.get('booking_id', '')
+        date_str = request.POST.get('date', '')
+        date = datetime.strptime(date_str, '%Y-%m-%d')
+        time = request.POST.get('time', '')
+        note = request.POST.get('note', '')
+        mentor_username = request.POST.get('username', '')
+
+        print(date_str)
+        print(time)
+
+
+        mentor = Profile.objects.get(username=mentor_username)
+        profile = Profile.objects.get(user=request.user)
+
+        booking = Booking.objects.get(id=id, learner=profile)
+        mentorship_session = booking.session
+        
+
+        conver = get_conversation(profile, mentor)
+        if conver == None:
+            convo = Conversation.objects.create()
+            convo.participants.add(profile)
+            convo.participants.add(mentor)
+            
+            text = f"Hi {mentor.display_name}, I just rescheduled the {mentorship_session.get_session_display()} session with you for {date.strftime('%A, %B %d, %Y')} at {time}. Looking forward to our chat! Talk to you soon!"
+            msg = Message.objects.create(conversation=convo, sender=profile, text=text)
+            convo.messages.add(msg)
+            conver = convo
+        else:
+            text = f"Hi {mentor.display_name}, I just rescheduled the {mentorship_session.get_session_display()} session with you for {date.strftime('%A, %B %d, %Y')} at {time}. Looking forward to our chat! Talk to you soon!"
+            msg = Message.objects.create(conversation=conver, sender=profile, text=text)
+            conver.messages.add(msg)
+        
+        start_time = datetime.strptime(time, '%H:%M')
+        end_time = start_time + timedelta(minutes=int(mentorship_session.duration))
+
+        booking.date=date
+        booking.start_time=start_time
+        booking.end_time=end_time
+        booking.note=note
+        booking.status='upcoming'
+        booking.save()
+
+        return JsonResponse({'message': mentor.username})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def expand_time_range(start_time, end_time, duration, current_time=None):
+    """Expand time range from start_time to end_time in intervals of 'duration' minutes.
+       If current_time is provided, exclude any time slots earlier than current_time."""
+    time_slots = []
+    
+    # Convert start_time and end_time to datetime objects
+    start = datetime.strptime(start_time, "%H:%M")
+    end = datetime.strptime(end_time, "%H:%M")
+    
+    # Ensure the duration is an integer
+    duration = int(duration)
+    
+    # Generate time slots in intervals of 'duration' minutes
+    while start + timedelta(minutes=duration) <= end:
+        if current_time and start < current_time:
+            start += timedelta(minutes=duration)
+            continue  # Skip past times if it's the current day
+        time_slots.append(start.strftime("%H:%M"))
+        start += timedelta(minutes=duration)
+    
+    return time_slots
+
+def generate_week_day_times(week_times, duration):
+    """Generate a dictionary of week days and expanded time slots for each day."""
+    week_day_times = {}
+
+    # Mapping of abbreviated day names to full day names
+    day_mapping = {
+        "MON": "Monday",
+        "TUE": "Tuesday",
+        "WED": "Wednesday",
+        "THU": "Thursday",
+        "FRI": "Friday",
+        "SAT": "Saturday",
+        "SUN": "Sunday"
+    }
+
+    # Get the current day and time
+    current_day = datetime.now().strftime("%A")  # Full name of the day (e.g., "Monday")
+    current_time = datetime.now().time()
+
+    for time_slot in week_times:
+        abbreviated_day = time_slot["day"]  # Get the day like "MON", "TUE", etc.
+        full_day = day_mapping.get(abbreviated_day, abbreviated_day)  # Convert to full day name
+        start_time = time_slot["start_time"]
+        end_time = time_slot["end_time"]
+
+        if full_day == current_day:
+            # If it's the current day, pass the current time to filter past times
+            current_time_dt = datetime.strptime(current_time.strftime("%H:%M"), "%H:%M")
+            time_list = expand_time_range(start_time, end_time, duration, current_time_dt)
+        else:
+            # Otherwise, expand the time range as normal
+            time_list = expand_time_range(start_time, end_time, duration)
+        
+        week_day_times[full_day] = time_list
+
+    return {
+        "week_days": [day_mapping.get(time_slot["day"], time_slot["day"]) for time_slot in week_times],  # List of full week day names
+        "week_day_times": week_day_times  # Expanded times for each day
+    }
 @csrf_exempt
 def view_calendar(request):
     try:
         if request.method == 'POST':
-            session = request.POST.get('session', '')
+            id = request.POST.get('session', '')
             mentor_username = request.POST.get('username', '')
-            print(session,mentor_username)
-            mentor = Profile.objects.get(username=mentor_username)
-            booking_info = mentor.mentor_booking_info
-            booking_data = next(sess for sess in booking_info if sess['type'] == session)
-            booked_data = get_booked_sessions_for_mentor(mentor)
-            print(booked_data)
-            return JsonResponse({'booking_data': booking_data, 'booked_data': booked_data})
-    except Exception as e:
-        return JsonResponse({'error': 'Invalid request'}, status=400)
 
+            mentor = Profile.objects.get(username=mentor_username)
+            booking_data = MentorshipSession.objects.get(id=int(id))
+
+            formated_time = generate_week_day_times(json.loads(booking_data.times), booking_data.duration)
+            #print(formated_time)
+
+            start_date = datetime.strptime(booking_data.start_date, '%Y-%m-%d')
+            current_date_str = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+            current_date = datetime.strptime(current_date_str, '%Y-%m-%d')
+
+            # Serialize the mentorship session data into a dictionary
+            booking_data_serialized = {
+                'id': booking_data.id,
+                'mentor': booking_data.mentor.username,  # assuming there's a mentor field
+                'times': formated_time['week_day_times'], 
+                'days': formated_time['week_days'],
+                'duration': booking_data.duration,
+                'start': start_date if start_date >= current_date else current_date_str,
+                'end': booking_data.end_date
+            }
+
+            bookings = Booking.objects.filter(session=booking_data)
+            booked_sessions = []
+
+            for booking in bookings:
+
+                booked_sessions.append({
+                    'date': booking.date.strftime('%Y-%m-%d'),
+                    'time': booking.start_time.strftime('%H:%M')
+                })
+
+            print(booking_data_serialized)
+
+            return JsonResponse({'booking_data': booking_data_serialized, 'booked_data': booked_sessions})
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
 def book_session(request, username):
@@ -1678,18 +1939,13 @@ def book_session(request, username):
         user_profile = Profile.objects.get(username=username)
         mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
         peers = Profile.objects.filter(user_type='learner').exclude(id=profile.id)
-         # Example unavailable times
-        unavailable_time = ['08:00 AM', '09:00 AM', '05:00 PM']
-        time_slots = get_time_slots()
+       
+        sessions = MentorshipSession.objects.filter(mentor=user_profile)
 
-        
-
-        available_times = [time for time in time_slots if time not in unavailable_time]
         is_profile = False
 
         if user_profile == profile:
             is_profile= True
-
 
         active_path = None
         if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
@@ -1700,7 +1956,8 @@ def book_session(request, username):
             "is_profile": is_profile,
             "mentors":  mentors,
             "peers": peers,
-            "active_path": active_path
+            "active_path": active_path,
+            "sessions": sessions
         }
         return render(request, 'book_session.html', context)
     else:
@@ -1708,10 +1965,9 @@ def book_session(request, username):
         user_profile = Profile.objects.get(username=username)
         mentors = Profile.objects.filter(user_type='mentor').exclude(id=profile.id)
         peers = Profile.objects.filter(user_type='learner').exclude(id=profile.id)
-        unavailable_time = ['08:00 AM', '09:00 AM', '05:00 PM']
-        time_slots = get_time_slots()
-        available_times = [time for time in time_slots if time not in unavailable_time]
+       
         is_profile = False
+        sessions = MentorshipSession.objects.filter(mentor=user_profile)
 
         active_path = None
         if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
@@ -1726,9 +1982,183 @@ def book_session(request, username):
             "mentors":  mentors,
             "peers": peers,
             "active_path": active_path,
-            "available_times": available_times
+            'sessions': sessions
         }
         return render(request, 'book_session_direct.html', context)
+
+@csrf_exempt
+def edit_session(request):
+    try:
+        if request.method == 'POST':
+            print(request.POST)
+            try:
+                profile = Profile.objects.get(user=request.user)
+                id = request.POST.get('id', '')
+                session = request.POST.get('session', '')
+                duration = request.POST.get('duration', '')
+                freq = request.POST.get('frequency', '')
+                type = request.POST.get('type', '')
+                location = request.POST.get('location', '')
+                start_date = request.POST.get('start_date', '')
+                end_date = request.POST.get('end_date', '')
+                amount = request.POST.get('amount', '')
+                about = request.POST.get('about', '')
+                times = request.POST.get('times', '')
+                link = request.POST.get('link', '')
+
+                new_session = MentorshipSession.objects.get(id=id)
+                new_session.mentor=profile
+                new_session.session=session
+                new_session.location=location
+                new_session.duration= duration
+                new_session.type=type
+                new_session.frequency=freq
+                new_session.start_date = start_date
+                new_session.end_date = "Indefinite" if end_date == "" else end_date,
+                new_session.amount=amount
+                new_session.about=about
+                new_session.times=times
+                new_session.link=link
+
+                new_session.save()
+            
+                
+                return JsonResponse({'message': 'sucess'})
+            except Exception as e:
+                print(e)
+                pass
+    except Exception as e:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def new_session(request):
+    try:
+        if request.method == 'POST':
+            print(request.POST)
+            try:
+                profile = Profile.objects.get(user=request.user)
+                session = request.POST.get('session', '')
+                duration = request.POST.get('duration', '')
+                freq = request.POST.get('frequency', '')
+                type = request.POST.get('type', '')
+                location = request.POST.get('location', '')
+                start_date = request.POST.get('start_date', '')
+                end_date = request.POST.get('end_date', '')
+                amount = request.POST.get('amount', '')
+                about = request.POST.get('about', '')
+                times = request.POST.get('times', '')
+                link = request.POST.get('link', '')
+
+                session = MentorshipSession.objects.create(
+                    mentor=profile,
+                    session=session,
+                    location=location,
+                    duration= duration,
+                    type=type,
+                    frequency=freq,
+                    start_date = start_date,
+                    end_date = "Indefinite" if end_date == "" else end_date,
+                    amount=amount,
+                    about=about,
+                    times=times,
+                    link=link
+                )
+                
+                return JsonResponse({'message': 'sucess'})
+            except Exception as e:
+                print(e)
+                pass
+    except Exception as e:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def request_reschedule(request):
+    try: 
+        if request.method == 'POST':
+            print(request.POST)
+            profile = Profile.objects.get(user=request.user)
+            id = request.POST.get('id', '')
+            print(id)
+            booking = Booking.objects.get(id=id)
+            booking.status = 'reschedule'
+            activity = f'{profile.display_name} rescheduled this booking'
+            log = list(booking.log)
+            log.append(activity)
+            booking.log = log
+            booking.save()
+            return JsonResponse({'message': 'sucess'})
+    except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def cancel_booking(request):
+    try:
+        if request.method == 'POST':
+            print(request.POST)
+            profile = Profile.objects.get(user=request.user)
+            id = request.POST.get('id', '')
+            booking = Booking.objects.get(id=id)
+            booking.status = 'cancelled'
+            activity = f'{profile.display_name} cancelled this booking'
+            log = list(booking.log)
+            log.append(activity)
+            booking.log = log
+            booking.save()
+            return JsonResponse({'message': 'sucess'})
+    except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def mark_as_completed(request):
+    try:
+        if request.method == 'POST':
+            print(request.POST)
+            profile = Profile.objects.get(user=request.user)
+            id = request.POST.get('id', '')
+            comment = request.POST.get('comment', '')
+            rating = request.POST.get('rating', '')
+
+            print(comment)
+            print(rating)
+
+
+            booking = Booking.objects.get(id=id)
+            if profile == booking.session.mentor:
+                booking.mentor_feedback = comment
+                booking.mentor_rating = rating
+                booking.mentor_confirmation = True
+                #booking.status = 'completed'
+
+                if booking.learner_confirmation == True:
+                    booking.status = 'completed'
+                
+            elif profile == booking.learner:
+                booking.learner_feedback = comment
+                booking.learner_rating = rating
+                booking.learner_confirmation = True
+                booking.status = 'completed'
+                
+            booking.save()
+
+            return JsonResponse({'message': 'sucess'})
+    except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def switch_mentor_path(request, skill):
+    profile = Profile.objects.get(user=request.user)
+    skill = Skill.objects.get(value=skill)
+    profile.mentor_skill=skill
+    profile.save()
+
+    return redirect('path')
+
 
 @csrf_exempt
 def path(request):
@@ -1741,11 +2171,24 @@ def path(request):
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
 
+    mentor_skills = []
+
+    if profile.user_type == 'mentor':
+        mentor_skill = profile.mentor_skill  # Assuming this is a single skill, not a queryset
+        mentor_skills = list(Skill.objects.all())   # Convert queryset to a list to manipulate the order
+
+        # Check if the mentor's skill exists in the list and move it to the front
+        if mentor_skill in mentor_skills:
+            mentor_skills.remove(mentor_skill)
+            mentor_skills.insert(0, mentor_skill) 
+
     context = {
         "profile": profile,
         "my_skills": my_skills,
         "skills": skills,
-        "active_path": active_path
+        "active_path": active_path,
+        "mentor_skills": mentor_skills
+
        
     }
     return render(request, 'path.html', context)
@@ -1852,6 +2295,26 @@ def path_projects(request, skill_name):
     }
     return render(request, 'path_detail-projects.html', context)
 
+
+def load_latest_messages(request):
+    if request.user.is_authenticated == False:
+        return redirect('signup')
+    if request.method == 'POST':
+        profile = Profile.objects.get(user=request.user)
+        message_status = 'All'
+
+        active_path = None
+        if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+            active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+            
+        context = {
+                "profile": profile,
+                "message_status": message_status,
+                 "active_path": active_path
+            }
+        return render(request, 'all_messages.html', context)
+    else:
+        return redirect('message', profile.username )
 @csrf_exempt
 def all_messages(request):
     if request.user.is_authenticated == False:
@@ -1939,28 +2402,30 @@ def archive_message(request, username):
         return render(request, 'all_messages.html', context)
 
 @csrf_exempt
-def clear_unread(request):
+def clear_unread(request, username, group):
     try:
         if request.method == 'POST':
-            username = request.POST.get('username', '')
-            is_group = request.POST.get('is_group', '')
+            username_str = request.POST.get('username', '')
+            is_group_str = request.POST.get('is_group', '')
+            
+            print(group)
             print(username)
+            print("omooo")
             profile = Profile.objects.get(user=request.user)
 
-            if is_group == "True":
-                group = Group.objects.get(username=username)
+            if group != "None":
+                group = Group.objects.get(username=group)
                 conversation = group.conversation
             else:
                 user_profile = Profile.objects.get(username=username)
                 conversation = get_conversation(profile, user_profile)
             chat_messages = conversation.messages.all().order_by('-timestamp')
 
-
            
             for message in chat_messages:
-                if message.read == False:
+                if profile not in message.read.all():
                     if message.sender != profile:
-                        message.read = True
+                        message.read.add(profile)
                         message.save()
                         print("removingnnn")
                        
@@ -2155,8 +2620,12 @@ def new_chat(request):
         user_message = request.POST.get('text', '')
         username = request.POST.get('username', '')
         is_group = request.POST.get('is_group', '')
+        is_assisant = request.POST.get('is_assisant', '')
         profile = Profile.objects.get(user=request.user)
         user_profile = None
+        text = ''
+        ai_username = "compasai"
+        aiprofile = Profile.objects.get(username=ai_username)
 
         if is_group == "True":
             try:
@@ -2168,6 +2637,39 @@ def new_chat(request):
             user_profile = Profile.objects.get(username=username)
             conversation = get_conversation(profile, user_profile)
 
+        # Example Data
+        person_profile = {
+            'skill_level': 'Beginner',
+            'interests': ['Graphics Design', 'UI/UX'],
+            'ongoing_courses': ['Intro to Photoshop'],
+            'completed_projects': ['Design a logo']
+        }
+
+        available_mentors = [
+            {'name': 'John Doe', 'specialty': 'Graphics Design'},
+            {'name': 'Jane Smith', 'specialty': 'UI/UX'}
+        ]
+
+        available_projects = [
+            {'name': 'Design a Website Layout'},
+            {'name': 'Create a Branding Guide'}
+        ]
+
+        available_courses = [
+            {'name': 'Intro to Photoshop'},
+            {'name': 'Advanced UI/UX'}
+        ]
+
+        skills = [
+            {'name': 'Photoshop'},
+            {'name': 'Wireframing'}
+        ]
+
+        tasks = [
+            {'name': 'Complete a Logo Design'},
+            {'name': 'Share your Design Portfolio'}
+        ]
+   
         images = []
         image_urls = []
 
@@ -2185,13 +2687,21 @@ def new_chat(request):
             image_urls.append(new_image.image.url)
         
         conversation.messages.add(comm_message)
+
+        if user_profile == aiprofile:
+            print("it is AI PPPP")
+            text = assistant_response(client, conversation.messages.all(),  user_message, person_profile, available_mentors,available_projects, available_courses, skills,  tasks, )
+            ai_message = Message.objects.create(conversation=conversation, text=text, sender=aiprofile)
+            conversation.messages.add(ai_message)
         comm_message.save()
 
         dp = ''
         if profile.profile_picture:
             dp = profile.profile_picture.url
 
-        return JsonResponse({'message': 'success', 'time': timezone.now().strftime("%I:%M %p"), 'images': image_urls, 'id':comm_message.id , 'dp':dp})
+        print(text)
+
+        return JsonResponse({'message': 'success', 'text':text, 'time': timezone.now().strftime("%I:%M %p"), 'images': image_urls, 'id':comm_message.id , 'dp':dp})
     else:
         return JsonResponse({'message': 'error', 'error': 'Invalid request method'})
 
@@ -2212,6 +2722,10 @@ def parse_timestamp(item):
 def message(request, username):
     if request.user.is_authenticated == False:
         return redirect('signup')
+    
+    ai_username = "compasai"
+    aiprofile = Profile.objects.get(username=ai_username)
+    
     try:
         if request.method == 'POST':
             is_group_val = request.POST.get('type', '')
@@ -2219,20 +2733,19 @@ def message(request, username):
             is_office = False
             in_session = False
             conversation = None
+            group_username = None
 
             combined = []
             message_item = True
             profile = Profile.objects.get(user=request.user)
             message_status = 'All'
             user_profile = None
-            aiprofile = None
+            
             group = None
 
             try:
                 user_profile = Profile.objects.get(username=username)
-                ai_username = "compasai"
-                aiprofile = Profile.objects.get(username=ai_username)
-                ai_conversation = get_conversation(profile, user_profile)
+                ai_conversation = get_conversation(aiprofile, user_profile)
                 if user_profile == aiprofile:
                     if ai_conversation == None:
                         convo = Conversation.objects.create()
@@ -2247,6 +2760,7 @@ def message(request, username):
                     group = OfficeHour.objects.get(username=username)
 
                 print(group)
+                group_username = group.username
                 conversation = group.conversation
                 chat_messages = conversation.messages.all().order_by('timestamp')
                 print("done")
@@ -2266,12 +2780,13 @@ def message(request, username):
             unread_messages = 0
             first_message = 0
             for message in chat_messages:
-                if message.read == False:
-                    if message.sender != profile:
+                if profile not in message.read.all():
+                    if message.sender != profile and message.msg_type == 'text':
                         if first_message == 0:
                             first_message = message.pk
                         unread_messages += 1
             print("done tooo")
+            print(unread_messages)
             context = {
                 "profile": profile,
                 "messages": message_item,
@@ -2292,7 +2807,8 @@ def message(request, username):
                 "is_office": is_office,
                 "in_session": in_session,
                 "conversation": conversation,
-                "active_path": active_path
+                "active_path": active_path,
+                "group_username": group_username
             }
             return render(request, 'message_detail.html', context)
    
@@ -2310,6 +2826,7 @@ def message(request, username):
             is_group = "False"
             is_office = False
             in_session = False
+            group_username = None
 
             active_path = None
             if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
@@ -2318,7 +2835,7 @@ def message(request, username):
             try:
                 user_profile = Profile.objects.get(username=username)
                 
-                ai_conversation = get_conversation(profile, user_profile)
+                ai_conversation = get_conversation(aiprofile, user_profile)
                 if user_profile == aiprofile:
                     if ai_conversation == None:
                         convo = Conversation.objects.create()
@@ -2332,7 +2849,7 @@ def message(request, username):
                 except:
                     group = OfficeHour.objects.get(username=username)
                     is_office = True
-      
+                    group_username = group.username
                     # Convert the session start and end times to naive datetime objects
                     session_start_naive = datetime.strptime(f"{group.next_schedule['date']} {group.next_schedule['start_time']}", "%Y-%m-%d %H:%M:%S")
                     session_end_naive = datetime.strptime(f"{group.next_schedule['date']} {group.next_schedule['end_time']}", "%Y-%m-%d %H:%M:%S")
@@ -2366,12 +2883,13 @@ def message(request, username):
             unread_messages = 0
             first_message = 0
             for message in chat_messages:
-                if message.read == False:
-                    if message.sender != profile:
+                if profile not in message.read.all():
+                    if message.sender != profile and message.msg_type == 'text':
                         if first_message == 0:
                             first_message = message.pk
                         unread_messages += 1
             print("done tooo")
+            print(unread_messages)
             active_path = None
             if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
                 active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
@@ -2396,7 +2914,8 @@ def message(request, username):
                 "is_office": is_office,
                 "in_session": in_session,
                 "conversation": conversation,
-                "active_path": active_path
+                "active_path": active_path,
+                "group_username": group_username
             }
             return render(request, 'message_detail_direct.html', context)
     except Exception as e:
@@ -2444,7 +2963,7 @@ def create_group(request):
                         "timestamp": datetime.now().isoformat()
                     }
             
-            username = name.lower()
+            username = name.lower().strip()
             username = username.replace(' ', '-')
 
             if Group.objects.filter(username=username).exists() == True:
@@ -2542,20 +3061,31 @@ def community(request):
     if request.user.is_authenticated == False:
         return redirect('signup')
     profile = Profile.objects.get(user=request.user)
+   
 
     if  MyProfileSkill.objects.filter(user_profile=profile).exists():
         path = MyProfileSkill.objects.get(user_profile=profile, active=True)
     else:
         path = None
+   
+    community = None
+    groups = []
+    office_groups = []
 
-    office_groups = OfficeHour.objects.filter(path=path.suggested_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
-
-    community = Community.objects.get(name=path.suggested_skill)
-
-    groups = Group.objects.filter(path=path.suggested_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
+    if profile.user_type == 'mentor':
+        office_groups = OfficeHour.objects.filter(path=profile.mentor_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
+        community = Community.objects.get(name=profile.mentor_skill)
+        groups = Group.objects.filter(path=profile.mentor_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
+    else:
+        community = Community.objects.get(name=path.suggested_skill)
+        office_groups = OfficeHour.objects.filter(path=path.suggested_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
+        groups = Group.objects.filter(path=path.suggested_skill).exclude(conversation__participants=profile).exclude(conversation__removed=profile)
+   
     active_path = None
     if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
         active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+    
+    
     context = {
         "profile": profile,
         "community": community,
@@ -2731,6 +3261,74 @@ def course_detail(request):
         "active_path": active_path
     }
     return render(request, 'course_detail.html', context)
+
+@csrf_exempt
+def bookings(request, status):
+    if request.user.is_authenticated == False:
+        return redirect('signup')
+    
+    profile = Profile.objects.get(user=request.user)
+    sessions = MentorshipSession.objects.filter(mentor=profile)
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+    
+    bookings = []
+
+    if profile.user_type == 'mentor':
+        bookings = Booking.objects.filter(session__in=sessions, status=status)
+    else:
+        bookings = Booking.objects.filter(learner=profile, status=status)
+
+    bookings_json = []
+
+    for book in bookings:
+        print(datetime.now().date())
+        print(book.date)
+        if book.date <= datetime.now().date() and book.status == 'upcoming':
+            book.status = 'past'
+            book.save()
+        booking = {}
+        booking['id'] = book.id
+        booking['date'] = book.date.strftime('%Y-%m-%d')
+        booking['type'] = book.session.session
+        booking['title'] = book.session.get_session_display()
+
+        bookings_json.append(booking)
+
+    print(bookings_json)
+
+
+    context = {
+        "profile": profile,
+        "bookings": bookings,
+        "bookings_json": json.dumps(bookings_json),
+        "status": status,
+        "active_path": active_path,
+    }
+    return render(request, 'bookings.html', context)
+
+
+@csrf_exempt
+def meetings(request):
+    if request.user.is_authenticated == False:
+        return redirect('signup')
+    
+    profile = Profile.objects.get(user=request.user)
+    sessions = MentorshipSession.objects.filter(mentor=profile)
+
+    active_path = None
+    if  MyProfileSkill.objects.filter(user_profile=profile, active=True).exists():
+        active_path = MyProfileSkill.objects.get(user_profile=profile, active=True)
+    
+    
+    context = {
+        "profile": profile,
+        "sessions": sessions,
+        "active_path": active_path,
+    }
+    return render(request, 'meetings.html', context)
 
 @csrf_exempt
 def project(request):
@@ -3025,6 +3623,7 @@ def get_roadmap_duration(roadmap_data):
     roadmap_duration = 0
     for level in roadmap_data:
         for section in level['sections']:
+            print(section)
             roadmap_duration += int(section.get('duration', 0))
 
     return roadmap_duration
@@ -3115,11 +3714,11 @@ def mark_task(request):
                         # Mark the task as done
                         for task in item['tasks']:
                             if task['sub_id'] == task_id:
-                                task['status'] = "done"
+                                task['status'] = "completed"
                                 print(f"Task '{task['name']}' is now marked as done.")
                             
                             # Count how many tasks are done
-                            if task['status'] == "done":
+                            if task['status'] == "completed":
                                 completed_tasks += 1
 
                         # Calculate progress
@@ -3306,28 +3905,65 @@ def terms_and_conditions(request):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
-def get_adjacent_stage(current_stage, action):
-    # Find the index of the current stage
-    current_index = next((index for (index, d) in enumerate(stages) if d["stage"] == current_stage), None)
+def get_adjacent_stage(current_stage, action, user_type):
+    try:
+
+        # print("The sent stage is .... ", current_stage)
+        # print("The sent stage is .... ", action)
+        # print("The sent user type is .... ", user_type)
+        if user_type not in  ['explorer', 'seeker', 'mentor']:
+            user_type = "NONE"
+        # Find the index of the current stage
+        current_index = next((index for (index, d) in enumerate(stages) if d["stage"] == current_stage), None)
+
+        # Define a function to check if the user type is valid for the stage
+        def is_valid_stage(index):
+            return user_type in stages[index]["user_type"]
+
+        # If current stage is not found, return the first valid stage
+        if current_index is None:
+            print(f"Error: Current stage '{current_stage}' not found. Returning the first valid stage.")
+            for index in range(len(stages)):
+                if is_valid_stage(index):
+                    return stages[index]
+
+        if action == "NEXT":
+            # Find the next valid stage
+            for next_index in range(current_index + 1, len(stages)):
+                if is_valid_stage(next_index):
+                    return stages[next_index]
+            
+            # If no further stages are found, return the last valid stage
+            for last_index in range(len(stages) - 1, -1, -1):
+                if is_valid_stage(last_index):
+                    return stages[last_index]
+
+        elif action == "PREVIOUS":
+            # Find the previous valid stage
+            for prev_index in range(current_index - 1, -1, -1):
+                if is_valid_stage(prev_index):
+                    return stages[prev_index]
+
+            # If no earlier stages are found, return the first valid stage
+            for first_index in range(len(stages)):
+                if is_valid_stage(first_index):
+                    return stages[first_index]
+
+        else:
+            print(f"Error: Invalid action '{action}'. Returning the first valid stage.")
+            for index in range(len(stages)):
+                if is_valid_stage(index):
+                    return stages[index]
+
+    except Exception as e:
+        print(f"Exception occurred: {e}. Returning the first valid stage.")
     
-    if current_index is None:
-        return None  # If the current stage is not found
+    # Fallback to the first valid stage if no valid stage is found
+    for index in range(len(stages)):
+        if is_valid_stage(index):
+            return stages[index]
 
-    if action == "NEXT":
-        if current_index < len(stages) - 1:
-            return stages[current_index + 1]
-        else:
-            return None  # Already at the last stage
-    elif action == "PREVIOUS":
-        if (current_index == 1):
-            return stages[current_index]
-        elif current_index > 1:
-            return stages[current_index - 1]
-        else:
-            return None  # Already at the first stage
-    else:
-        return None  # Invalid action
-
+    return stages[0]  # Return the first stage as a last resort
 
 def get_stage_percent(current_stage):
     # Find the index of the current stage
@@ -3338,7 +3974,7 @@ def get_stage_percent(current_stage):
 def get_stage_dict(stage_name):
     
     for stage in stages:
-        if stage["stage"] == stage_name:
+        if stage["stage"] == stage_name.upper():
             return stage
     return None
 
@@ -3366,16 +4002,10 @@ fields = ["Graphics Design","Web Design","Motion Graphics","Animation","Video Ed
 resources = ["Mobile Phone","Laptop","Desktop","Tablet","Ipad"]
 
 stages = [
-        {
-            "stage": "WELCOME",
-            "comment": "",
-            "question": "",
-            "tip": "",
-            "placeholder": "",
-
-        },
+       
         {
             "stage": "CONTACT",
+            "user_type": ['explorer', 'advancer', 'seeker', 'mentor', 'NONE'],
             "comment": "Let's get you started",
             "question": "Please share your contact information.",
             "tip": "",
@@ -3384,6 +4014,7 @@ stages = [
 
         {
             "stage": "DESCRIPTION",
+            "user_type": ['explorer', 'advancer', 'seeker', 'mentor', 'NONE'],
             "comment": "Let's get you started",
             "question": "Which best describes you?",
             "tip": "",
@@ -3392,14 +4023,17 @@ stages = [
         
         {
             "stage": "STATUS",
+            "user_type": ['seeker'],
             "comment": "",
-            "question": "Have you started learning a tech skill?",
-            "tip": "If yes, select max of 3 skills else leave blank",
+            "question": "What are the tech skills you have acquired?",
+            "tip": "Select max of 5 skills ",
             "placeholder": "Select skills",
 
         },
+        
         {
             "stage": "HOURS",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "How many hours a week?",
             "tip": "Weekly availability to learn and practice",
@@ -3408,6 +4042,7 @@ stages = [
         },
         {
             "stage": "RESOURCES",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "Which of these resources can you have access to?",
             "tip": "Select as many as possible",
@@ -3416,6 +4051,7 @@ stages = [
         },
         {
             "stage": "COMPUTERS",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "How proficient are you with computers?",
             "tip": "Slide to level",
@@ -3424,6 +4060,7 @@ stages = [
         },
         {
             "stage": "STRENGTHS",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "What are your strengths?",
             "tip": "Select your top 5 strengths",
@@ -3432,6 +4069,7 @@ stages = [
         },
         {
             "stage": "WEAKNESS",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "What are your weaknesses?",
             "tip": "Select your top 5 weaknesses",
@@ -3440,6 +4078,7 @@ stages = [
         },
         {
             "stage": "TEAM",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "Do you prefer working in a team or alone?",
             "tip": "",
@@ -3447,6 +4086,7 @@ stages = [
         },
         {
             "stage": "INTERESTS",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "Tell me about how you spend your free time.",
             "tip": "Hobbies, Routines, habits e.t.c",
@@ -3455,6 +4095,7 @@ stages = [
         },
         {
             "stage": "ACADEMICS",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "Tell me about your academic background.",
             "tip": "Field of study, level of study, inspiration, favorite subjects, grades e.t.c.",
@@ -3463,6 +4104,7 @@ stages = [
         },
         {
             "stage": "EXPOSURE",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "Do you have any prior exposure to technology?",
             "tip": "Any experience with technology-related projects or activities outside of your academic studies?",
@@ -3471,14 +4113,24 @@ stages = [
         },
         {
             "stage": "MOTIVATION",
+            "user_type": ['explorer', 'seeker'],
             "comment": "",
             "question": "⁠What is your motivation to acquire a tech skill?",
             "tip": "Why tech 🤷🏻‍♂️?",
             "placeholder": "Briefly in abour 200 words",
+        },
 
+        {
+            "stage": "RESUME",
+            "user_type": ['mentor'],
+            "comment": "",
+            "question": "Upload LinkedIn Generated Resume.",
+            "tip": "Go to your profile section on LinkedIn and click on 'Save to PDF' ",
+            "placeholder": "",
         },
         {
             "stage": "THANKYOU",
+            "user_type": ['explorer', 'seeker', 'mentor'],
             "comment": "",
             "question": "Thank you for answering my questions accordingly!",
             "tip": "Please hold as I help recommend a learning path for you",
@@ -3564,3 +4216,12 @@ def update_skills():
         skill.icon = skill_url
         skill.save()
         print(skill.icon)
+
+
+def extract_text_from_pdf(pdf_file_path):
+    text = ""
+    with open(pdf_file_path, 'rb') as pdf_file:
+        reader = PdfReader(pdf_file)
+        for page in reader.pages:
+            text += page.extract_text()
+    return text

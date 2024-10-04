@@ -103,10 +103,11 @@
                                 <div class="roadmap__section-container-body-container-content-item-left">
                                   
                                     <div class="home_section-chat-roadmap-item-tasks-item-info-progress child-el" >
-                                         <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle child-el-text {% if task.progress >= 0 %}active{% endif %}" data-progress={{task.progress}}>
-                                            <div class="home_section-chat-roadmap-item-tasks-item-info-progress-circle-overlay">
-                                                <!-- Inner content goes here -->
-                                            </div>
+                                         <div class="child-el-text {% if task.progress >= 0 %}active{% endif %} home_section-chat-roadmap-item-tasks-item-info-progress-circle  " data-progress={{task.progress}}>
+                                            <span>
+                                                {% if task.progress > 0 %} {{ task.progress|floatformat:0 }} {% endif %}
+                                            </span>
+                                            
                                         </div>
                                         {% if task.progress <= 0 %}
                                         <div class="disable-container">
@@ -123,7 +124,7 @@
                                         </div>
                                         <ul class="roadmap__section-container-body-container-content-item-tasks">
                                             {% for item in task.tasks %}
-                                            <li class="roadmap__section-container-body-container-content-item-tasks-item {% if item.status == 'done' %}done {% endif%}">
+                                            <li class="roadmap__section-container-body-container-content-item-tasks-item {% if item.status == 'completed' %}done {% endif%}">
                                                 {{item.name}}
                                             </li>
                                             {% endfor %}

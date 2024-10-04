@@ -1,0 +1,142 @@
+{
+    "level": "BEGINNER",
+    "startdate": "2022-10-01",
+    "sections": [
+        {
+            "title": "INTRODUCTION",
+            "id": 1,
+            "duration": "2 weeks",
+            "startdate": "2022-10-01",
+            "progress": 0,
+            "tasks": [
+                {
+                    "name": "Intro to Graphics Design Course",
+                    "sub_id": 1,
+                    "status": "pending",
+                    "description": "Take the 'Intro to Graphics Design' course to learn about basic design principles and tools.",
+                    "action": "/path_courses"
+                },
+                {
+                    "name": "Join Design Enthusiasts Group",
+                    "sub_id": 2,
+                    "status": "pending",
+                    "description": "Join the 'Design Enthusiasts' group to connect with like-minded individuals and share your work.",
+                    "action": "/message"
+                }
+            ]
+        },
+        {
+            "title": "LEARNING",
+            "id": 2,
+            "duration": "8 weeks",
+            "startdate": "2022-10-15",
+            "progress": 0,
+            "tasks": [
+                {
+                    "name": "Beginner Course on Photoshop",
+                    "sub_id": 1,
+                    "status": "pending",
+                    "description": "Take the 'Beginner Course on Photoshop' to learn how to use the industry-standard design tool.",
+                    "action": "/path_courses"
+                },
+                {
+                    "name": "Create a Branding Logo",
+                    "sub_id": 2,
+                    "status": "pending",
+                    "description": "Apply your new Photoshop skills by creating a branding logo for a hypothetical company.",
+                    "action": "/project"
+                },
+                {
+                    "name": "Share Progress in Design Enthusiasts Group",
+                    "sub_id": 3,
+                    "status": "pending",
+                    "description": "Share your logo design progress with the 'Design Enthusiasts' group to get feedback and support.",
+                    "action": "/community"
+                },
+                {
+                    "name": "Advanced Motion Graphics Course",
+                    "sub_id": 4,
+                    "status": "pending",
+                    "description": "Take the 'Advanced Motion Graphics' course to learn how to create animated designs.",
+                    "action": "/path_courses"
+                }
+            ]
+        },
+        {
+            "title": "PRACTICE",
+            "id": 3,
+            "duration": "10 weeks",
+            "startdate": "2022-12-10",
+            "progress": 0,
+            "tasks": [
+                {
+                    "name": "Develop a Motion Graphics Portfolio",
+                    "sub_id": 1,
+                    "status": "pending",
+                    "description": "Apply your motion graphics skills by developing a portfolio of animated designs.",
+                    "action": "/project"
+                },
+                {
+                    "name": "Share Portfolio in Design Enthusiasts Group",
+                    "sub_id": 2,
+                    "status": "pending",
+                    "description": "Share your motion graphics portfolio with the 'Design Enthusiasts' group to get feedback and support.",
+                    "action": "/community"
+                },
+                {
+                    "name": "Connect with a Graphics Design Mentor",
+                    "sub_id": 3,
+                    "status": "pending",
+                    "description": "Connect with a graphics design mentor, such as Jane Smith, to get personalized feedback and guidance.",
+                    "action": "/connect_mentors"
+                }
+            ]
+        },
+        {
+            "title": "NETWORK",
+            "id": 4,
+            "duration": "2 weeks",
+            "startdate": "2023-03-01",
+            "progress": 0,
+            "tasks": [
+                {
+                    "name": "Join Photoshop Masters Group",
+                    "sub_id": 1,
+                    "status": "pending",
+                    "description": "Join the 'Photoshop Masters' group to network with experienced designers and learn new tips and tricks.",
+                    "action": "/message"
+                },
+                {
+                    "name": "Attend Office Hours with John Doe",
+                    "sub_id": 2,
+                    "status": "pending",
+                    "description": "Attend a virtual office hours session with John Doe to get personalized feedback and guidance on your designs.",
+                    "action": "/message"
+                }
+            ]
+        },
+        {
+            "title": "CERTIFICATION",
+            "id": 5,
+            "duration": "1 week",
+            "startdate": "2023-03-15",
+            "progress": 0,
+            "tasks": [
+                {
+                    "name": "Complete CompTIA Graphics Design Certification",
+                    "sub_id": 1,
+                    "status": "pending",
+                    "description": "Take the CompTIA Graphics Design Certification exam to demonstrate your mastery of graphics design skills.",
+                    "action": "/message/compasi"
+                },
+                {
+                    "name": "Update Portfolio",
+                    "sub_id": 2,
+                    "status": "pending",
+                    "description": "Update your portfolio with your new certification and projects.",
+                    "action": "/"
+                }
+            ]
+        }
+    ]
+}

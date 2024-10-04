@@ -15,7 +15,7 @@
                     <img  src="{% static 'images/ava.png'%}" alt="">
                     {% endif %}
 
-                    {% if is_group == False %}
+                    {% if prof.is_group == False %}
                     <div class="active-indicator"></div>
                     {% endif %}
                 </div>
@@ -33,8 +33,13 @@
                     <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
                         {{prof.last_message_time}}
                     </span>
+                    {% if prof.unread > 0 %}
+                      <span class="messages__section-left-bottom-body-inbox-item-info-unread">
+                          {{prof.unread}}
+                      </span>
+                    {% endif %}
                 </div>
-                {% if is_group == False %}
+                {% if prof.is_group == False %}
                   <div class="messages__section-left-bottom-body-inbox-item-menu">
                     <i class='bx bx-dots-horizontal-rounded'></i>
                     <div class="messages__section-left-bottom-body-inbox-item-menu-items">
@@ -92,7 +97,7 @@
                         {% else %}
                         <img  src="{% static 'images/ava.png'%}" alt="">
                         {% endif %}
-                        {% if is_group == False %}
+                        {% if prof.is_group == False %}
                         <div class="active-indicator"></div>
                         {% endif %}
                     </a>
@@ -106,8 +111,13 @@
                         <span class="messages__section-left-bottom-body-inbox-item-info-timestamp">
                             {{prof.last_message_time}}
                         </span>
+                        {% if prof.unread > 0 %}
+                      <span class="messages__section-left-bottom-body-inbox-item-info-unread">
+                          {{prof.unread}}
+                      </span>
+                    {% endif %}
                     </a>
-                    {% if is_group == False %}
+                    {% if prof.is_group == False %}
                   <div class="messages__section-left-bottom-body-inbox-item-menu">
                     <i class='bx bx-dots-horizontal-rounded'></i>
                     <div class="messages__section-left-bottom-body-inbox-item-menu-items">
